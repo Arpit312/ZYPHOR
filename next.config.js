@@ -8,6 +8,8 @@ const nextConfig = {
       { protocol: "https", hostname: "example.com" },
       { protocol: "https", hostname: "www.example.com" },
       { protocol: "https", hostname: "placehold.co" },
+      { protocol: "https", hostname: "fdn2.gsmarena.com" },
+      { protocol: "https", hostname: "fdn.gsmarena.com" },
       { protocol: "http", hostname: "localhost" }
     ],
   },

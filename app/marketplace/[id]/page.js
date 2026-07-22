@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { ShieldCheck, Star, MapPin, Zap, CreditCard, ArrowLeft, CheckCircle } from "lucide-react";
 import Container from "@/components/shared/Container";
@@ -7,6 +6,7 @@ import { connectDB } from "@/lib/db";
 import Listing from "@/models/Listing";
 import { calculateBill } from "@/lib/billing";
 import { getSessionUser } from "@/lib/auth";
+import ListingGallery from "@/components/shared/ListingGallery";
 
 async function getListing(id) {
   try {
@@ -43,26 +43,8 @@ export default async function ListingDetailPage({ params }) {
 
         <div className="grid lg:grid-cols-5 gap-10">
           {/* Images — left 3 cols */}
-          <div className="lg:col-span-3 space-y-4">
-            <div className="aspect-[4/3] bg-ink/5 rounded-2xl overflow-hidden flex items-center justify-center relative">
-              {listing.images?.[0] ? (
-                <Image src={listing.images[0]} alt={`${listing.brand} ${listing.model}`} fill className="object-cover" />
-              ) : (
-                <div className="text-center text-black/20">
-                  <div className="text-6xl mb-2">📱</div>
-                  <p className="text-sm">No image provided</p>
-                </div>
-              )}
-            </div>
-            {listing.images?.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-1">
-                {listing.images.slice(1).map((img, i) => (
-                  <div key={i} className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-ink/5">
-                    <Image src={img} alt="" width={80} height={80} className="object-cover w-full h-full" />
-                  </div>
-                ))}
-              </div>
-            )}
+          <div className="lg:col-span-3">
+            <ListingGallery images={listing.images || []} brand={listing.brand} model={listing.model} />
           </div>
 
           {/* Info — right 2 cols */}

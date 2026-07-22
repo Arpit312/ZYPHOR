@@ -1,5 +1,7 @@
+"use client";
+import { useState } from "react";
 import Link from "next/link";
-import { MapPin } from "lucide-react";
+import { MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import TrustBadge from "./TrustBadge";
 
 function formatINR(n) {
@@ -8,25 +10,96 @@ function formatINR(n) {
 }
 
 export default function ListingCard({ listing }) {
-  const img = listing.images?.[0] || "/placeholder-device.svg";
+  const images = listing.images?.length > 0 ? listing.images : ["/placeholder-device.svg"];
+  const [currentImg, setCurrentImg] = useState(0);
   const verification = listing.verification || {};
+
+  const prev = (e) => {
+    e.preventDefault();
+    setCurrentImg((i) => (i === 0 ? images.length - 1 : i - 1));
+  };
+  const next = (e) => {
+    e.preventDefault();
+    setCurrentImg((i) => (i === images.length - 1 ? 0 : i + 1));
+  };
 
   return (
     <Link
       href={`/${listing.listingType === "part" ? "parts" : "marketplace"}/${listing._id}`}
-      className="group block bg-white rounded-xl border border-black/[0.06] overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 focus-ring"
+      className="group block bg-white rounded-2xl border border-black/[0.06] overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-200 focus-ring"
     >
+      {/* Image Carousel */}
       <div className="aspect-[4/3] bg-paper relative overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={img}
+          src={images[currentImg]}
           alt={listing.title || `${listing.brand} ${listing.model}`}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-contain bg-white group-hover:scale-105 transition-transform duration-300"
+          onError={(e) => { e.target.src = "/placeholder-device.svg"; }}
         />
-        <span className="absolute top-3 left-3 text-[11px] font-mono bg-ink/85 text-white px-2 py-1 rounded">
+
+        {/* Prev/Next arrows — only if multiple images */}
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={prev}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              onClick={next}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </>
+        )}
+
+        {/* Dot indicators */}
+        {images.length > 1 && (
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+            {images.map((_, i) => (
+              <span
+                key={i}
+                className={`block h-1.5 w-1.5 rounded-full transition-colors ${i === currentImg ? "bg-white" : "bg-white/40"}`}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Condition badge */}
+        <span className="absolute top-3 left-3 text-[11px] font-mono bg-ink/80 text-white px-2 py-1 rounded z-10">
           {listing.conditionGrade}
         </span>
       </div>
+
+      {/* Thumbnail strip */}
+      {images.length > 1 && (
+        <div className="flex gap-1.5 px-3 pt-2">
+          {images.map((img, i) => (
+            // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+            <div
+              key={i}
+              role="button"
+              tabIndex={0}
+              onClick={(e) => { e.preventDefault(); setCurrentImg(i); }}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); setCurrentImg(i); } }}
+              className={`w-10 h-10 rounded-lg overflow-hidden border-2 cursor-pointer flex-shrink-0 transition-all ${
+                i === currentImg ? "border-coral scale-105" : "border-transparent opacity-60 hover:opacity-100"
+              }`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={img}
+                alt=""
+                className="w-full h-full object-contain bg-paper"
+                onError={(e) => { e.target.src = "/placeholder-device.svg"; }}
+              />
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="p-4">
         <p className="text-xs text-black/40 font-mono uppercase tracking-wide">{listing.brand}</p>
