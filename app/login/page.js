@@ -93,14 +93,20 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Login failed.");
+        setError(data.error || "Login failed. Please check your credentials.");
         return;
       }
-      const next = searchParams.get("next") || "/dashboard";
-      router.push(next);
+      // Support both ?next= and ?redirect= param formats
+      const next = searchParams.get("next") || searchParams.get("redirect") || "/dashboard";
+      // admin always goes to admin portal
+      if (data.user?.role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push(next);
+      }
       router.refresh();
     } catch (err) {
-      setError(err.message || "Login failed.");
+      setError(err.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }

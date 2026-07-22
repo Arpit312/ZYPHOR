@@ -3,14 +3,15 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import { comparePassword, signToken } from "@/lib/auth";
 import { cookies } from "next/headers";
-import { rateLimit } from "@/lib/rateLimit";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 export async function POST(req) {
   try {
     const { email, password } = await req.json();
 
-    // Rate limit: 5 attempts per minute
-    if (!rateLimit(email, 5, 60000)) {
+    // Rate limit: 5 attempts per minute per IP
+    const rlResult = checkRateLimit(req, { limit: 10, windowMs: 60000 });
+    if (!rlResult.allowed) {
       return NextResponse.json(
         { error: "Too many login attempts. Try again in 1 minute." },
         { status: 429 }
