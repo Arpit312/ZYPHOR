@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#EEF0F3"/>
+  <rect x="160" y="60" width="80" height="180" rx="12" fill="#D7DBE2"/>
+  <rect x="170" y="78" width="60" height="120" rx="3" fill="#F6F7F9"/>
+  <circle cx="200" cy="222" r="6" fill="#C3C8D1"/>
+  <text x="200" y="270" font-family="monospace" font-size="12" fill="#9AA1AD" text-anchor="middle">NO PHOTO UPLOADED</text>
+</svg>
