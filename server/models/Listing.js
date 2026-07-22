@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import "@/models/User";
+import "./User.js";
 
 const VerificationSchema = new mongoose.Schema({
   status: { type: String, enum: ["not_verified","needs_review","verified","failed"], default: "not_verified" },

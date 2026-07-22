@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import "@/models/User";
+import "./User.js";
 
 const RepairTicketSchema = new mongoose.Schema({
   user:            { type: mongoose.Schema.Types.ObjectId, ref: "User" },

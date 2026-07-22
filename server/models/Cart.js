@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import "@/models/User";
-import "@/models/Listing";
+import "./User.js";
+import "./Listing.js";
 
 const CartItemSchema = new mongoose.Schema({
   listing: { type: mongoose.Schema.Types.ObjectId, ref: "Listing", required: true },
