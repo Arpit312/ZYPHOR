@@ -3,7 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 
-dotenv.config({ path: "../website/.env.local" });
+dotenv.config();
+try { dotenv.config({ path: "../website/.env.local" }); } catch (e) {}
 
 const app = express();
 const PORT = process.env.PORT || 5000;

@@ -1,13 +1,11 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
-// Cached connection for serverless/dev hot-reload environments
 let cached = global._zyphorMongo;
 if (!cached) cached = global._zyphorMongo = { conn: null, promise: null };
 
 export async function connectDB() {
-  if (!MONGODB_URI) throw new Error("MONGODB_URI not set in .env.local");
+  const uri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/zyphor";
+  if (!uri) throw new Error("MONGODB_URI is not defined");
 
   // Already connected and in a ready state
   if (cached.conn && mongoose.connection.readyState === 1) {
@@ -28,7 +26,7 @@ export async function connectDB() {
       socketTimeoutMS: 45000,
       connectTimeoutMS: 10000,
     };
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((m) => m);
+    cached.promise = mongoose.connect(uri, opts).then((m) => m);
   }
 
   try {
