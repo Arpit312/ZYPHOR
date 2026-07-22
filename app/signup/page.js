@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ScanLine, Store, Users, Wrench, ShieldCheck } from "lucide-react";
@@ -14,7 +14,7 @@ const ROLES = [
   { value: "technician", label: "Technician", icon: <Wrench className="h-5 w-5" />, desc: "Accept verification & repair jobs" }
 ];
 
-export default function SignupPage() {
+function SignupFormContent() {
   const searchParams = useSearchParams();
   const [role, setRole] = useState(searchParams.get("role") || "customer");
   const [form, setForm] = useState({ name: "", email: "", password: "", city: "", businessName: "" });
@@ -139,3 +139,16 @@ export default function SignupPage() {
     </div>
   );
 }
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-paper flex items-center justify-center font-mono text-sm text-black/50">
+        Loading Signup Portal…
+      </div>
+    }>
+      <SignupFormContent />
+    </Suspense>
+  );
+}
+

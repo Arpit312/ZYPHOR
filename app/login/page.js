@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ScanLine, Eye, EyeOff, User, Store, Warehouse, Wrench, Lock } from "lucide-react";
@@ -56,7 +56,7 @@ const ROLES = [
 
 import AIAgreementModal from "@/components/shared/AIAgreementModal";
 
-export default function LoginPage() {
+function LoginFormContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [selectedRole, setSelectedRole] = useState("customer");
@@ -350,3 +350,16 @@ export default function LoginPage() {
     </div>
   );
 }
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white font-mono text-sm">
+        Loading Login Portal…
+      </div>
+    }>
+      <LoginFormContent />
+    </Suspense>
+  );
+}
+
