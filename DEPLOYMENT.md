@@ -1,69 +1,60 @@
-# 🚀 ZYPHOR Platform — Production Deployment Guide
+# 🚀 ZYPHOR Deployment Guide (Frontend on Vercel + Backend on Render + Docker)
 
-This project is 100% production-ready for deployment via **Vercel** (Frontend & Serverless API) and **Docker / Docker Compose** (Containerized Server Deployment).
-
----
-
-## 1. ⚡ Vercel Deployment (Recommended for Web)
-
-### Step 1: Connect Repository to Vercel
-1. Go to [Vercel Dashboard](https://vercel.com/new).
-2. Import the `ZYPHOR` repository.
-3. Select Framework Preset: **Next.js**.
-
-### Step 2: Set Environment Variables in Vercel
-Add the following Environment Variables in Vercel Project Settings:
-
-| Key | Example / Description |
-|---|---|
-| `MONGODB_URI` | `mongodb+srv://user:pass@cluster.mongodb.net/zyphor` (MongoDB Atlas) |
-| `JWT_SECRET` | Secret key for JWT session tokens |
-| `GEMINI_API_KEY` | Google Gemini AI API key |
-| `NEXT_PUBLIC_APP_NAME` | `ZYPHOR` |
-| `NEXT_PUBLIC_APP_URL` | `https://your-domain.vercel.app` |
-| `CLOUDINARY_CLOUD_NAME` | Your Cloudinary cloud name |
-| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Your Cloudinary cloud name |
-
-### Step 3: Deploy
-Click **Deploy**. Vercel will automatically build using `vercel.json` and host your site with global edge CDN and automatic HTTPS!
+This repository is structured for seamless separation of Frontend (`/website`) and Backend (`/server`).
 
 ---
 
-## 2. 🐳 Docker Deployment (Containerized Server / VPS)
+## 📁 Repository Structure
+```
+zyphor-platform/
+├── website/             # Next.js 14 Frontend Application (Deploy to Vercel)
+├── server/              # Express Node.js Backend API (Deploy to Render / Docker)
+└── docker-compose.yml   # Multi-container orchestrator for local/VPS deployment
+```
 
-### Option A: Using Docker Compose (Web + MongoDB)
-To run the full stack (Next.js app + MongoDB container) on any VPS (AWS, DigitalOcean, Hetzner, Linode):
+---
+
+## 🌐 1. Deploying Frontend to Vercel
+1. Go to [Vercel Dashboard](https://vercel.com) and click **Add New Project**.
+2. Select your GitHub repository (`ZYPHOR`).
+3. Set **Root Directory** to `website`.
+4. Configure Framework Preset as **Next.js**.
+5. Add Environment Variables:
+   - `NEXT_PUBLIC_API_URL`: `https://<your-render-backend-url>.onrender.com/api`
+   - `MONGODB_URI`: `your_mongodb_atlas_connection_string`
+   - `NEXTAUTH_SECRET`: `your_random_secret_key`
+   - `NEXTAUTH_URL`: `https://your-vercel-app.vercel.app`
+6. Click **Deploy**.
+
+---
+
+## ⚡ 2. Deploying Backend to Render
+1. Go to [Render Dashboard](https://render.com) and click **New +** -> **Web Service**.
+2. Connect your GitHub repository (`ZYPHOR`).
+3. Set **Root Directory** to `server`.
+4. Choose **Environment**: `Node` (or `Docker` using `server/Dockerfile`).
+5. Set **Build Command**: `npm install`
+6. Set **Start Command**: `npm start`
+7. Add Environment Variables:
+   - `PORT`: `5000`
+   - `MONGODB_URI`: `your_mongodb_atlas_connection_string`
+   - `JWT_SECRET`: `your_jwt_secret_key`
+8. Click **Deploy Web Service**.
+
+---
+
+## 🐳 3. Deploying locally or to VPS with Docker
+To run the entire stack (Frontend + Backend + MongoDB) locally or on a VPS:
 
 ```bash
-# 1. Clone repository
+# Clone the repository
 git clone https://github.com/Arpit312/ZYPHOR.git
-cd ZYPHOR/website
+cd ZYPHOR
 
-# 2. Build and start containers in background
-docker compose up -d --build
-
-# 3. Check container logs
-docker compose logs -f
-```
-The application will be live at `http://localhost:3000` (or your server's IP address).
-
-### Option B: Standalone Docker Image
-```bash
-# Build Docker image with standalone production bundle
-docker build -t zyphor-web:latest .
-
-# Run container
-docker run -d -p 3000:3000 \
-  -e MONGODB_URI="mongodb://your-mongo-ip:27017/zyphor" \
-  -e JWT_SECRET="your_jwt_secret" \
-  -e GEMINI_API_KEY="your_gemini_key" \
-  zyphor-web:latest
+# Run with Docker Compose
+docker-compose up --build -d
 ```
 
----
-
-## 🔒 Post-Deployment Checklist
-- [x] All 25 device listings seeded with real GSMArena images
-- [x] Verified working authentication (JWT HTTP-Only cookies + Bearer token)
-- [x] Live MongoDB connection indicator with auto-retry pool
-- [x] All 9 API test suites 100% passing
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:5000
+- **MongoDB**: mongodb://localhost:27017/zyphor

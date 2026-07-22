@@ -1,131 +1,259 @@
-# ZYPHOR — AI-Verified Smartphone & Parts Marketplace
+# ZYPHOR v2.0 — AI-Verified Phone Marketplace Platform
 
-![Zyphor Platform Banner](https://img.shields.io/badge/Platform-Production_Ready-brightgreen)
-![Next.js 14](https://img.shields.io/badge/Framework-Next.js_14_App_Router-black)
-![MongoDB](https://img.shields.io/badge/Database-MongoDB_Mongoose-green)
-![Google Gemini AI](https://img.shields.io/badge/AI-Google_Gemini_Integration-blue)
-![Escrow Safety](https://img.shields.io/badge/Security-Escrow_Protected-orange)
-
-**ZYPHOR** is India's most advanced AI-verified smartphone, tablet, and mobile spare parts marketplace ecosystem. Built on Next.js 14 App Router, MongoDB, and Google Gemini AI, Zyphor connects Customers, Retailers, Wholesalers, and Technicians under a unified escrow-protected marketplace.
+> One codebase. One database. Website + Mobile App + Admin Panel.
+> Same login works everywhere. ✅
 
 ---
 
-## 🏗️ Architecture & Folder Structure
-
-The project strictly separates **Frontend Client UI** and **Backend Server Logic**:
+## 🏗️ Platform Structure
 
 ```
-zyphor-platform/website/
+zyphor-platform/
+├── website/          ← Next.js 14 web app (zyphor.in)
+│   ├── app/          ← Pages & API routes
+│   ├── components/   ← Shared UI components
+│   ├── lib/          ← Auth, DB, Billing utilities
+│   └── models/       ← MongoDB schemas
 │
-├── 🎨 FRONTEND ARCHITECTURE (Client & UI Layer)
-│   ├── app/                      # Next.js App Router Page Views
-│   │   ├── page.js               # Landing Page & Hero
-│   │   ├── buy/                  # Dynamic Catalog & Category Filtering
-│   │   ├── marketplace/          # Verified Listings Grid & PDP
-│   │   ├── product/[slug]/       # PDP Variant & Condition Selector
-│   │   ├── cart/                 # Cart State & Escrow Subtotal
-│   │   ├── checkout/             # Payment & Address Selection
-│   │   ├── sell/                 # Doorstep Sell Entry & AI Questionnaire
-│   │   ├── repair/               # Doorstep Repair & Slot Booking
-│   │   ├── stores/               # Offline Store & Kiosk Locator
-│   │   ├── orders/               # Customer Order Tracking
-│   │   ├── dashboard/            # Role-Based Personal Dashboards
-│   │   ├── admin/                # Master Governance Control Portal
-│   │   ├── ai-advisor/           # AI Smartphone Recommendation Agent
-│   │   ├── verify-imei/          # AI IMEI Blacklist Scanner
-│   │   ├── pricing-agent/        # AI Resale Valuation Checker
-│   │   ├── subscription/         # B2B & Customer AI Plans
-│   │   └── support/              # Help Center & FAQ
-│   │
-│   ├── components/               # Reusable React UI Components
-│   │   └── shared/               # Navbar, Footer, AIAgreementModal, AISmartListerModal, AdminPortalClient, RoleDashboardView
-│   │
-│   ├── context/                  # Global React State Context (CartContext)
-│   ├── styles/ & public/         # Tailwind CSS & Static Image Assets
+├── mobile/           ← React Native + Expo app
+│   ├── src/          ← All screens & components
+│   └── backend/      ← Node.js API server
 │
-├── ⚙️ BACKEND ARCHITECTURE (Server & Database Layer)
-│   ├── app/api/                  # Server REST API Endpoints
-│   │   ├── auth/                 # Login & Signup APIs
-│   │   ├── orders/               # Order Placement & Escrow Payouts
-│   │   ├── cart/                 # Server Cart Persistence
-│   │   ├── repair/               # Doorstep Repair Ticket Booking
-│   │   ├── stores/               # Store Location Geo Search
-│   │   ├── ai/                   # AI Auto-Lister, Legal Agreements, IMEI Check, Advisor, Admin Search
-│   │   ├── admin/                # Master Governance & User Access Controls
-│   │   └── messages/             # Direct User-to-Admin Messaging
-│   │
-│   ├── lib/                      # Core Server Logic & Utilities
-│   │   ├── db.js                 # MongoDB Connection Pool & Cache
-│   │   ├── auth.js               # JWT Cookie Encryption & Verification
-│   │   ├── gemini.js             # Google Gemini REST Integration
-│   │   ├── imei.js               # Luhn Checksum Algorithm & GSMA TAC Lookup
-│   │   ├── catalog.js            # Catalog Aggregator
-│   │   ├── token.js              # User Identity Token Generator
-│   │   └── pricingEngine.js      # Automated Valuation Calculator
-│   │
-│   └── models/                   # Mongoose Database Schemas
-│       ├── User.js               # Users, Roles, Identity Tokens, Subscriptions
-│       ├── Listing.js            # Smartphone & Parts Catalog Items
-│       ├── Order.js              # Escrow Orders & Commission Bills
-│       ├── Cart.js               # User Saved Cart Items
-│       ├── RepairTicket.js       # Doorstep Repair Bookings
-│       ├── StoreLocation.js      # Offline Kiosks & Stores
-│       ├── Message.js            # Admin Direct Messaging
-│       ├── Subscription.js       # B2B & Customer AI Plans
-│       └── TACCode.js            # GSMA TAC Database Mapping
+└── README.md         ← This file
 ```
 
 ---
 
-## 💰 Platform Revenue & Monetization Model
+## ⚡ Quick Start
 
-Zyphor's monetization rules are embedded directly into the database models and AI Legal Agreements:
-
-1. **Marketplace Sales Commission:** **3% Platform Fee + 18% GST** on device transactions.
-2. **Technician Repair Cut:** **15% Platform Service Cut** per doorstep repair booking.
-3. **B2B Subscriptions:** 3 Months Free Onboarding, then **₹999/month Pro Plan** for Retailers & Wholesalers.
-4. **AI Auto-Lister Subscription:** **3 Free Trial Listings** for Customers on first login, then **₹99/month**.
-
----
-
-## 🔑 Key Features & Role Access
-
-| Role | Personal Dashboard Features | Key Action |
-| :--- | :--- | :--- |
-| 🛡️ **Master Admin** | Global Revenue (3%), User Access Grant/Revoke, Gemini AI Token Search Assistant | `/admin` Portal Control |
-| 🔧 **Technician** | Assigned Repair Schedule, Pending Work Tickets, 85% Repair Payout Logs | Accept & Issue Reports |
-| 🏪 **Retailer** | Phone & Spare Parts Inventory Stock, Shop Details Editor, Admin Direct Messaging | + New Listing / AI Lister |
-| 🏬 **Wholesaler** | Bulk Stock Lots, Retailer Network Messages, Escrow Settlement Tracker | Upload Wholesale Lot |
-| 👤 **Customer** | Purchased Devices, Doorstep Sell Orders, AI Seller Legal Agreement | Sell Device / Buy |
-
----
-
-## 🚀 Quick Start & Installation
-
-### 1. Install Dependencies
+### 1. MongoDB Setup
 ```bash
+# MongoDB Atlas (free 512MB) → mongodb.com/cloud/atlas
+# Copy connection string to both .env files
+```
+
+### 2. Website
+```bash
+cd website
+cp .env.example .env.local    # Fill in MONGODB_URI, JWT_SECRET, etc.
 npm install
+npm run dev                   # http://localhost:3000
 ```
 
-### 2. Environment Variables (`.env.local`)
-Create a `.env.local` file in the project root:
-```env
-MONGODB_URI=mongodb://127.0.0.1:27017/zyphor
-JWT_SECRET=your_jwt_secret_key_zyphor
-GEMINI_API_KEY=your_google_gemini_api_key
-NEXT_PUBLIC_APP_NAME=ZYPHOR
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-PLATFORM_FEE_PERCENT=3
-GST_PERCENT=18
-```
-
-### 3. Run Development Server
+### 3. Mobile App
 ```bash
-npm run dev
+cd mobile
+cp backend/.env.example backend/.env   # SAME JWT_SECRET as website!
+cd backend && npm install && npm run dev  # API on port 5000
+cd .. && npm install && npx expo start   # Scan QR in Expo Go
 ```
-Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
 ---
 
-## 🛡️ License
-Built for **ZYPHOR India** — AI-Verified Smartphone Marketplace. All rights reserved.
+## 🔑 CRITICAL: Same JWT_SECRET in BOTH .env files
+This enables **cross-platform login** — one account works on website AND app.
+
+```
+# website/.env.local
+JWT_SECRET=your_super_secret_here
+
+# mobile/backend/.env
+JWT_SECRET=your_super_secret_here   ← MUST BE IDENTICAL
+```
+
+---
+
+## 🌐 Website Pages
+
+| Route | Description |
+|-------|-------------|
+| `/` | Home — featured listings |
+| `/marketplace` | Browse all devices |
+| `/marketplace/[id]` | Device detail + buy |
+| `/parts` | Parts marketplace |
+| `/sell` | Create listing |
+| `/ai-advisor` | AI chat assistant |
+| `/pricing-agent` | AI price checker |
+| `/verify-imei` | IMEI validation |
+| `/subscription` | Seller plans |
+| `/login` | Login (shared with app) |
+| `/signup` | Register |
+| `/dashboard` | Seller dashboard |
+| `/dashboard/listings` | Manage listings |
+| `/dashboard/orders` | Order history |
+| `/dashboard/profile` | Edit profile |
+| `/admin/dashboard` | Admin home |
+| `/admin/users` | Manage users |
+| `/admin/listings` | Manage listings |
+| `/admin/orders` | All orders |
+| `/admin/subscriptions` | Subscription management |
+| `/admin/billing` | Revenue & GST |
+
+---
+
+## 📱 Mobile App Screens
+
+| Screen | Description |
+|--------|-------------|
+| LoginScreen | Cross-platform login |
+| SignupScreen | Role selection + register |
+| HomeScreen | Dashboard + quick actions |
+| MarketplaceScreen | Search + filter devices |
+| PartsScreen | Parts marketplace |
+| ListingDetailScreen | Full details + buy |
+| SellScreen | Create listing with photos |
+| AIAdvisorScreen | AI chat |
+| PricingAgentScreen | AI price analysis |
+| IMEICheckScreen | IMEI validation |
+| DashboardScreen | Account overview |
+| ProfileScreen | Edit profile |
+| MyListingsScreen | Manage listings |
+| MyOrdersScreen | Purchase + sale history |
+| SubscriptionScreen | Choose plan |
+| AboutScreen | App info |
+
+---
+
+## 💰 Business Model
+
+### Subscription Plans (Sellers Only)
+| Plan | Monthly | Yearly | Listings | AI Calls |
+|------|---------|--------|----------|----------|
+| Basic | ₹299 | ₹2,990 | 10 | 50/mo |
+| Pro | ₹799 | ₹7,990 | 50 | 200/mo |
+| Enterprise | ₹1,999 | ₹19,990 | Unlimited | Unlimited |
+
+### Per-Transaction Fee (All Sellers)
+- Platform fee: **3%** of sale price
+- GST on fee: **18%** of platform fee
+- Example: Sell ₹30,000 → Platform earns ₹900 + ₹162 GST = ₹1,062 → Seller receives ₹28,938
+- **GST invoice generated for every transaction**
+
+### Customers
+- Browse: **FREE** forever
+- Buy: **FREE** (pay listing price only)
+- Sell (individuals): Need subscription
+
+---
+
+## 🔌 API Endpoints
+
+Base URL (website): `http://localhost:3000/api`
+Base URL (mobile): `http://localhost:5000/api`
+
+### Auth (shared JWT — works on both platforms)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/auth/login` | Login → returns token |
+| POST | `/auth/signup` | Register → returns token |
+| GET | `/auth/me` | Current user |
+| PATCH | `/auth/profile` | Update profile |
+| POST | `/auth/logout` | Logout |
+
+### Listings
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/listings` | All listings (filterable) |
+| GET | `/listings/:id` | Single listing |
+| POST | `/listings` | Create listing (auth required) |
+| PATCH | `/listings/:id` | Update listing |
+| DELETE | `/listings/:id` | Delete listing |
+
+### Orders
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/orders` | User's orders |
+| POST | `/orders` | Place order (creates bill) |
+| PATCH | `/orders/:id/status` | Update order status |
+
+### AI
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/ai/advisor` | Chat with AI |
+| POST | `/ai/pricing` | AI price recommendation |
+| POST | `/ai/verify` | Verify device specs |
+
+### Other
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/imei/check` | Validate IMEI |
+| GET | `/subscriptions` | Get subscription |
+| POST | `/subscriptions` | Activate plan |
+| GET | `/admin/stats` | Admin statistics |
+
+---
+
+## 🔧 Required Environment Variables
+
+### website/.env.local
+```
+MONGODB_URI=mongodb+srv://...
+JWT_SECRET=same_secret_as_mobile
+ANTHROPIC_API_KEY=sk-ant-...
+RAZORPAY_KEY_ID=rzp_test_...
+RAZORPAY_KEY_SECRET=...
+```
+
+### mobile/backend/.env
+```
+MONGODB_URI=mongodb+srv://...   ← SAME DATABASE!
+JWT_SECRET=same_secret_as_website  ← SAME SECRET!
+ANTHROPIC_API_KEY=sk-ant-...
+PORT=5000
+```
+
+---
+
+## 🆓 Free Services to Use
+
+| Service | Free Tier | Use For |
+|---------|-----------|---------|
+| MongoDB Atlas | 512MB | Database (shared) |
+| Anthropic Claude | Pay per token | AI Advisor, Pricing |
+| Cloudinary | 25GB | Image hosting |
+| Razorpay | Free (2% per txn) | Payments (India) |
+| Vercel | Free | Website hosting |
+| Render | Free tier | Mobile backend |
+| Expo | Free | Mobile app build |
+
+---
+
+## 🚀 Production Deployment
+
+### Website → Vercel
+```bash
+cd website
+npx vercel --prod
+# Add env vars in Vercel dashboard
+```
+
+### Mobile Backend → Render
+1. Push `mobile/backend/` to GitHub
+2. Create Web Service on render.com
+3. Add env vars
+
+### Mobile App → Play Store
+```bash
+cd mobile
+npm install -g eas-cli
+eas login
+eas build --platform android
+# Submit to Play Store ($99 one-time)
+```
+
+---
+
+## 👤 Test Accounts
+- **Admin**: Create one by setting `role: "admin"` in MongoDB
+- **Buyer**: Signup as `customer`
+- **Seller**: Signup as `retailer` → subscribe → list devices
+
+## 💳 Test Stripe Card
+- `4242 4242 4242 4242` / 12/25 / 123
+
+## 🔍 Test IMEI
+- `353937093209023` (valid)
+
+---
+
+**ZYPHOR v2.0** | Made in India 🇮🇳 | MIT License

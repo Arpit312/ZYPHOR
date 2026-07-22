@@ -1,26 +1,44 @@
 version: '3.8'
 
 services:
-  # 1. ZYPHOR Next.js Web App
-  web:
+  # 1. Express Backend Service (For Render / Docker deployment)
+  backend:
     build:
-      context: .
+      context: ./server
       dockerfile: Dockerfile
-    container_name: zyphor-web
+    container_name: zyphor-backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongo:27017/zyphor
+      - JWT_SECRET=zyphor_production_secret_key_jwt_998877
+    depends_on:
+      - mongo
+
+  # 2. Next.js Frontend Service (For Vercel / Docker deployment)
+  frontend:
+    build:
+      context: ./website
+      dockerfile: Dockerfile
+    container_name: zyphor-frontend
     restart: always
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:5000/api
       - MONGODB_URI=mongodb://mongo:27017/zyphor
       - JWT_SECRET=zyphor_production_secret_key_jwt_998877
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
       - NEXT_PUBLIC_APP_NAME=ZYPHOR
       - NEXT_PUBLIC_APP_URL=http://localhost:3000
     depends_on:
+      - backend
       - mongo
 
-  # 2. MongoDB Database Container
+  # 3. Local MongoDB Container
   mongo:
     image: mongo:latest
     container_name: zyphor-mongo
