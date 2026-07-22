@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { ShieldCheck, Search, Users, Package, Lock, Sparkles, MessageSquare, Plus, Trash2, Wrench, Image as ImageIcon } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ShieldCheck, Search, Users, Package, Lock, Sparkles, MessageSquare, Plus, Trash2, Wrench, Database, RefreshCw } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function AdminPortalClient({ adminUser, initialUsers, initialListings, initialOrders, initialMessages }) {
@@ -11,6 +11,25 @@ export default function AdminPortalClient({ adminUser, initialUsers, initialList
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("users");
+
+  // Live MongoDB Connection Status
+  const [dbStatus, setDbStatus] = useState({ state: "checking", host: null });
+
+  useEffect(() => {
+    async function checkDB() {
+      try {
+        const res = await fetch("/api/admin/db-status");
+        const data = await res.json();
+        setDbStatus(data.db || { state: "error" });
+      } catch {
+        setDbStatus({ state: "error" });
+      }
+    }
+    checkDB();
+    // Poll every 30 seconds
+    const interval = setInterval(checkDB, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Parts Management State
   const [showAddPartModal, setShowAddPartModal] = useState(false);
@@ -128,6 +147,27 @@ export default function AdminPortalClient({ adminUser, initialUsers, initialList
           </div>
           <h1 className="font-display font-700 text-3xl text-white">Zyphor Master Control Center</h1>
           <p className="text-slate-400 text-sm mt-1">Logged in as Master Administrator ({adminUser.email})</p>
+
+          {/* Live MongoDB Status Badge */}
+          <div className="flex items-center gap-2 mt-3">
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono font-bold border ${
+              dbStatus.state === "connected"
+                ? "bg-signal-green/10 border-signal-green/30 text-signal-green"
+                : dbStatus.state === "checking"
+                ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
+                : "bg-signal-red/10 border-signal-red/30 text-signal-red"
+            }`}>
+              <Database className="h-3.5 w-3.5" />
+              MongoDB:
+              <span className="uppercase">{dbStatus.state}</span>
+              {dbStatus.state === "connected" && (
+                <span className="ml-1 h-2 w-2 rounded-full bg-signal-green animate-pulse inline-block" />
+              )}
+            </div>
+            {dbStatus.host && (
+              <span className="text-xs text-slate-500 font-mono">{dbStatus.host}</span>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-4 bg-slate-900/60 p-4 rounded-2xl border border-white/5">
           <div>
