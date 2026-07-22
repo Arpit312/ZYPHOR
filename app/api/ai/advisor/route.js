@@ -33,7 +33,7 @@ function isFollowUpQuestion(text) {
     "heating", "bgmi", "gaming", "screen", "charging", "charger", "warranty", "condition",
     "kais", "kaisa", "kaisi", "kitn", "kitna", "kitni", "batao", "bataiye", "detail",
     "is", "us", "isme", "usme", "ismein", "usmein", "dono", "farq", "difference", "compare",
-    "kyun", "kyu", "reason", "best", "kyun lu"
+    "kyun", "kyu", "reason", "best", "kyun lu", "buy", "khareed"
   ];
   const newSearchKeywords = [
     "dusra", "dusre", "dusri", "other", "another", "nayi", "naya", "naye", "show me new",
@@ -47,7 +47,6 @@ function isFollowUpQuestion(text) {
   return followUpKeywords.some(kw => lower.includes(kw));
 }
 
-// Out-of-scope detector to keep AI strictly focused on smartphone purchasing & specs
 function isUnrelatedQuery(text) {
   if (!text) return false;
   const lower = text.toLowerCase();
@@ -79,10 +78,10 @@ export async function POST(req) {
     // GUARD 1: OUT-OF-SCOPE REDIRECT
     if (isUnrelatedQuery(message)) {
       const redirectText = selectedLanguage === "Hindi"
-        ? "मैं ZYPHOR का AI स्मार्टफ़ोन एडवाइज़र हूँ! 📱 मैं आपको सही फ़ोन चुनने, उनके फीचर्स बताने, गेमिंग/कैमरा एडवाइस देने और बेस्ट डील खोजने में मदद कर सकता हूँ। अपना बजट या ज़रूरत बताइए — जैसे गेमिंग, कैमरा या बैटरी!"
+        ? "मैं ZYPHOR का AI एडवाइज़र हूँ — आपका टेक दोस्त! 📱 मैं आपको सही फ़ोन चुनने, उनके फीचर्स बताने और बेस्ट डील पर फ़ोन बाय (Buy) कराने में हेल्प करूँगा। अपना बजट या पसंद बताइए — जैसे गेमिंग, कैमरा या बैटरी!"
         : selectedLanguage === "English"
-        ? "I am ZYPHOR's AI Smartphone Advisor! 📱 I can help you choose the best smartphones, explain specs, provide convincing buying advice, and recommend verified deals. Tell me your budget or needs — like gaming, camera, or battery!"
-        : "Main ZYPHOR ka Specialized AI Smartphone Advisor hoon! 📱 Main aapko best smartphones advise karne, specs samjhane aur convincing buying reasons dene me help kar sakta hoon. Apne budget aur requirement batao — jaise gaming, camera ya battery!";
+        ? "I am ZYPHOR's AI Advisor — your tech best friend & buying guide! 📱 I will help you choose the right phone, explain specs, and convince you with the best verified deals. Tell me your budget or choice — like gaming, camera, or battery!"
+        : "Main ZYPHOR ka AI Advisor hoon — aapka tech dost! 📱 Main aapko sahi phone choose karne, uske mast features samjhane aur best verified deal par buy karne me help karunga. Apne choice aur budget batao — jaise gaming, camera ya heavy battery!";
 
       return NextResponse.json({
         type: "chat",
@@ -93,26 +92,28 @@ export async function POST(req) {
 
     const isFollowUp = isFollowUpQuestion(message) && Array.isArray(history) && history.length > 0;
 
-    // MODE 1: CONVERSATIONAL FEATURE EXPLANATION & BUYING REASONS
+    // MODE 1: FRIENDLY & CONVINCING SALESPERSON CHAT
     if (isFollowUp) {
       const historyContext = history.slice(-4).map(h => `${h.role.toUpperCase()}: ${h.text}`).join("\n");
-      const chatPrompt = `You are ZYPHOR's AI Advisor — India's #1 AI Smartphone Buying & Spec Expert.
-The user is asking follow-up questions or asking for convincing reasons, features, specs, camera, battery, or gaming performance of previously discussed phones.
+      const chatPrompt = `You are ZYPHOR's AI Advisor — an Honest Tech Best Friend + Master Sales Expert.
 
-TRAINING RULES:
+PERSONA:
+- Talk like an honest, friendly tech buddy ("Bhai / Dost").
+- Be super persuasive & convincing! Tell the user WHY buying this phone right now on ZYPHOR is the best decision for their money.
+- Highlight key value points: ZYPHOR AI Verified Trust Score, OIS Camera stability, AMOLED display, massive price discount, Escrow payment safety.
+
+RULES:
 1. Respond STRICTLY in selected language: "${selectedLanguage}".
-2. Explain specs clearly and give CONVINCING VALUE REASONS why this phone is worth buying for their specific needs.
-3. Highlight key features: OIS Camera, AMOLED Refresh Rate, Battery mAh, Fast Charging, and Processor.
-4. Never give error text or out-of-scope replies.
-5. Keep response clear, punchy (2-4 sentences or bullet points), and user-friendly.`;
+2. Explain specs with enthusiastic sales energy & honest friend advice.
+3. Keep response punchy, clear, and highly convincing (2-4 short sentences or points).`;
 
       const userContent = `PREVIOUS CONTEXT:
 ${historyContext}
 
-USER QUESTION:
+USER QUESTION / CHOICE:
 "${message}"
 
-Provide a convincing feature explanation & buying advice strictly in ${selectedLanguage}.`;
+Give friendly, highly convincing sales advice strictly in ${selectedLanguage}.`;
 
       let cleanText = "";
       try {
@@ -139,10 +140,10 @@ Provide a convincing feature explanation & buying advice strictly in ${selectedL
 
       if (!cleanText) {
         cleanText = selectedLanguage === "Hindi"
-          ? "यह फ़ोन आपके बजट में शानदार कैमरा ओआईएस और बेहतरीन बैटरी बैकअप प्रदान करता है, जो लंबे समय तक स्मूथ परफॉरमेंस देगा!"
+          ? "यह फ़ोन आपके पैसों की पूरी कीमत वसूल कराएगा! इसमें ZYPHOR AI वेरीफाइड ट्रस्ट स्कोर, शानदार कैमरा और पावरफुल बैटरी है। इसे बिना झिझक अभी बाय (Buy) करें!"
           : selectedLanguage === "English"
-          ? "This phone offers fantastic camera stability with OIS and solid all-day battery life, making it a great long-term value choice!"
-          : "Yeh phone aapke budget me shandar OIS camera aur solid battery backup deta hai jo heavy gaming aur daily use me ekdum smooth chalega!";
+          ? "This phone gives you unbeatable value for money! Verified by ZYPHOR AI with full escrow safety, OIS camera, and long-lasting battery. Go ahead and buy with full confidence!"
+          : "Bhai yeh phone aapke paise vasool karwa dega! ZYPHOR AI verified trust score, solid OIS camera aur heavy battery hai. Bina tension abhi buy kar lo, best deal hai!";
       }
 
       return NextResponse.json({
@@ -152,16 +153,16 @@ Provide a convincing feature explanation & buying advice strictly in ${selectedL
       });
     }
 
-    // MODE 2: NEW SMARTPHONE RECOMMENDATION ENGINE
-    const systemPrompt = `You are ZYPHOR's AI Advisor — India's #1 AI Smartphone Buying & Recommendation Agent.
+    // MODE 2: SMART RECOMMENDATION ENGINE (HONEST FRIEND + SALESMAN PITCH)
+    const systemPrompt = `You are ZYPHOR's AI Advisor — an Honest Tech Friend + Sales Master.
 
 STRICT PRICE RULE:
 ${maxBudget ? `User budget limit is strictly ₹${maxBudget.toLocaleString("en-IN")}. NEVER recommend any phone whose price is greater than ₹${maxBudget}. ALL recommendations MUST have price <= ${maxBudget}.` : "Recommend best matching phones within reasonable budget."}
 
-TRAINING RULES:
+TRAINING & SALES PERSONA:
 1. Respond STRICTLY in selected language: "${selectedLanguage}".
-2. Recommend TOP 3 matching items from catalog array.
-3. Provide a CONVINCING 1-sentence reason why this phone is the best match for the user in ${selectedLanguage}.
+2. Recommend TOP 3 matching items from catalog array based on user's choice/budget.
+3. Write a CONVINCING, HIGH-CONVERTING sales pitch line (why this phone is a steal deal for them) in ${selectedLanguage}.
 4. Output ONLY valid JSON array in this structure:
 [
   {
@@ -171,7 +172,7 @@ TRAINING RULES:
     "price": <number>,
     "trustScore": <number>,
     "matchScore": 95,
-    "whyItFits": "<1 convincing reason in ${selectedLanguage}>",
+    "whyItFits": "<1 highly convincing sales pitch line as a friend in ${selectedLanguage}>",
     "tradeoff": "<1 short honest tradeoff in ${selectedLanguage}>"
   }
 ]`;
@@ -215,7 +216,7 @@ TRAINING RULES:
     const userContent = `CATALOG: ${JSON.stringify(catalogSummary)}
 BUDGET LIMIT: ${maxBudget ? `MAX ₹${maxBudget}` : "No strict limit"}
 LANG: ${selectedLanguage}
-REQUEST: "${message}"`;
+USER CHOICE/REQUEST: "${message}"`;
 
     let recs = [];
     try {
@@ -229,7 +230,6 @@ REQUEST: "${message}"`;
       recs = recs.filter((item) => Number(item.price) <= maxBudget);
     }
 
-    // High-speed error-proof fallback if AI response needed backup
     if (!Array.isArray(recs) || recs.length === 0) {
       let filtered = catalogSummary;
       if (maxBudget) {
@@ -245,17 +245,16 @@ REQUEST: "${message}"`;
         trustScore: item.trustScore || 90,
         matchScore: 92,
         whyItFits: selectedLanguage === "Hindi"
-          ? `यह फ़ोन ₹${item.price.toLocaleString("en-IN")} के बजट में आपके लिए सबसे बेहतरीन वैल्यू ऑफर करता है!`
+          ? `Bhai! यह फ़ोन ₹${item.price.toLocaleString("en-IN")} में ज़बरदस्त वैल्यू देता है, अभी बाय करें!`
           : selectedLanguage === "English"
-          ? `This phone offers outstanding performance and features under ₹${(maxBudget || item.price).toLocaleString("en-IN")}.`
-          : `Yeh phone ₹${item.price.toLocaleString("en-IN")} ke budget me sabse convincing aur high-value match hai!`,
+          ? `Best bang for your buck under ₹${(maxBudget || item.price).toLocaleString("en-IN")} — buy with full confidence!`
+          : `Bhai ₹${item.price.toLocaleString("en-IN")} ke price me yeh ekdum steal deal hai, miss mat karo!`,
         tradeoff: selectedLanguage === "Hindi" ? "सीमित स्टॉक उपलब्ध।" : "Limited stock available."
       }));
     }
 
     return NextResponse.json({ type: "recommendation", recommendations: recs, catalog: fullCatalog.length > 0 ? fullCatalog : DEFAULT_CATALOG });
   } catch (err) {
-    // 🛡️ Error-proof zero-crash fallback
     const defaultRecs = DEFAULT_CATALOG.slice(0, 3).map((item) => ({
       id: item.id,
       brand: item.brand,
