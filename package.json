@@ -1,9 +1,15 @@
 {
-  "name": "zyphor-monorepo",
-  "version": "1.0.0",
+  "name": "zyphor",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
-    "build": "npm --prefix website run build",
+    "dev": "npm --prefix website run dev",
+    "build": "cd website && npm install && npm run build",
     "start": "npm --prefix website start"
+  },
+  "dependencies": {
+    "next": "14.2.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }
