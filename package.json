@@ -1,0 +1,9 @@
+{
+  "name": "zyphor-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix website run build",
+    "start": "npm --prefix website start"
+  }
+}
