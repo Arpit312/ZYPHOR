@@ -19,6 +19,7 @@ const ListingSchema = new mongoose.Schema({
   seller:        { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   listingType:   { type: String, enum: ["device","part"], default: "device" },
   category:      { type: String, default: "Smartphone" },
+  partCategory:  { type: String, default: "other" },
   brand:         { type: String, required: true, trim: true },
   model:         { type: String, required: true, trim: true },
   title:         { type: String, trim: true },
