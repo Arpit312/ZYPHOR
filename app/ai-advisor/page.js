@@ -100,18 +100,21 @@ export default function AIAdvisorPage() {
     const msg = text || input.trim();
     if (!msg || loading) return;
     setInput("");
-    setMessages((m) => [...m, { role: "user", text: msg }]);
+    const newMessages = [...messages, { role: "user", text: msg }];
+    setMessages(newMessages);
     setLoading(true);
 
     try {
       const res = await fetch("/api/ai/advisor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg, language: selectedLang })
+        body: JSON.stringify({ message: msg, language: selectedLang, history: newMessages })
       });
       const data = await res.json();
       if (!res.ok) {
         setMessages((m) => [...m, { role: "ai", text: `Error: ${data.error}` }]);
+      } else if (data.type === "chat") {
+        setMessages((m) => [...m, { role: "ai", text: data.text }]);
       } else {
         const recs = data.recommendations || [];
         setMessages((m) => [
