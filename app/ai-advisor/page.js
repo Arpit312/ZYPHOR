@@ -2,8 +2,14 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Send, ScanLine, Zap, ShieldCheck } from "lucide-react";
+import { Send, ScanLine, Zap, ShieldCheck, Globe } from "lucide-react";
 import Container from "@/components/shared/Container";
+
+const LANGUAGES = [
+  { id: "Hinglish", label: "Hinglish (Default)", flag: "🇮🇳" },
+  { id: "Hindi", label: "हिंदी (Hindi)", flag: "🇮🇳" },
+  { id: "English", label: "English", flag: "🌐" }
+];
 
 const QUICK_PROMPTS = [
   "Budget ₹12,000, gaming ke liye best phone?",
@@ -23,33 +29,26 @@ function RecommendationCard({ rec, catalog }) {
   return (
     <Link
       href={listing ? `/marketplace/${rec.id}` : "#"}
-      className="block bg-white border border-black/[0.06] rounded-xl overflow-hidden hover:shadow-md transition-shadow"
+      className="block bg-white border border-black/[0.06] rounded-xl overflow-hidden hover:shadow-md transition-all"
     >
       <div className="flex gap-4 p-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={img} alt={rec.model} className="h-20 w-20 object-cover rounded-lg flex-shrink-0 bg-paper" />
-        <div className="min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
+        <img src={img} alt={rec.model} className="h-20 w-20 object-cover rounded-lg flex-shrink-0 bg-paper border border-black/5" />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2 flex-wrap mb-1">
             <span className="font-mono text-xs text-black/40 uppercase">{rec.brand}</span>
-            {rec.trustScore >= 80 && (
-              <span className="flex items-center gap-1 text-xs text-signal-green font-mono">
-                <ShieldCheck className="h-3 w-3" /> Verified
-              </span>
-            )}
+            <span className="flex items-center gap-1 text-xs font-semibold text-signal-green bg-signal-green/10 px-2 py-0.5 rounded-full font-mono">
+              <ShieldCheck className="h-3 w-3" /> Trust Score: {rec.trustScore || 90}/100
+            </span>
           </div>
-          <p className="font-display font-600 text-sm text-slate-850 mt-0.5 truncate">{rec.model}</p>
-          <p className="text-base font-700 font-display text-slate-850">{formatINR(rec.price)}</p>
-          <div className="flex items-center gap-1 mt-1">
-            <div className="text-xs font-mono text-signal-green">
-              {rec.matchScore}% match
-            </div>
-          </div>
+          <p className="font-display font-600 text-sm text-slate-850 truncate">{rec.model}</p>
+          <p className="text-base font-700 font-display text-slate-850 mt-0.5">{formatINR(rec.price)}</p>
         </div>
       </div>
-      <div className="border-t border-black/[0.06] px-4 py-3">
-        <p className="text-xs text-black/65 leading-relaxed">{rec.whyItFits}</p>
+      <div className="border-t border-black/[0.06] px-4 py-3 bg-paper">
+        <p className="text-xs text-slate-850 leading-relaxed font-medium">{rec.whyItFits}</p>
         {rec.tradeoff && (
-          <p className="text-xs text-signal-amber mt-1.5">⚠ {rec.tradeoff}</p>
+          <p className="text-xs text-amber-600 mt-1.5 font-medium">⚠ Tradeoff: {rec.tradeoff}</p>
         )}
       </div>
     </Link>
@@ -57,10 +56,11 @@ function RecommendationCard({ rec, catalog }) {
 }
 
 export default function AIAdvisorPage() {
+  const [selectedLang, setSelectedLang] = useState("Hinglish");
   const [messages, setMessages] = useState([
     {
       role: "ai",
-      text: "Namaste! 👋 Main hoon ZYPHOR AI Advisor.\n\nApna budget aur zarurat batao — gaming, camera, battery, study — main live catalog se aapke liye TOP 3 best-matching verified phones dhundhunga.\n\nHindi, Hinglish ya English — koi bhi language mein poochho!"
+      text: "Namaste! 👋 Main hoon ZYPHOR AI Advisor.\n\nApna budget aur zarurat batao — gaming, camera, battery, study — main live catalog se aapke liye TOP 3 best-matching verified phones dhundhunga.\n\nHindi, Hinglish ya English — niche apni language choose karo aur poochho!"
     }
   ]);
   const [input, setInput] = useState("");
@@ -89,16 +89,22 @@ export default function AIAdvisorPage() {
       const res = await fetch("/api/ai/advisor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg, catalog })
+        body: JSON.stringify({ message: msg, language: selectedLang })
       });
       const data = await res.json();
       if (!res.ok) {
-        setMessages((m) => [...m, { role: "ai", text: `Sorry, kuch error hua: ${data.error}` }]);
+        setMessages((m) => [...m, { role: "ai", text: `Error: ${data.error}` }]);
       } else {
         const recs = data.recommendations || [];
         setMessages((m) => [
           ...m,
-          { role: "ai", text: recs.length > 0 ? `Yeh rehe aapke TOP ${recs.length} recommendations:` : "Maafi, is budget/zarurat ke liye abhi catalog mein suitable phone nahi mila. Apna budget thoda badaao ya zarurat change karo?", recommendations: recs }
+          {
+            role: "ai",
+            text: recs.length > 0
+              ? `Yeh rehe aapke TOP ${recs.length} recommendations (${selectedLang}):`
+              : "Maafi, is budget ke liye live catalog mein phone nahi mila.",
+            recommendations: recs
+          }
         ]);
       }
     } catch {
@@ -109,16 +115,36 @@ export default function AIAdvisorPage() {
   }
 
   return (
-    <section className="py-10">
+    <section className="py-10 bg-paper min-h-screen">
       <Container className="max-w-3xl">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-ink mb-4">
+          <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-ink mb-4 shadow-md">
             <Zap className="h-7 w-7 text-signal-green" />
           </div>
-          <h1 className="font-display font-700 text-3xl text-slate-850">AI Phone Advisor</h1>
+          <h1 className="font-display font-700 text-3xl text-slate-850">AI Smartphone Advisor</h1>
           <p className="text-black/55 mt-2 text-sm">
-            Live catalog · Responds in Hindi, Hinglish &amp; English · Completely free
+            Live catalog · Multi-language support · Real-time Trust Scores
           </p>
+
+          {/* Language Selector Buttons */}
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <span className="text-xs text-black/50 font-medium flex items-center gap-1 mr-1">
+              <Globe className="h-3.5 w-3.5" /> Language:
+            </span>
+            {LANGUAGES.map((lang) => (
+              <button
+                key={lang.id}
+                onClick={() => setSelectedLang(lang.id)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                  selectedLang === lang.id
+                    ? "bg-coral text-white shadow-sm"
+                    : "bg-white text-black/60 hover:text-black border border-black/10"
+                }`}
+              >
+                {lang.flag} {lang.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Chat window */}
@@ -131,12 +157,12 @@ export default function AIAdvisorPage() {
                     <ScanLine className="h-4 w-4 text-signal-green" />
                   </div>
                 )}
-                <div className={`max-w-[80%] ${msg.role === "user" ? "order-first" : ""}`}>
+                <div className={`max-w-[85%] ${msg.role === "user" ? "order-first" : ""}`}>
                   <div
                     className={`rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-line ${
                       msg.role === "user"
                         ? "bg-ink text-white rounded-br-sm"
-                        : "bg-paper text-slate-850 rounded-bl-sm"
+                        : "bg-paper text-slate-850 rounded-bl-sm border border-black/5"
                     }`}
                   >
                     {msg.text}
@@ -156,7 +182,7 @@ export default function AIAdvisorPage() {
                 <div className="h-8 w-8 rounded-full bg-ink flex items-center justify-center flex-shrink-0">
                   <ScanLine className="h-4 w-4 text-signal-green" />
                 </div>
-                <div className="bg-paper rounded-2xl rounded-bl-sm px-5 py-4">
+                <div className="bg-paper rounded-2xl rounded-bl-sm px-5 py-4 border border-black/5">
                   <div className="flex gap-1.5">
                     {[0, 1, 2].map((i) => (
                       <div
@@ -179,7 +205,7 @@ export default function AIAdvisorPage() {
                 <button
                   key={p}
                   onClick={() => send(p)}
-                  className="text-xs px-3 py-1.5 border border-black/10 rounded-full text-black/60 hover:border-coral hover:text-coral transition-colors"
+                  className="text-xs bg-paper hover:bg-black/5 text-black/60 rounded-full px-3 py-1.5 transition-colors border border-black/5"
                 >
                   {p}
                 </button>
@@ -187,29 +213,30 @@ export default function AIAdvisorPage() {
             </div>
           )}
 
-          {/* Input */}
-          <div className="border-t border-black/[0.07] px-4 py-3 flex gap-3 items-center">
+          {/* Input form */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              send();
+            }}
+            className="p-3 bg-paper border-t border-black/[0.06] flex gap-2"
+          >
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-              placeholder="Budget aur zarurat batao…"
-              className="flex-1 text-sm bg-transparent focus:outline-none placeholder-black/35"
+              placeholder={`Ask in ${selectedLang} (e.g. Best gaming phone under ₹25,000)...`}
+              className="flex-1 bg-white border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-coral/30"
             />
             <button
-              onClick={() => send()}
-              disabled={!input.trim() || loading}
-              className="h-9 w-9 rounded-xl bg-coral hover:bg-coral-dark disabled:opacity-40 transition-colors flex items-center justify-center focus-ring"
+              type="submit"
+              disabled={loading || !input.trim()}
+              className="bg-coral hover:bg-coral-dark text-white px-5 rounded-xl transition-colors disabled:opacity-40 focus-ring flex items-center justify-center"
             >
-              <Send className="h-4 w-4 text-white" />
+              <Send className="h-4 w-4" />
             </button>
-          </div>
+          </form>
         </div>
-
-        <p className="mt-4 text-center text-xs text-black/40">
-          AI Advisor recommends only from ZYPHOR&apos;s live verified catalog.
-        </p>
       </Container>
     </section>
   );
