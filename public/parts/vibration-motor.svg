@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <rect width="400" height="400" fill="#0F172A"/>
+  <!-- Taptic Engine Metal Box -->
+  <rect x="130" y="140" width="140" height="120" rx="14" fill="#334155" stroke="#64748B" stroke-width="4"/>
+  <!-- Inner Coil -->
+  <circle cx="200" cy="200" r="36" fill="#1E293B" stroke="#A855F7" stroke-width="3"/>
+  <circle cx="200" cy="200" r="20" fill="#A855F7" opacity="0.6"/>
+
+  <!-- Haptic Waves -->
+  <path d="M 100 180 Q 90 200 100 220" fill="none" stroke="#A855F7" stroke-width="4" stroke-linecap="round"/>
+  <path d="M 300 180 Q 310 200 300 220" fill="none" stroke="#A855F7" stroke-width="4" stroke-linecap="round"/>
+
+  <text x="200" y="330" font-family="monospace" font-size="16" font-weight="bold" fill="#A855F7" text-anchor="middle">TAPTIC HAPTIC MOTOR</text>
+  <text x="200" y="355" font-family="sans-serif" font-size="12" fill="#94A3B8" text-anchor="middle">Linear Vibration Engine</text>
+</svg>

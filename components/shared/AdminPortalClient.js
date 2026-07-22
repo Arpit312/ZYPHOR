@@ -20,7 +20,7 @@ export default function AdminPortalClient({ adminUser, initialUsers, initialList
     model: "iPhone 13",
     partCategory: "camera",
     price: 1499,
-    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80",
+    image: "/parts/camera-module.svg",
     description: ""
   });
 
@@ -105,7 +105,7 @@ export default function AdminPortalClient({ adminUser, initialUsers, initialList
           model: "iPhone 13",
           partCategory: "camera",
           price: 1499,
-          image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80",
+          image: "/parts/camera-module.svg",
           description: ""
         });
         toast.success("New Spare Part added to Zyphor Catalog!");
