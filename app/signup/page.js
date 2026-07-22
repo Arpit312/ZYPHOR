@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
 import {
   ScanLine, Store, Users, Wrench, ShieldCheck, ArrowRight,
   UserCheck, Mail, Key, User, MapPin, Building, AlertCircle
@@ -46,6 +47,7 @@ function SignupFormContent() {
     setShowAgreement(false);
     setError("");
     try {
+      // 1. Create User Document in MongoDB
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -53,6 +55,15 @@ function SignupFormContent() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Registration failed."); return; }
+
+      // 2. Auto Sign-In with NextAuth Credentials
+      await signIn("credentials", {
+        redirect: false,
+        email: form.email.trim(),
+        password: form.password.trim(),
+        role,
+      });
+
       router.push("/dashboard");
       router.refresh();
     } catch (err) {

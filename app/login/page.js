@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
 import {
   ScanLine, Eye, EyeOff, User, Store, Building2, Wrench, ShieldCheck,
   Lock, ArrowRight, CheckCircle2, Sparkles, AlertCircle, Mail, Key
@@ -108,19 +109,29 @@ function LoginFormContent() {
     setLoading(true);
     setShowAgreement(false);
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), password: password.trim(), role: selectedRole })
+      // 1. NextAuth Credentials Sign-in
+      const res = await signIn("credentials", {
+        redirect: false,
+        email: email.trim(),
+        password: password.trim(),
+        role: selectedRole,
       });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Invalid credentials. Please verify your email and password.");
+
+      if (res?.error) {
+        setError(res.error || "Invalid credentials. Please verify your email and password.");
+        setLoading(false);
         return;
       }
 
+      // 2. Dual-set custom session cookie for mobile / fallback API routes
+      await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password: password.trim(), role: selectedRole })
+      }).catch(() => {});
+
       const next = searchParams.get("next") || searchParams.get("redirect") || "/dashboard";
-      if (data.user?.role === "admin") {
+      if (selectedRole === "admin") {
         router.push("/admin");
       } else {
         router.push(next);
