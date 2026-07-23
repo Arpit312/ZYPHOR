@@ -31,33 +31,8 @@ export default function Navbar({ user }) {
   const pathname = usePathname();
   const { cartCount } = useCart();
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const controlNavbar = () => {
-      if (open || mobileSearch) return; // Don't hide if mobile menus are open
-      
-      if (window.scrollY > 80) { 
-        if (window.scrollY > lastScrollY) { 
-          setShow(false); // Scroll down -> hide
-        } else { 
-          setShow(true);  // Scroll up -> show
-        }
-      } else {
-        setShow(true); // Always show at top
-      }
-      setLastScrollY(window.scrollY);
-    };
-
-    window.addEventListener("scroll", controlNavbar);
-    return () => window.removeEventListener("scroll", controlNavbar);
-  }, [lastScrollY, open, mobileSearch]);
-
   return (
-    <header className={clsx(
-      "sticky top-0 z-50 bg-ink/95 backdrop-blur supports-[backdrop-filter]:bg-ink/85 text-white border-b border-white/10 shadow-lg transition-transform duration-300",
-      show ? "translate-y-0" : "-translate-y-full"
-    )}>
+    <header className="relative z-50 bg-ink/95 text-white border-b border-white/10 shadow-lg">
       
       {/* --- TIER 1: Main Header (Logo, Search, Auth, Cart) --- */}
       <div className="container-x flex h-16 items-center justify-between gap-6">
