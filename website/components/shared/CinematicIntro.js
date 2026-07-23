@@ -278,7 +278,7 @@ export default function CinematicIntro({ onComplete }) {
             </svg>
 
             {/* ==================================================== */}
-            /*  THE HEALED STATE: TEXT SEQUENCE                      */
+            {/* THE HEALED STATE: TEXT SEQUENCE                      */}
             {/* ==================================================== */}
             <motion.div 
               className="absolute inset-0 flex flex-col items-center justify-center bg-[#030303]"
