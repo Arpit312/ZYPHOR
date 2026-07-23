@@ -10,16 +10,16 @@ export const metadata = {
 export default function StoresPage() {
   return (
     <div className="bg-paper min-h-screen flex flex-col">
-      {/* Hero Banner (DARK) */}
-      <div className="relative overflow-hidden bg-ink border-b border-white/5 shrink-0">
+      {/* Hero Banner (LIGHT) */}
+      <div className="relative overflow-hidden bg-paper border-b border-black/[0.05] shrink-0">
         <Container className="relative py-12 text-center z-10">
           <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-amber-500 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-full uppercase tracking-widest mb-4">
             <Building2 className="h-3.5 w-3.5" /> Under Maintenance
           </div>
-          <h1 className="font-display font-800 text-3xl sm:text-4xl lg:text-5xl text-white leading-tight mb-3">
+          <h1 className="font-display font-800 text-3xl sm:text-4xl lg:text-5xl text-slate-850 leading-tight mb-3">
             Find <span className="text-coral">Stores</span>
           </h1>
-          <p className="text-white/60 text-sm max-w-xl mx-auto">
+          <p className="text-black/60 text-sm max-w-xl mx-auto">
             Zyphor Experience Store Locator &amp; Kiosk Geo-Mapping service.
           </p>
         </Container>

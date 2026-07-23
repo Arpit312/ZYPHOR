@@ -61,16 +61,16 @@ export default async function PartsPage({ searchParams }) {
 
   return (
     <div className="bg-paper min-h-screen">
-      {/* Hero Banner (DARK) */}
-      <div className="relative overflow-hidden bg-ink border-b border-white/5">
+      {/* Hero Banner (LIGHT) */}
+      <div className="relative overflow-hidden bg-paper border-b border-black/[0.05]">
         <Container className="relative py-12 text-center z-10">
           <span className="text-[10px] font-mono font-bold text-coral bg-coral/10 border border-coral/20 px-3 py-1.5 rounded-full uppercase tracking-widest mb-4 inline-block">
             Verified Spare Parts Catalog
           </span>
-          <h1 className="font-display font-800 text-3xl sm:text-4xl lg:text-5xl text-white leading-tight mb-3">
+          <h1 className="font-display font-800 text-3xl sm:text-4xl lg:text-5xl text-slate-850 leading-tight mb-3">
             Mobile Spare Parts &amp; <span className="text-coral">Accessories</span>
           </h1>
-          <p className="text-white/60 text-sm max-w-xl mx-auto">
+          <p className="text-black/60 text-sm max-w-xl mx-auto">
             Select a part category below, choose your smartphone brand &amp; model to find 100% verified original replacement parts.
           </p>
         </Container>

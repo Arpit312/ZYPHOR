@@ -137,17 +137,18 @@ export default function AIAdvisorPage() {
 
   return (
     <div className="bg-paper min-h-screen">
-      {/* Hero Banner (DARK) */}
-      <div className="relative overflow-hidden bg-ink border-b border-white/5">
+      {/* Hero Banner (LIGHT) */}
+      <div className="relative overflow-hidden bg-paper border-b border-black/[0.05]">
         <Container className="relative py-12 text-center z-10">
-          <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-coral/10 mb-4 border border-coral/20">
-            <Zap className="h-6 w-6 text-coral" />
+          <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-coral bg-coral/10 border border-coral/20 px-3 py-1.5 rounded-full uppercase tracking-widest mb-4">
+            <Zap className="h-3.5 w-3.5" /> AI Agent #2
           </div>
-          <h1 className="font-display font-800 text-3xl sm:text-4xl lg:text-5xl text-white leading-tight mb-3">
-            AI Smartphone <span className="text-coral">Advisor</span>
+          <h1 className="font-display font-800 text-3xl sm:text-4xl lg:text-5xl text-slate-850 leading-tight mb-3">
+            Not sure which phone to buy? <br/><span className="text-coral">Ask our AI.</span>
           </h1>
-          <p className="text-white/60 text-sm max-w-xl mx-auto">
-            Live catalog · Real-time AI Trust Scores · Multi-language Assistant
+          <p className="text-black/60 text-sm max-w-xl mx-auto">
+            Tell us your budget and what you use your phone for (gaming, camera, study). 
+            Our AI scans the live catalog to find your top 3 matches.
           </p>
         </Container>
       </div>

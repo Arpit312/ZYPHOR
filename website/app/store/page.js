@@ -50,24 +50,20 @@ export default async function StorePage({ searchParams }) {
   
   return (
     <div className="bg-paper min-h-screen">
-      {/* Hero Banner (DARK) */}
-      <div className="relative overflow-hidden bg-ink border-b border-white/5">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-coral/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-
-        <Container className="relative py-16 text-center z-10">
-          <div className="inline-flex items-center gap-2 bg-coral/10 border border-coral/20 text-coral text-[10px] font-mono font-bold px-4 py-1.5 rounded-full mb-5 uppercase tracking-widest">
-            <Zap className="h-3.5 w-3.5" />
+      {/* Hero Banner (LIGHT) */}
+      <div className="relative overflow-hidden bg-paper border-b border-black/[0.05]">
+        <Container className="relative py-12 text-center z-10">
+          <span className="text-[10px] font-mono font-bold text-coral bg-coral/10 border border-coral/20 px-3 py-1.5 rounded-full uppercase tracking-widest mb-4 inline-block">
             Official ZYPHOR Store
-          </div>
-          <h1 className="font-display font-800 text-4xl sm:text-5xl lg:text-6xl text-white leading-tight mb-4">
+          </span>
+          <h1 className="font-display font-800 text-3xl sm:text-4xl lg:text-5xl text-slate-850 leading-tight mb-3">
             Everything you need.
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-coral via-amber-400 to-coral">
+            <span className="text-coral">
               Verified & Guaranteed.
             </span>
           </h1>
-          <p className="text-white/60 text-base max-w-xl mx-auto">
+          <p className="text-black/60 text-sm max-w-xl mx-auto">
             From AI-verified smartphones to premium accessories and expert repair services.
           </p>
         </Container>

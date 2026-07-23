@@ -13,36 +13,34 @@ export default function RepairPage() {
 
   return (
     <div className="bg-paper min-h-screen">
-      {/* Hero */}
-      <section className="bg-ink text-white py-20 relative overflow-hidden">
-        <Container className="relative z-10">
-          <div className="max-w-2xl">
-            <span className="font-mono text-xs tracking-widest text-signal-green uppercase bg-signal-green/10 border border-signal-green/20 px-3 py-1 rounded-full inline-block mb-4">
-              ZYPHOR CARE · DOORSTEP REPAIR
-            </span>
-            <h1 className="font-display font-700 text-4xl sm:text-5xl leading-tight mb-6">
-              Phone broken? We repair it <span className="text-coral">at your doorstep.</span>
-            </h1>
-            <p className="text-white/60 text-lg leading-relaxed mb-8">
-              Certified technicians, 6 months warranty, genuine spare parts, and instant price estimates. No data loss guaranteed.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Link
-                href="/repair/book"
-                className="bg-coral hover:bg-coral-dark text-white font-display font-600 px-7 py-3.5 rounded-xl transition-all shadow-lg shadow-coral/20 focus-ring inline-flex items-center gap-2"
-              >
-                <Wrench className="h-4 w-4" /> Book Repair Now
-              </Link>
-              <Link
-                href="/stores"
-                className="border border-white/20 hover:border-white/40 text-white/80 hover:text-white font-display font-600 px-7 py-3.5 rounded-xl transition-all focus-ring inline-flex items-center gap-2"
-              >
-                <MapPin className="h-4 w-4" /> Find Repair Store
-              </Link>
-            </div>
+      {/* Hero Banner (LIGHT) */}
+      <div className="relative overflow-hidden bg-paper border-b border-black/[0.05]">
+        <Container className="relative py-12 text-center z-10">
+          <span className="text-[10px] font-mono font-bold text-coral bg-coral/10 border border-coral/20 px-3 py-1.5 rounded-full uppercase tracking-widest mb-4 inline-block">
+            Verified Doorstep Service
+          </span>
+          <h1 className="font-display font-800 text-3xl sm:text-4xl lg:text-5xl text-slate-850 leading-tight mb-3">
+            Book a <span className="text-coral">Repair</span>
+          </h1>
+          <p className="text-black/60 text-sm max-w-xl mx-auto mb-8">
+            Get your device fixed by certified technicians at your doorstep. Fast, reliable, and verified.
+          </p>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Link
+              href="/repair/book"
+              className="bg-coral hover:bg-coral-dark text-white font-display font-600 px-7 py-3.5 rounded-xl transition-all shadow-sm focus-ring inline-flex items-center gap-2"
+            >
+              <Wrench className="h-4 w-4" /> Book Repair Now
+            </Link>
+            <Link
+              href="/stores"
+              className="border border-black/10 bg-white hover:border-black/20 text-slate-850 hover:bg-black/5 font-display font-600 px-7 py-3.5 rounded-xl transition-all focus-ring inline-flex items-center gap-2"
+            >
+              <MapPin className="h-4 w-4" /> Find Repair Store
+            </Link>
           </div>
         </Container>
-      </section>
+      </div>
 
       {/* Services Grid */}
       <section className="py-20">

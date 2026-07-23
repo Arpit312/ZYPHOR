@@ -181,13 +181,13 @@ export default function SellPage() {
 
   return (
     <div className="bg-paper min-h-screen">
-      {/* Hero Banner (DARK) */}
-      <div className="relative overflow-hidden bg-ink border-b border-white/5">
+      {/* Hero Banner (LIGHT) */}
+      <div className="relative overflow-hidden bg-paper border-b border-black/[0.05]">
         <Container className="relative py-12 text-center z-10">
-          <h1 className="font-display font-800 text-3xl sm:text-4xl lg:text-5xl text-white leading-tight mb-3">
+          <h1 className="font-display font-800 text-3xl sm:text-4xl lg:text-5xl text-slate-850 leading-tight mb-3">
             List your <span className="text-coral">device</span>
           </h1>
-          <p className="text-white/60 text-sm max-w-xl mx-auto">
+          <p className="text-black/60 text-sm max-w-xl mx-auto">
             AI verification included — free, takes under 2 minutes.
           </p>
         </Container>
