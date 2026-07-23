@@ -191,7 +191,7 @@ export default function CinematicIntro({ onComplete }) {
         className="relative w-[340px] h-[720px] transform scale-[0.85] min-[380px]:scale-[0.9] sm:scale-100 md:scale-105 origin-center"
       >
         {/* ==================================================== */}
-        /*  HIGH-VISIBILITY PHONE CHASSIS                        */
+        {/* HIGH-VISIBILITY PHONE CHASSIS                        */}
         {/* ==================================================== */}
         
         {/* Outer Frame - Strong metallic rim */}
@@ -204,7 +204,7 @@ export default function CinematicIntro({ onComplete }) {
           <div className="absolute -right-[3px] top-[190px] w-[3px] h-[90px] bg-[#666] rounded-r-sm" /> 
 
           {/* INNER SCREEN */}
-          <div className="absolute inset-[4px] rounded-[44px] bg-[#050505] overflow-hidden relative shadow-[inset_0_0_20px_rgba(0,0,0,1)]">
+          <div className="absolute inset-[4px] rounded-[44px] bg-[#050505] overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,1)]">
             
             {/* Minimalist Camera Hole */}
             <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[16px] h-[16px] bg-black rounded-full z-50 shadow-[0_0_2px_rgba(255,255,255,0.4)] flex items-center justify-center">
