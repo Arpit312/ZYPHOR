@@ -2,27 +2,63 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Procedural crack paths radiating directly from the exact center (170, 360)
-// This creates a dense, realistic spiderweb shatter mathematically locked to the center of the phone.
-const CRACK_PATHS = [
-  // Primary deep cracks (radiating outwards)
-  "M 170 360 L 100 200 L 40 50",
-  "M 170 360 L 250 180 L 320 60",
-  "M 170 360 L 260 550 L 330 680",
-  "M 170 360 L 80 520 L 20 650",
-  "M 170 360 L 0 340",
-  "M 170 360 L 340 370",
-  "M 170 360 L 150 0",
-  "M 170 360 L 190 720",
+// Generate a hyper-realistic, ultra-dense procedural spiderweb shatter
+// matches the exact macro-photography reference image provided by the user.
+const generateCracks = () => {
+  const cx = 170, cy = 360;
+  const paths = [];
   
-  // Secondary web cracks (horizontal interconnecting shards)
-  "M 120 280 L 100 200 L 180 150 L 250 180", // Top web
-  "M 140 420 L 80 520 L 220 580 L 260 550", // Bottom web
-  "M 170 360 L 220 300 L 340 220", // Mid-top right
-  "M 170 360 L 110 400 L 0 450",   // Mid-bottom left
-  "M 170 360 L 200 450 L 340 500", // Mid-bottom right
-  "M 170 360 L 130 250 L 0 150",   // Mid-top left
-];
+  // 1. Radial cracks (the long sharp splinters reaching outwards)
+  // 45 radial lines for extreme density
+  for (let a = 0; a < 360; a += 8) { 
+    let rad = (a * Math.PI) / 180;
+    let r1 = 10 + Math.random() * 20;
+    let r2 = 100 + Math.random() * 80;
+    let r3 = 500 + Math.random() * 200; // Reach past screen edges
+    
+    let x1 = cx + Math.cos(rad) * r1;
+    let y1 = cy + Math.sin(rad) * r1;
+    
+    // Add slight random zig-zag
+    let angleOffset = (Math.random() * 0.1 - 0.05);
+    let x2 = cx + Math.cos(rad + angleOffset) * r2;
+    let y2 = cy + Math.sin(rad + angleOffset) * r2;
+    
+    angleOffset = (Math.random() * 0.1 - 0.05);
+    let x3 = cx + Math.cos(rad + angleOffset) * r3;
+    let y3 = cy + Math.sin(rad + angleOffset) * r3;
+    
+    paths.push(`M ${cx} ${cy} L ${x1.toFixed(1)} ${y1.toFixed(1)} L ${x2.toFixed(1)} ${y2.toFixed(1)} L ${x3.toFixed(1)} ${y3.toFixed(1)}`);
+  }
+  
+  // 2. Concentric web cracks (the interlocking glass rings)
+  const rings = [20, 40, 70, 110, 160, 220, 300, 400];
+  for (let r of rings) {
+    for (let a = 0; a < 360; a += 12) { // 30 segments per ring
+      // Realism: skip some segments so it's not a perfect circle
+      if (Math.random() > 0.8) continue; 
+      
+      let rad1 = (a * Math.PI) / 180;
+      let rad2 = ((a + 12) * Math.PI) / 180;
+      
+      let r_jitter1 = r + (Math.random() * 12 - 6);
+      let r_jitter2 = r + (Math.random() * 12 - 6);
+      
+      let x1 = cx + Math.cos(rad1) * r_jitter1;
+      let y1 = cy + Math.sin(rad1) * r_jitter1;
+      
+      let x2 = cx + Math.cos(rad2) * r_jitter2;
+      let y2 = cy + Math.sin(rad2) * r_jitter2;
+      
+      paths.push(`M ${x1.toFixed(1)} ${y1.toFixed(1)} L ${x2.toFixed(1)} ${y2.toFixed(1)}`);
+    }
+  }
+  
+  return paths;
+};
+
+// Evaluate once on load
+const CRACK_PATHS = generateCracks();
 
 export default function CinematicIntro({ onComplete }) {
   const [phase, setPhase] = useState(0);
@@ -224,7 +260,6 @@ export default function CinematicIntro({ onComplete }) {
                     strokeWidth="1.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    style={{ filter: "drop-shadow(0px 0px 3px rgba(255,255,255,0.8))" }}
                     initial={{ pathLength: 1, pathOffset: 0, opacity: 1 }}
                     animate={
                       phase >= 2 
@@ -232,9 +267,9 @@ export default function CinematicIntro({ onComplete }) {
                         : { pathLength: 1, pathOffset: 0, opacity: 1 }
                     }
                     transition={{ 
-                      pathLength: { duration: 1.8, ease: "easeOut", delay: i * 0.2 },
-                      pathOffset: { duration: 1.8, ease: "easeOut", delay: i * 0.2 },
-                      opacity: { duration: 0.2, delay: 1.6 + i * 0.2 } // final fade out at end of wipe
+                      pathLength: { duration: 1.8, ease: "easeOut", delay: i * 0.015 },
+                      pathOffset: { duration: 1.8, ease: "easeOut", delay: i * 0.015 },
+                      opacity: { duration: 0.2, delay: 1.6 + i * 0.015 } // final fade out at end of wipe
                     }}
                   />
                   
@@ -244,7 +279,7 @@ export default function CinematicIntro({ onComplete }) {
                       d={path}
                       fill="none"
                       stroke="#0ea5e9" 
-                      strokeWidth="7"
+                      strokeWidth="5"
                       strokeLinecap="round"
                       filter="url(#glow)"
                       initial={{ pathLength: 0, pathOffset: 0, opacity: 1 }}
@@ -252,7 +287,7 @@ export default function CinematicIntro({ onComplete }) {
                       transition={{ 
                         duration: 1.8, 
                         ease: "easeOut",
-                        delay: i * 0.2 
+                        delay: i * 0.015 
                       }}
                     />
                   )}
@@ -261,7 +296,7 @@ export default function CinematicIntro({ onComplete }) {
                       d={path}
                       fill="none"
                       stroke="#fff" 
-                      strokeWidth="3"
+                      strokeWidth="2.5"
                       strokeLinecap="round"
                       filter="url(#glow)"
                       initial={{ pathLength: 0, pathOffset: 0, opacity: 1 }}
@@ -269,7 +304,7 @@ export default function CinematicIntro({ onComplete }) {
                       transition={{ 
                         duration: 1.8, 
                         ease: "easeOut",
-                        delay: i * 0.2 
+                        delay: i * 0.015 
                       }}
                     />
                   )}
