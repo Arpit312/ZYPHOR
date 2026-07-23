@@ -5,7 +5,7 @@ WORKDIR /app
 # Copy backend package files from server/ directory
 COPY server/package*.json ./
 
-RUN npm install --only=production
+RUN npm install --omit=dev
 
 # Copy backend source code from server/ directory
 COPY server/ ./
