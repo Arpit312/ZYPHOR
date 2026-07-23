@@ -2,10 +2,12 @@ import Link from "next/link";
 import { ScanLine, ShieldCheck, Zap, Store, Wrench, Users, Target, Lightbulb } from "lucide-react";
 import SectionHeading from "@/components/shared/SectionHeading";
 import Container from "@/components/shared/Container";
+import IntroWrapper from "@/components/shared/IntroWrapper";
 
 export default function HomePage() {
   return (
     <>
+      <IntroWrapper />
       {/* ─── HERO ─── */}
       <section className="bg-ink text-white overflow-hidden relative">
         <div
