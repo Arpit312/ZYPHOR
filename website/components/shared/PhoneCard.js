@@ -33,19 +33,13 @@ export default function PhoneCard({ phone, className = "" }) {
               src={images[imgIdx]}
               alt={`${phone.brand} ${phone.model}`}
               className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
-              onError={(e) => { e.target.style.display = "none"; e.target.nextSibling?.style.removeProperty("display"); }}
+              onError={(e) => { e.target.src = "/placeholder-device.svg"; e.target.onerror = null; }}
             />
-            {/* Fallback text */}
-            <div className="hidden absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-5xl mb-2">📱</div>
-                <p className="text-black/40 text-xs">{phone.brand} {phone.model}</p>
-              </div>
-            </div>
           </>
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-6xl">📱</span>
+          <div className="absolute inset-0 p-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/placeholder-device.svg" alt="No image" className="w-full h-full object-contain opacity-50" />
           </div>
         )}
 
