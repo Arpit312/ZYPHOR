@@ -3,80 +3,26 @@ import { ScanLine, ShieldCheck, Zap, Store, Wrench, Users, Target, Lightbulb } f
 import SectionHeading from "@/components/shared/SectionHeading";
 import Container from "@/components/shared/Container";
 import IntroWrapper from "@/components/shared/IntroWrapper";
+import HeroSection from "@/components/home/HeroSection";
 
 export default function HomePage() {
   return (
     <>
       <IntroWrapper />
       {/* ─── HERO ─── */}
-      <section className="bg-ink text-white overflow-hidden relative">
-        <div
-          className="absolute inset-0 opacity-[0.035]"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right,rgba(255,255,255,0.1) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,0.1) 1px,transparent 1px)",
-            backgroundSize: "40px 40px"
-          }}
-        />
-        <Container className="py-24 md:py-32 relative z-10">
-          <div className="max-w-3xl">
-            <p className="font-mono text-xs tracking-[0.25em] text-signal-green mb-5 uppercase">
-              AI-VERIFIED · IMEI-SCREENED · TRUST-SCORED
-            </p>
-            <h1 className="font-display font-700 text-4xl sm:text-5xl md:text-6xl leading-[1.08] tracking-tight">
-              Buy &amp; sell phones
-              <br />
-              <span className="text-coral">you can actually trust.</span>
-            </h1>
-            <p className="mt-6 text-white/65 text-lg max-w-xl leading-relaxed">
-              Every listing on ZYPHOR is checked by AI — condition graded, IMEI verified against
-              India&apos;s theft blacklist, and scored before you ever see it. No more buying surprises.
-            </p>
-            <div className="mt-10 flex flex-wrap gap-4">
-              <Link
-                href="/store"
-                className="inline-flex items-center gap-2 bg-coral hover:bg-coral-dark transition-colors text-white font-display font-600 px-7 py-3.5 rounded-lg text-base focus-ring"
-              >
-                Browse store <span aria-hidden>→</span>
-              </Link>
-              <Link
-                href="/ai-advisor"
-                className="inline-flex items-center gap-2 border border-white/20 hover:border-white/40 text-white/85 hover:text-white transition-colors font-display font-600 px-7 py-3.5 rounded-lg text-base focus-ring"
-              >
-                <Zap className="h-4 w-4 text-signal-green" />
-                Ask AI Advisor
-              </Link>
-            </div>
-          </div>
-
-          {/* Trust metrics strip */}
-          <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-white/10 pt-12">
-            {[
-              { n: "6,000+", label: "Verified listings" },
-              { n: "91%", label: "Avg. AI trust score" },
-              { n: "₹0", label: "IMEI check cost" },
-              { n: "48h", label: "Avg. verification time" }
-            ].map(({ n, label }) => (
-              <div key={label}>
-                <p className="font-display font-700 text-3xl text-white">{n}</p>
-                <p className="text-white/45 text-sm mt-1 font-mono">{label}</p>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </section>
+      <HeroSection />
 
       {/* ─── HOW IT WORKS ─── */}
-      <section className="py-20 bg-paper">
+      <section className="py-16 md:py-20 bg-paper">
         <Container>
           <SectionHeading
             eyebrow="How ZYPHOR works"
             title="Trusted in 5 steps"
             subtitle="From listing to verified sale — AI does the heavy lifting so you don't have to guess."
             align="center"
-            className="mb-14"
+            className="mb-10 md:mb-14"
           />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
             {[
               { icon: <Store className="h-6 w-6" />, step: "01", title: "Seller lists", body: "Photos, IMEI, battery health screenshot — a guided checklist walks sellers through every required piece of evidence." },
               { icon: <ScanLine className="h-6 w-6" />, step: "02", title: "IMEI screened", body: "We validate the IMEI format and cross-check it with India's CEIR government database. Black-listed IMEIs are blocked instantly." },
@@ -98,8 +44,8 @@ export default function HomePage() {
       </section>
 
       {/* ─── AI ADVISOR TEASER ─── */}
-      <section className="py-20 bg-ink text-white">
-        <Container className="grid md:grid-cols-2 gap-12 items-center">
+      <section className="py-16 md:py-20 bg-ink text-white">
+        <Container className="grid md:grid-cols-2 gap-10 md:gap-12 items-center">
           <div>
             <p className="font-mono text-xs tracking-widest text-signal-green mb-3 uppercase">
               AI Agent #2
@@ -158,22 +104,22 @@ export default function HomePage() {
       </section>
 
       {/* ─── ABOUT & VISION ─── */}
-      <section className="py-24 bg-white relative overflow-hidden">
+      <section className="py-16 md:py-24 bg-white relative overflow-hidden">
         {/* Background decorative elements */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-coral/5 rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/3" />
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-amber-500/5 rounded-full blur-[100px] pointer-events-none translate-y-1/2 -translate-x-1/3" />
         
         <Container className="relative z-10">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <span className="text-coral font-mono text-xs font-bold tracking-widest uppercase mb-4 block">
+          <div className="max-w-3xl mx-auto text-center mb-12 md:mb-16">
+            <span className="text-coral font-mono text-[10px] sm:text-xs font-bold tracking-widest uppercase mb-3 sm:mb-4 block">
               Who We Are
             </span>
-            <h2 className="font-display font-800 text-4xl sm:text-5xl text-slate-850 leading-tight">
+            <h2 className="font-display font-800 text-3xl sm:text-4xl md:text-5xl text-slate-850 leading-tight">
               Revolutionizing India's Refurbished Electronics Market
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12 lg:gap-20 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 lg:gap-20 max-w-5xl mx-auto">
             {/* Our Vision */}
             <div className="space-y-6">
               <div className="h-14 w-14 rounded-2xl bg-coral/10 flex items-center justify-center text-coral border border-coral/20">
@@ -210,15 +156,15 @@ export default function HomePage() {
       </section>
 
       {/* ─── ROLES CTA ─── */}
-      <section className="py-20 bg-paper">
+      <section className="py-16 md:py-20 bg-paper">
         <Container>
           <SectionHeading
             eyebrow="Join ZYPHOR"
             title="One platform. Every role."
             align="center"
-            className="mb-12"
+            className="mb-10 md:mb-12"
           />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
             {[
               { role: "retailer", icon: <Store className="h-6 w-6" />, title: "Retailer", body: "List inventory, get AI-verified badges, manage orders. 3-month free onboarding.", href: "/signup?role=retailer" },
               { role: "wholesaler", icon: <Users className="h-6 w-6" />, title: "Wholesaler", body: "Sell in bulk to a verified retailer network. Inventory dashboard included.", href: "/signup?role=wholesaler" },
