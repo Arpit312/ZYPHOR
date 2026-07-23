@@ -231,9 +231,17 @@ export default function CinematicIntro({ onComplete }) {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     style={{ filter: "drop-shadow(0px 0px 3px rgba(255,255,255,0.8))" }}
-                    initial={{ opacity: 1 }}
-                    animate={{ opacity: phase >= 2 ? 0 : 1 }}
-                    transition={{ duration: 0.8, delay: i * 0.2 }}
+                    initial={{ pathLength: 1, pathOffset: 0, opacity: 1 }}
+                    animate={
+                      phase >= 2 
+                        ? { pathLength: 0, pathOffset: 1, opacity: 0 } 
+                        : { pathLength: 1, pathOffset: 0, opacity: 1 }
+                    }
+                    transition={{ 
+                      pathLength: { duration: 1.8, ease: "easeOut", delay: i * 0.2 },
+                      pathOffset: { duration: 1.8, ease: "easeOut", delay: i * 0.2 },
+                      opacity: { duration: 0.2, delay: 1.6 + i * 0.2 } // final fade out at end of wipe
+                    }}
                   />
                   
                   {/* The Healing Spark traveling along the crack outward from center! */}
@@ -245,8 +253,8 @@ export default function CinematicIntro({ onComplete }) {
                       strokeWidth="7"
                       strokeLinecap="round"
                       filter="url(#glow)"
-                      initial={{ pathLength: 0, pathOffset: 1, opacity: 1 }}
-                      animate={{ pathLength: 0.4, pathOffset: 0, opacity: 0 }}
+                      initial={{ pathLength: 0, pathOffset: 0, opacity: 1 }}
+                      animate={{ pathLength: [0, 0.3, 0], pathOffset: [0, 0.7, 1], opacity: [1, 1, 0] }}
                       transition={{ 
                         duration: 1.8, 
                         ease: "easeOut",
@@ -262,8 +270,8 @@ export default function CinematicIntro({ onComplete }) {
                       strokeWidth="3"
                       strokeLinecap="round"
                       filter="url(#glow)"
-                      initial={{ pathLength: 0, pathOffset: 1, opacity: 1 }}
-                      animate={{ pathLength: 0.1, pathOffset: 0, opacity: 0 }}
+                      initial={{ pathLength: 0, pathOffset: 0, opacity: 1 }}
+                      animate={{ pathLength: [0, 0.15, 0], pathOffset: [0, 0.85, 1], opacity: [1, 1, 0] }}
                       transition={{ 
                         duration: 1.8, 
                         ease: "easeOut",
