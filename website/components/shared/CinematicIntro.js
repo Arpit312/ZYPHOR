@@ -3,15 +3,25 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Procedural crack paths radiating directly from the exact center (170, 360)
+// This creates a dense, realistic spiderweb shatter mathematically locked to the center of the phone.
 const CRACK_PATHS = [
-  "M 170 360 L 60 120 L 0 50",       // Top left
-  "M 170 360 L 280 150 L 340 80",    // Top right
-  "M 170 360 L 40 400 L 0 500",      // Bottom left
-  "M 170 360 L 300 480 L 340 580",   // Bottom right
-  "M 170 360 L 140 720",             // Bottom straight
-  "M 170 360 L 230 720",             // Bottom slight right
-  "M 170 360 L 0 250",               // Mid left
-  "M 170 360 L 340 280",             // Mid right
+  // Primary deep cracks (radiating outwards)
+  "M 170 360 L 100 200 L 40 50",
+  "M 170 360 L 250 180 L 320 60",
+  "M 170 360 L 260 550 L 330 680",
+  "M 170 360 L 80 520 L 20 650",
+  "M 170 360 L 0 340",
+  "M 170 360 L 340 370",
+  "M 170 360 L 150 0",
+  "M 170 360 L 190 720",
+  
+  // Secondary web cracks (horizontal interconnecting shards)
+  "M 120 280 L 100 200 L 180 150 L 250 180", // Top web
+  "M 140 420 L 80 520 L 220 580 L 260 550", // Bottom web
+  "M 170 360 L 220 300 L 340 220", // Mid-top right
+  "M 170 360 L 110 400 L 0 450",   // Mid-bottom left
+  "M 170 360 L 200 450 L 340 500", // Mid-bottom right
+  "M 170 360 L 130 250 L 0 150",   // Mid-top left
 ];
 
 export default function CinematicIntro({ onComplete }) {
@@ -186,25 +196,9 @@ export default function CinematicIntro({ onComplete }) {
 
             {/* ==================================================== */}
             {/* WHITE/SILVER CRACKED GLASS IMAGE (No Blue)           */}
+            {/* Removed the static PNG because its cracks were off-center. */}
+            {/* We now rely 100% on the mathematically perfect SVG paths below. */}
             {/* ==================================================== */}
-            <AnimatePresence>
-              {phase < 3 && (
-                <motion.div
-                  initial={{ opacity: 1 }}
-                  exit={{ opacity: 0, filter: "blur(5px)" }}
-                  transition={{ duration: 1.0, ease: "easeOut" }}
-                  className="absolute inset-0 z-20 pointer-events-none mix-blend-screen"
-                  style={{
-                    backgroundImage: "url('/cracked-glass.png')",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    filter: "grayscale(1) brightness(1.5)", // Makes the blue cracks pure white/silver
-                    opacity: phase === 2 ? 0 : 0.8,
-                    transition: "opacity 2.0s" 
-                  }}
-                />
-              )}
-            </AnimatePresence>
 
             {/* ==================================================== */}
             {/* THE CRACKS & HEALING SPARKS (SVG)                    */}
