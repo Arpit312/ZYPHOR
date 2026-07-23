@@ -166,44 +166,23 @@ export default function CinematicIntro({ onComplete }) {
             </div>
 
             {/* ==================================================== */}
-            /*  THE GLITCHING BROKEN SCREEN (Phases 0-1)             */
+            /*  THE CRACKED SCREEN (PURE BLACK)                      */
             {/* ==================================================== */}
-            <AnimatePresence>
-              {phase < 3 && (
-                <motion.div 
-                  className="absolute inset-0 bg-slate-800 flex flex-col z-10"
-                  animate={{
-                    opacity: [0.6, 0.9, 0.4, 1, 0.7, 0.9],
-                    filter: ["brightness(1) hue-rotate(0deg)", "brightness(1.5) hue-rotate(90deg)", "brightness(0.8) hue-rotate(0deg)"]
-                  }}
-                  transition={{ 
-                    duration: 0.5, 
-                    repeat: Infinity,
-                    repeatType: "reverse"
-                  }}
-                  exit={{ opacity: 0, transition: { duration: 1.0 } }} // Smooth fade out when healed
-                >
-                  <div className="w-full h-1/3 bg-white/10 mt-10" />
-                  <div className="w-full h-px bg-white/40 my-2" />
-                  <div className="w-full h-1/4 bg-blue-500/10" />
-                  <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Cracks Image Overlay */}
+            {/* The user explicitly requested a PURE BLACK screen from the start. */}
+            
+            {/* AI Generated Realistic Cracked Glass Overlay */}
             <AnimatePresence>
               {phase < 3 && (
                 <motion.div
                   initial={{ opacity: 1 }}
-                  exit={{ opacity: 0, filter: "brightness(2)" }}
+                  exit={{ opacity: 0, filter: "blur(5px)" }}
                   transition={{ duration: 1.0, ease: "easeOut" }}
-                  className="absolute inset-0 z-20 pointer-events-none mix-blend-multiply"
+                  className="absolute inset-0 z-20 pointer-events-none mix-blend-screen"
                   style={{
                     backgroundImage: "url('/cracked-glass.png')",
                     backgroundSize: "cover",
                     backgroundPosition: "center",
-                    opacity: phase === 2 ? 0 : 0.8,
+                    opacity: phase === 2 ? 0 : 0.6,
                     transition: "opacity 2.0s" // Smoothly fades out during long heal
                   }}
                 />
@@ -230,11 +209,11 @@ export default function CinematicIntro({ onComplete }) {
                   <motion.path
                     d={path}
                     fill="none"
-                    stroke="rgba(0,0,0,0.9)"
-                    strokeWidth="2.5"
+                    stroke="rgba(255,255,255,0.7)"
+                    strokeWidth="1.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    style={{ filter: "drop-shadow(1px 1px 0px rgba(255,255,255,0.4))" }}
+                    style={{ filter: "drop-shadow(0px 0px 3px rgba(255,255,255,0.8))" }}
                     initial={{ opacity: 1 }}
                     animate={{ opacity: phase >= 2 ? 0 : 1 }}
                     transition={{ duration: 0.8, delay: i * 0.2 }}
