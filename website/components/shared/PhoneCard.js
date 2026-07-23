@@ -21,10 +21,10 @@ export default function PhoneCard({ phone, className = "" }) {
   return (
     <Link
       href={`/marketplace/${phone._id}`}
-      className={`group block bg-[#12121E] border border-white/[0.07] rounded-2xl overflow-hidden hover:border-coral/40 hover:shadow-2xl hover:shadow-coral/10 hover:-translate-y-1 transition-all duration-300 flex flex-col h-full ${className}`}
+      className={`group block bg-white border border-black/[0.08] rounded-2xl overflow-hidden hover:border-coral/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full ${className}`}
     >
       {/* Image Area */}
-      <div className="relative aspect-[4/3] bg-gradient-to-br from-[#1A1A2E] to-[#0F0F1A] overflow-hidden shrink-0">
+      <div className="relative aspect-[4/3] bg-paper overflow-hidden shrink-0 border-b border-black/[0.04]">
         {images.length > 0 ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -39,7 +39,7 @@ export default function PhoneCard({ phone, className = "" }) {
             <div className="hidden absolute inset-0 flex items-center justify-center">
               <div className="text-center">
                 <div className="text-5xl mb-2">📱</div>
-                <p className="text-white/30 text-xs">{phone.brand} {phone.model}</p>
+                <p className="text-black/40 text-xs">{phone.brand} {phone.model}</p>
               </div>
             </div>
           </>
@@ -56,7 +56,7 @@ export default function PhoneCard({ phone, className = "" }) {
               <button
                 key={i}
                 onClick={(e) => { e.preventDefault(); setImgIdx(i); }}
-                className={`h-1.5 rounded-full transition-all ${i === imgIdx ? "w-5 bg-coral" : "w-1.5 bg-white/30"}`}
+                className={`h-1.5 rounded-full transition-all ${i === imgIdx ? "w-5 bg-coral" : "w-1.5 bg-black/20"}`}
               />
             ))}
           </div>
@@ -68,7 +68,7 @@ export default function PhoneCard({ phone, className = "" }) {
             {phone.conditionGrade}
           </span>
           {phone.verification?.status === "verified" && (
-            <span className="bg-coral/20 border border-coral/40 text-coral text-[10px] font-mono font-bold px-2 py-1 rounded-lg flex items-center gap-1">
+            <span className="bg-coral/10 border border-coral/30 text-coral text-[10px] font-mono font-bold px-2 py-1 rounded-lg flex items-center gap-1">
               <BadgeCheck className="h-3 w-3" /> AI Verified
             </span>
           )}
@@ -79,13 +79,13 @@ export default function PhoneCard({ phone, className = "" }) {
           <>
             <button
               onClick={(e) => { e.preventDefault(); setImgIdx(i => (i === 0 ? images.length - 1 : i - 1)); }}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 text-slate-850 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm border border-black/10 hover:bg-white"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
             </button>
             <button
               onClick={(e) => { e.preventDefault(); setImgIdx(i => (i === images.length - 1 ? 0 : i + 1)); }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 text-slate-850 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm border border-black/10 hover:bg-white"
             >
               <ChevronRight className="h-3.5 w-3.5" />
             </button>
@@ -95,22 +95,22 @@ export default function PhoneCard({ phone, className = "" }) {
 
       {/* Info */}
       <div className="p-4 flex flex-col flex-1">
-        <p className="text-white/30 text-[10px] font-mono uppercase tracking-widest mb-0.5">{phone.brand}</p>
-        <h3 className="font-display font-700 text-white text-sm line-clamp-1 mb-1">
+        <p className="text-black/40 text-[10px] font-mono uppercase tracking-widest mb-0.5">{phone.brand}</p>
+        <h3 className="font-display font-700 text-slate-850 text-sm line-clamp-1 mb-1">
           {phone.title || `${phone.brand} ${phone.model}`}
         </h3>
 
         {/* Specs row */}
-        <div className="flex flex-wrap gap-1.5 mb-3">
+        <div className="flex flex-wrap gap-1.5 mb-3 mt-1">
           {phone.storage && (
-            <span className="text-[10px] font-mono text-white/40 bg-white/5 px-2 py-0.5 rounded">{phone.storage}</span>
+            <span className="text-[10px] font-mono text-black/60 bg-black/5 border border-black/5 px-2 py-0.5 rounded">{phone.storage}</span>
           )}
           {phone.ram && (
-            <span className="text-[10px] font-mono text-white/40 bg-white/5 px-2 py-0.5 rounded">{phone.ram} RAM</span>
+            <span className="text-[10px] font-mono text-black/60 bg-black/5 border border-black/5 px-2 py-0.5 rounded">{phone.ram} RAM</span>
           )}
           {phone.city && (
-            <span className="text-[10px] font-mono text-white/40 flex items-center gap-0.5">
-              <MapPin className="h-2.5 w-2.5" />{phone.city}
+            <span className="text-[10px] font-mono text-black/60 flex items-center gap-0.5 ml-1">
+              <MapPin className="h-2.5 w-2.5 text-black/40" />{phone.city}
             </span>
           )}
         </div>
@@ -119,17 +119,17 @@ export default function PhoneCard({ phone, className = "" }) {
           {/* Price + Trust */}
           <div className="flex items-end justify-between">
             <div>
-              <p className="font-display font-700 text-xl text-white">{formatINR(phone.price)}</p>
+              <p className="font-display font-700 text-xl text-slate-850">{formatINR(phone.price)}</p>
               {phone.originalPrice && (
-                <p className="text-white/30 text-xs line-through">{formatINR(phone.originalPrice)}</p>
+                <p className="text-black/40 text-xs line-through">{formatINR(phone.originalPrice)}</p>
               )}
             </div>
             <div className="text-right">
-              <div className={`text-xs font-mono font-bold ${trust >= 80 ? "text-emerald-400" : trust >= 50 ? "text-amber-400" : "text-red-400"}`}>
+              <div className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded border ${trust >= 80 ? "bg-emerald-50 text-emerald-600 border-emerald-200" : trust >= 50 ? "bg-amber-50 text-amber-600 border-amber-200" : "bg-red-50 text-red-600 border-red-200"}`}>
                 Trust {trust}%
               </div>
               {phone.emiEligible && (
-                <div className="text-[10px] text-white/40 font-mono flex items-center gap-0.5 justify-end mt-0.5">
+                <div className="text-[10px] text-black/40 font-mono flex items-center gap-0.5 justify-end mt-1">
                   <CreditCard className="h-3 w-3" /> EMI
                 </div>
               )}
@@ -137,7 +137,7 @@ export default function PhoneCard({ phone, className = "" }) {
           </div>
 
           {/* Buy button */}
-          <button className="w-full mt-3 bg-coral/10 hover:bg-coral text-coral hover:text-white border border-coral/30 hover:border-coral font-display font-600 text-xs py-2.5 rounded-xl transition-all duration-200">
+          <button className="w-full mt-4 bg-coral hover:bg-coral-dark text-white font-display font-600 text-xs py-2.5 rounded-xl transition-all duration-200 shadow-sm focus-ring">
             View Details & Buy
           </button>
         </div>

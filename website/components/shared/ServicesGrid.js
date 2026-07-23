@@ -77,8 +77,8 @@ export default function ServicesGrid() {
     <section className="py-10">
       <div className="flex items-end justify-between mb-6">
         <div>
-          <h2 className="font-display font-800 text-3xl text-white">Our Services</h2>
-          <p className="text-white/40 text-sm mt-1">Everything you need in one place.</p>
+          <h2 className="font-display font-800 text-3xl text-slate-850">Our Services</h2>
+          <p className="text-black/55 text-sm mt-1">Everything you need in one place.</p>
         </div>
       </div>
 
@@ -87,7 +87,7 @@ export default function ServicesGrid() {
           <Link
             key={i}
             href={s.href}
-            className={`group relative bg-gradient-to-br ${s.color} border ${s.borderColor} rounded-2xl p-4 flex flex-col items-center justify-center gap-3 hover:-translate-y-1 transition-all duration-300 hover:shadow-lg`}
+            className={`group relative bg-gradient-to-br ${s.color.replace('white/10', 'black/5').replace('white/5', 'black/5')} border ${s.borderColor.replace('white/10', 'black/10')} rounded-2xl p-4 flex flex-col items-center justify-center gap-3 hover:-translate-y-1 transition-all duration-300 hover:shadow-lg`}
           >
             {s.badge && (
               <span className={`absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold font-mono px-2 py-0.5 rounded-full whitespace-nowrap
@@ -95,10 +95,10 @@ export default function ServicesGrid() {
                 {s.badge}
               </span>
             )}
-            <div className={`p-3 rounded-xl bg-[#0A0A0F] border border-white/5 group-hover:scale-110 transition-transform`}>
-              <s.icon className={`h-6 w-6 ${s.textColor}`} strokeWidth={1.5} />
+            <div className={`p-3 rounded-xl bg-white border border-black/5 group-hover:scale-110 transition-transform shadow-sm`}>
+              <s.icon className={`h-6 w-6 ${s.textColor.replace('white/70', 'slate-850')}`} strokeWidth={1.5} />
             </div>
-            <span className="text-[11px] font-semibold font-mono text-center text-white/80 group-hover:text-white leading-tight">
+            <span className="text-[11px] font-semibold font-mono text-center text-slate-850 group-hover:text-coral leading-tight">
               {s.title}
             </span>
           </Link>
