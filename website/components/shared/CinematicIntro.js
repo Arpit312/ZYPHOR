@@ -166,11 +166,27 @@ export default function CinematicIntro({ onComplete }) {
             </div>
 
             {/* ==================================================== */}
-            /*  THE CRACKED SCREEN (PURE BLACK)                      */
+            {/* AADA ON BLINKING SCREEN (Dark & Moody)               */}
             {/* ==================================================== */}
-            {/* The user explicitly requested a PURE BLACK screen from the start. */}
-            
-            {/* AI Generated Realistic Cracked Glass Overlay */}
+            <AnimatePresence>
+              {phase < 3 && (
+                <motion.div 
+                  className="absolute inset-0 flex flex-col z-10"
+                  animate={{ opacity: [0.1, 0.4, 0.1, 0.6, 0.05, 0.3] }}
+                  transition={{ duration: 0.4, repeat: Infinity, repeatType: "reverse" }}
+                  exit={{ opacity: 0, transition: { duration: 0.5 } }}
+                >
+                  <div className="w-full h-1/2 bg-white/5 mt-12" />
+                  <div className="w-full h-px bg-white/20 my-1" />
+                  <div className="w-full h-1/3 bg-white/10" />
+                  <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-40 mix-blend-overlay"></div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* ==================================================== */}
+            {/* WHITE/SILVER CRACKED GLASS IMAGE (No Blue)           */}
+            {/* ==================================================== */}
             <AnimatePresence>
               {phase < 3 && (
                 <motion.div
@@ -182,15 +198,16 @@ export default function CinematicIntro({ onComplete }) {
                     backgroundImage: "url('/cracked-glass.png')",
                     backgroundSize: "cover",
                     backgroundPosition: "center",
-                    opacity: phase === 2 ? 0 : 0.6,
-                    transition: "opacity 2.0s" // Smoothly fades out during long heal
+                    filter: "grayscale(1) brightness(1.5)", // Makes the blue cracks pure white/silver
+                    opacity: phase === 2 ? 0 : 0.8,
+                    transition: "opacity 2.0s" 
                   }}
                 />
               )}
             </AnimatePresence>
 
             {/* ==================================================== */}
-            /*  THE CRACKS & HEALING SPARKS (SVG)                    */
+            {/* THE CRACKS & HEALING SPARKS (SVG)                    */}
             {/* ==================================================== */}
             <svg className="absolute inset-0 w-full h-full z-40 pointer-events-none">
               <defs>
@@ -209,7 +226,7 @@ export default function CinematicIntro({ onComplete }) {
                   <motion.path
                     d={path}
                     fill="none"
-                    stroke="rgba(255,255,255,0.7)"
+                    stroke="rgba(255,255,255,0.9)"
                     strokeWidth="1.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -224,7 +241,7 @@ export default function CinematicIntro({ onComplete }) {
                     <motion.path
                       d={path}
                       fill="none"
-                      stroke="#0ea5e9" // Intense neon blue
+                      stroke="#0ea5e9" 
                       strokeWidth="7"
                       strokeLinecap="round"
                       filter="url(#glow)"
@@ -241,7 +258,7 @@ export default function CinematicIntro({ onComplete }) {
                     <motion.path
                       d={path}
                       fill="none"
-                      stroke="#fff" // Bright core
+                      stroke="#fff" 
                       strokeWidth="3"
                       strokeLinecap="round"
                       filter="url(#glow)"
