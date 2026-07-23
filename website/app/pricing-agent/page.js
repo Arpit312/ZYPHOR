@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { TrendingUp, TrendingDown, Minus, Zap, CheckCircle, Upload, Video, ShieldCheck, Image as ImageIcon, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
+import Container from "@/components/shared/Container";
 
 const CONDITIONS = ["Superb", "Good", "Fair"];
 const BRANDS = ["Apple", "Samsung", "OnePlus", "Xiaomi", "Motorola", "Realme", "Vivo", "Oppo", "Nothing", "Google"];
@@ -327,6 +328,7 @@ export default function PricingAgentPage() {
                 Fill in device details, upload 3 photos &amp; video link to generate instant AI market price report.
               </div>
             )}
+          </div>
           </div>
         </div>
       </main>
