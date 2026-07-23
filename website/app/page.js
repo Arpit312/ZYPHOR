@@ -1,26 +1,9 @@
 import Link from "next/link";
-import { ScanLine, ShieldCheck, Zap, Store, Wrench, Users, Smartphone } from "lucide-react";
-import ListingCard from "@/components/shared/ListingCard";
+import { ScanLine, ShieldCheck, Zap, Store, Wrench, Users, Target, Lightbulb } from "lucide-react";
 import SectionHeading from "@/components/shared/SectionHeading";
 import Container from "@/components/shared/Container";
-import CategoryCard from "@/components/shared/CategoryCard";
-import { connectDB } from "@/lib/db";
-import Listing from "@/models/Listing";
-import { getCategories } from "@/lib/catalog";
 
-async function getFeatured() {
-  try {
-    await connectDB();
-    return await Listing.find({ status: "active", listingType: "device" })
-      .sort({ "verification.trustScore": -1 })
-      .limit(6)
-      .lean();
-  } catch { return []; }
-}
-
-export default async function HomePage() {
-  const [featured, categories] = await Promise.all([getFeatured(), getCategories()]);
-
+export default function HomePage() {
   return (
     <>
       {/* ─── HERO ─── */}
@@ -49,10 +32,10 @@ export default async function HomePage() {
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <Link
-                href="/buy"
+                href="/store"
                 className="inline-flex items-center gap-2 bg-coral hover:bg-coral-dark transition-colors text-white font-display font-600 px-7 py-3.5 rounded-lg text-base focus-ring"
               >
-                Browse phones <span aria-hidden>→</span>
+                Browse store <span aria-hidden>→</span>
               </Link>
               <Link
                 href="/ai-advisor"
@@ -81,28 +64,6 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      {/* ─── SHOP BY CATEGORY (live catalog) ─── */}
-      <section className="py-20">
-        <Container>
-          <div className="flex items-end justify-between mb-10">
-            <SectionHeading eyebrow="Live catalog" title="Shop by category" />
-            <Link href="/buy" className="hidden sm:inline text-sm font-medium text-coral hover:underline focus-ring">
-              View all →
-            </Link>
-          </div>
-          {categories.length === 0 ? (
-            <div className="text-center py-16 bg-paper rounded-2xl border border-black/[0.06]">
-              <Smartphone className="h-10 w-10 text-black/10 mx-auto mb-3" />
-              <p className="text-black/40 text-sm">No categories yet — list the first device to populate the catalog.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
-              {categories.slice(0, 8).map((c) => <CategoryCard key={c.slug} category={c} />)}
-            </div>
-          )}
-        </Container>
-      </section>
-
       {/* ─── HOW IT WORKS ─── */}
       <section className="py-20 bg-paper">
         <Container>
@@ -121,7 +82,7 @@ export default async function HomePage() {
               { icon: <Zap className="h-6 w-6" />, step: "04", title: "Trust Score set", body: "A transparent 0–100 score, broken down across 5 components, is attached to every listing. Nothing is hidden." },
               { icon: <Users className="h-6 w-6" />, step: "05", title: "You buy safely", body: "Payment is held in escrow until you confirm delivery and condition. Dispute? Our team steps in within 24 h." }
             ].map(({ icon, step, title, body }) => (
-              <div key={step} className="relative bg-white rounded-xl p-6 border border-black/[0.06]">
+              <div key={step} className="relative bg-white rounded-xl p-6 border border-black/[0.06] shadow-sm">
                 <div className="absolute top-4 right-4 font-mono text-xs text-black/20">{step}</div>
                 <div className="h-10 w-10 rounded-lg bg-ink flex items-center justify-center text-white mb-4">
                   {icon}
@@ -133,31 +94,6 @@ export default async function HomePage() {
           </div>
         </Container>
       </section>
-
-      {/* ─── FEATURED LISTINGS ─── */}
-      {featured.length > 0 && (
-        <section className="py-20">
-          <Container>
-            <div className="flex items-end justify-between mb-10">
-              <SectionHeading
-                eyebrow="Top verified picks"
-                title="Highest trust-scored phones"
-              />
-              <Link
-                href="/marketplace"
-                className="hidden sm:inline text-sm font-medium text-coral hover:underline focus-ring"
-              >
-                View all →
-              </Link>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featured.map((l) => (
-                <ListingCard key={l._id.toString()} listing={{ ...l, _id: l._id.toString() }} />
-              ))}
-            </div>
-          </Container>
-        </section>
-      )}
 
       {/* ─── AI ADVISOR TEASER ─── */}
       <section className="py-20 bg-ink text-white">
@@ -219,6 +155,58 @@ export default async function HomePage() {
         </Container>
       </section>
 
+      {/* ─── ABOUT & VISION ─── */}
+      <section className="py-24 bg-white relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-coral/5 rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/3" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-amber-500/5 rounded-full blur-[100px] pointer-events-none translate-y-1/2 -translate-x-1/3" />
+        
+        <Container className="relative z-10">
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <span className="text-coral font-mono text-xs font-bold tracking-widest uppercase mb-4 block">
+              Who We Are
+            </span>
+            <h2 className="font-display font-800 text-4xl sm:text-5xl text-slate-850 leading-tight">
+              Revolutionizing India's Refurbished Electronics Market
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-20 max-w-5xl mx-auto">
+            {/* Our Vision */}
+            <div className="space-y-6">
+              <div className="h-14 w-14 rounded-2xl bg-coral/10 flex items-center justify-center text-coral border border-coral/20">
+                <Target className="h-7 w-7" />
+              </div>
+              <h3 className="font-display font-700 text-3xl text-slate-850">Our Vision</h3>
+              <div className="space-y-4 text-black/60 leading-relaxed">
+                <p>
+                  At ZYPHOR, we believe buying a pre-owned device shouldn't feel like a gamble. Our vision is to create India's most transparent and trusted ecosystem for refurbished electronics.
+                </p>
+                <p>
+                  By leveraging state-of-the-art Artificial Intelligence and strict verification protocols, we are eliminating fraud, hiding nothing, and bringing complete peace of mind to every transaction.
+                </p>
+              </div>
+            </div>
+
+            {/* Our Mission */}
+            <div className="space-y-6">
+              <div className="h-14 w-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 border border-amber-500/20">
+                <Lightbulb className="h-7 w-7" />
+              </div>
+              <h3 className="font-display font-700 text-3xl text-slate-850">The Mission</h3>
+              <div className="space-y-4 text-black/60 leading-relaxed">
+                <p>
+                  We aim to bridge the gap between local retailers, technicians, and everyday consumers by unifying them under one verified platform.
+                </p>
+                <p>
+                  Whether you're looking for a budget smartphone, genuine spare parts, or doorstep repair services, ZYPHOR ensures standard pricing, guaranteed quality, and a seamless digital experience.
+                </p>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
+
       {/* ─── ROLES CTA ─── */}
       <section className="py-20 bg-paper">
         <Container>
@@ -258,7 +246,7 @@ export default async function HomePage() {
       <section className="py-16 bg-signal-green/5 border-y border-signal-green/20">
         <Container className="flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-signal-green flex items-center justify-center text-white animate-pulse-ring">
+            <div className="h-12 w-12 rounded-full bg-signal-green flex items-center justify-center text-white animate-pulse-ring shrink-0">
               <ScanLine className="h-6 w-6" />
             </div>
             <div>
