@@ -5,8 +5,8 @@ import { Search, SlidersHorizontal, ShieldCheck, Star, MapPin, Zap, CreditCard, 
 
 import PhoneCard from "./PhoneCard";
 
-export default function PhoneStoreClient({ initialPhones, brands, conditions }) {
-  const [query, setQuery] = useState("");
+export default function PhoneStoreClient({ initialPhones, brands, conditions, initialQuery = "" }) {
+  const [query, setQuery] = useState(initialQuery);
   const [activeBrand, setActiveBrand] = useState("All");
   const [activeCondition, setActiveCondition] = useState("All");
   const [sortBy, setSortBy] = useState("newest");
@@ -105,8 +105,10 @@ export default function PhoneStoreClient({ initialPhones, brands, conditions }) 
 
       {/* Grid */}
       {filtered.length === 0 ? (
-        <div className="bg-white border border-black/5 rounded-2xl p-16 text-center shadow-sm">
-          <div className="text-5xl mb-4">🔍</div>
+        <div className="bg-white border border-black/5 rounded-2xl p-16 text-center shadow-sm flex flex-col items-center">
+          <div className="w-20 h-20 bg-black/5 rounded-full flex items-center justify-center text-black/20 mb-5">
+            <Search className="h-10 w-10" />
+          </div>
           <h3 className="font-display font-700 text-xl text-slate-850 mb-2">No phones found</h3>
           <p className="text-black/40 text-sm">Try a different brand, condition or search term.</p>
           <button

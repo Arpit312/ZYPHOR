@@ -17,9 +17,11 @@ const TOP_LINKS = [
 ];
 
 const MORE_LINKS = [
+  { href: "/coming-soon",   label: "Buy Laptops" },
+  { href: "/coming-soon",   label: "Accessories" },
+  { href: "/stores",        label: "Find Stores" },
   { href: "/pricing-agent", label: "Price Check" },
   { href: "/verify-imei",   label: "IMEI Check" },
-  { href: "/stores",        label: "Find Stores" },
 ];
 
 export default function Navbar({ user }) {

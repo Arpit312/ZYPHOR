@@ -45,6 +45,12 @@ export default function SearchBar({ variant = "navbar" }) {
           value={q}
           onChange={(e) => { setQ(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && q.trim()) {
+              setOpen(false);
+              router.push(`/store?q=${encodeURIComponent(q.trim())}`);
+            }
+          }}
           placeholder="Search iPhone 15, Galaxy S23…"
           className={`w-full bg-transparent py-2.5 text-sm focus:outline-none ${isNavbar ? "text-white placeholder:text-white/40" : "text-slate-850 placeholder:text-black/30"}`}
         />

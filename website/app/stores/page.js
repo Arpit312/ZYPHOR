@@ -36,7 +36,7 @@ export default function StoresPage() {
 
             <div className="space-y-2">
               <h2 className="font-display font-700 text-2xl text-slate-850">
-                Store Locator Upgrading 🛠️
+                Store Locator Upgrading
               </h2>
               <p className="text-sm text-black/60 leading-relaxed max-w-md mx-auto">
                 Hum Zyphor Experience Store Locator ko pan-India expansion ke sath upgrade kar rahe hain.

@@ -113,6 +113,7 @@ export default async function StorePage({ searchParams }) {
             initialPhones={serialized}
             brands={BRANDS}
             conditions={CONDITIONS}
+            initialQuery={params.q || ""}
           />
         </section>
       </Container>

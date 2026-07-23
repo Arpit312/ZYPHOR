@@ -36,7 +36,7 @@ export default function ComingSoonPage() {
 
             <div className="space-y-2">
               <h2 className="font-display font-700 text-2xl text-slate-850">
-                Coming Back Soon 🛠️
+                Coming Back Soon
               </h2>
               <p className="text-sm text-black/60 leading-relaxed max-w-md mx-auto">
                 Hum is section ko upgrade kar rahe hain taaki aapko aur bhi behtar features aur options mil sakein.

@@ -4,6 +4,7 @@ import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import { getSessionUser } from "@/lib/auth";
 import { CartProvider } from "@/context/CartContext";
+import BottomNav from "@/components/shared/BottomNav";
 import AuthProvider from "@/components/providers/AuthProvider";
 import { Toaster } from "react-hot-toast";
 
@@ -26,8 +27,9 @@ export default async function RootLayout({ children }) {
         <AuthProvider>
           <CartProvider>
             <Navbar user={user} />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1 pb-16 md:pb-0">{children}</main>
             <Footer />
+            <BottomNav user={user} />
             <Toaster position="top-right" reverseOrder={false} />
           </CartProvider>
         </AuthProvider>

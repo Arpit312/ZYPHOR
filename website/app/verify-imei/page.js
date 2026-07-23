@@ -20,7 +20,7 @@ export default function IMEICheckPage() {
               <ShieldAlert className="h-3.5 w-3.5" /> Under Maintenance
             </span>
             <h1 className="font-display font-700 text-3xl text-slate-850">
-              IMEI Verification AI is Upgrading 🛠️
+              IMEI Verification AI is Upgrading
             </h1>
             <p className="text-sm text-black/60 leading-relaxed max-w-md mx-auto">
               Hum ZYPHOR AI IMEI &amp; CEIR Scanner service ko real-time Indian telecom database integration ke sath upgrade kar rahe hain.

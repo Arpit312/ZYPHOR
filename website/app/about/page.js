@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ScanLine, ShieldCheck, Zap, Store, Users, Wrench, Lock, Star } from "lucide-react";
+import { ScanLine, ShieldCheck, Zap, Store, Users, Wrench, Lock, Star, AlertTriangle, BatteryWarning, Image as ImageIcon, Banknote } from "lucide-react";
 import Container from "@/components/shared/Container";
 import SectionHeading from "@/components/shared/SectionHeading";
 
@@ -54,13 +54,13 @@ export default function AboutPage() {
           />
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
-              { emoji: "🚨", title: "Stolen phones", body: "India's CEIR database lists thousands of blacklisted IMEIs. Most resale platforms don't check any of them before listing." },
-              { emoji: "🔋", title: "Battery lies", body: "'Battery 95%' claims are unverified on every major platform. A phone in heavy use for 2 years cannot have 95% health." },
-              { emoji: "📸", title: "Stock photo fraud", body: "Sellers reuse official brand photos instead of real device photos. Buyers receive something completely different." },
-              { emoji: "💸", title: "Price scams", body: "Suspiciously low prices (flagship phones at ₹5,000) are scam listings designed to collect payment and disappear." }
-            ].map(({ emoji, title, body }) => (
+              { icon: <AlertTriangle className="h-8 w-8 text-red-500" />, title: "Stolen phones", body: "India's CEIR database lists thousands of blacklisted IMEIs. Most resale platforms don't check any of them before listing." },
+              { icon: <BatteryWarning className="h-8 w-8 text-amber-500" />, title: "Battery lies", body: "'Battery 95%' claims are unverified on every major platform. A phone in heavy use for 2 years cannot have 95% health." },
+              { icon: <ImageIcon className="h-8 w-8 text-blue-500" />, title: "Stock photo fraud", body: "Sellers reuse official brand photos instead of real device photos. Buyers receive something completely different." },
+              { icon: <Banknote className="h-8 w-8 text-emerald-500" />, title: "Price scams", body: "Suspiciously low prices (flagship phones at ₹5,000) are scam listings designed to collect payment and disappear." }
+            ].map(({ icon, title, body }) => (
               <div key={title} className="bg-white border border-black/[0.06] rounded-xl p-5">
-                <p className="text-3xl mb-3">{emoji}</p>
+                <div className="mb-4">{icon}</div>
                 <h3 className="font-display font-600 text-base text-slate-850 mb-2">{title}</h3>
                 <p className="text-sm text-black/55 leading-relaxed">{body}</p>
               </div>

@@ -176,7 +176,7 @@ export default function PricingAgentPage() {
                 </div>
               </div>
 
-              {/* 📸 Image Upload Option */}
+              {/* Image Upload Option */}
               <div className="pt-2">
                 <label className="block text-xs font-semibold text-slate-850 mb-1.5 flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
@@ -267,7 +267,7 @@ export default function PricingAgentPage() {
                 {/* Media Analysis Note */}
                 {result.mediaAnalysisNote && (
                   <div className="bg-coral/5 border border-coral/20 rounded-xl p-3.5 text-xs text-slate-850 font-medium leading-relaxed">
-                    📸 <strong>AI Inspection Note:</strong> {result.mediaAnalysisNote}
+                    <div className="flex items-start gap-1.5"><ImageIcon className="h-4 w-4 shrink-0 text-coral mt-0.5" /> <span><strong>AI Inspection Note:</strong> {result.mediaAnalysisNote}</span></div>
                   </div>
                 )}
 
