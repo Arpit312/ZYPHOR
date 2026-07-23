@@ -80,22 +80,26 @@ export default function PricingAgentPage() {
   const trendColor = result?.marketTrend === "rising" ? "text-signal-green" : result?.marketTrend === "falling" ? "text-signal-red" : "text-amber-500";
 
   return (
-    <main className="bg-paper min-h-screen py-12">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-full px-4 py-1.5 text-sm font-semibold mb-4">
-            <Zap className="h-4 w-4" />
+    <div className="bg-paper min-h-screen">
+      {/* Hero Banner (DARK) */}
+      <div className="relative overflow-hidden bg-ink border-b border-white/5">
+        <Container className="relative py-12 text-center z-10">
+          <div className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full px-4 py-1.5 text-[10px] font-mono font-bold tracking-widest uppercase mb-4">
+            <Zap className="h-3.5 w-3.5" />
             AI Resale Price &amp; Inspection Agent
           </div>
-          <h1 className="font-display font-700 text-3xl sm:text-4xl text-slate-850">
-            Predict Real-World Resale Market Price
+          <h1 className="font-display font-800 text-3xl sm:text-4xl lg:text-5xl text-white leading-tight mb-3">
+            Predict Real-World <span className="text-coral">Resale Price</span>
           </h1>
-          <p className="text-black/55 mt-3 text-sm max-w-xl mx-auto">
+          <p className="text-white/60 text-sm max-w-xl mx-auto">
             Upload device photos and video inspection clip for an accurate AI visual condition analysis &amp; precision valuation bonus.
           </p>
-        </div>
+        </Container>
+      </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+      <main className="py-12">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-8">
           {/* Form */}
           <div className="bg-white border border-black/[0.07] rounded-2xl p-6 shadow-sm">
             <h2 className="font-display font-600 text-lg text-slate-850 mb-5">Enter Device &amp; Media Details</h2>
@@ -326,7 +330,7 @@ export default function PricingAgentPage() {
             )}
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

@@ -60,22 +60,25 @@ export default async function PartsPage({ searchParams }) {
   const listings = await getParts(params);
 
   return (
-    <section className="py-12 bg-paper min-h-screen">
-      <Container>
-        {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <span className="text-xs font-mono font-bold text-coral bg-coral/10 border border-coral/20 px-3 py-1 rounded-full uppercase tracking-wider">
+    <div className="bg-paper min-h-screen">
+      {/* Hero Banner (DARK) */}
+      <div className="relative overflow-hidden bg-ink border-b border-white/5">
+        <Container className="relative py-12 text-center z-10">
+          <span className="text-[10px] font-mono font-bold text-coral bg-coral/10 border border-coral/20 px-3 py-1.5 rounded-full uppercase tracking-widest mb-4 inline-block">
             Verified Spare Parts Catalog
           </span>
-          <h1 className="font-display font-700 text-3xl sm:text-4xl text-slate-850 mt-3">
-            Mobile Spare Parts &amp; Accessories
+          <h1 className="font-display font-800 text-3xl sm:text-4xl lg:text-5xl text-white leading-tight mb-3">
+            Mobile Spare Parts &amp; <span className="text-coral">Accessories</span>
           </h1>
-          <p className="text-black/55 text-sm mt-2">
+          <p className="text-white/60 text-sm max-w-xl mx-auto">
             Select a part category below, choose your smartphone brand &amp; model to find 100% verified original replacement parts.
           </p>
-        </div>
+        </Container>
+      </div>
 
-        {/* 1. Category Section Buttons */}
+      <section className="py-12">
+        <Container>
+          {/* 1. Category Section Buttons */}
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-8">
           {PART_SECTIONS.map((sec) => {
             const Icon = sec.icon;
@@ -179,6 +182,7 @@ export default async function PartsPage({ searchParams }) {
           )}
         </div>
       </Container>
-    </section>
+      </section>
+    </div>
   );
 }

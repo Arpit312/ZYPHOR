@@ -48,17 +48,14 @@ export default async function StorePage({ searchParams }) {
   // For the carousel, let's pick the top 8 highest trust score devices
   const premiumPhones = [...serialized].sort((a, b) => (b.verification?.trustScore || 0) - (a.verification?.trustScore || 0)).slice(0, 8);
   
-  // For laptops, we show a maintenance placeholder for now, or just an empty carousel
-  const laptopPlaceholder = []; // No laptop data yet
-
   return (
-    <div className="bg-[#0A0A0F] min-h-screen text-white">
-      {/* Hero Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#0A0A0F] via-[#12121E] to-[#0A0A0F] border-b border-white/5">
+    <div className="bg-paper min-h-screen">
+      {/* Hero Banner (DARK) */}
+      <div className="relative overflow-hidden bg-ink border-b border-white/5">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-coral/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        <Container className="relative py-12 text-center">
+        <Container className="relative py-16 text-center z-10">
           <div className="inline-flex items-center gap-2 bg-coral/10 border border-coral/20 text-coral text-[10px] font-mono font-bold px-4 py-1.5 rounded-full mb-5 uppercase tracking-widest">
             <Zap className="h-3.5 w-3.5" />
             Official ZYPHOR Store
@@ -70,49 +67,51 @@ export default async function StorePage({ searchParams }) {
               Verified & Guaranteed.
             </span>
           </h1>
-          <p className="text-white/50 text-sm max-w-xl mx-auto">
+          <p className="text-white/60 text-base max-w-xl mx-auto">
             From AI-verified smartphones to premium accessories and expert repair services.
           </p>
         </Container>
       </div>
 
-      <Container>
+      <Container className="py-12">
         {/* Services Grid (Buy, Sell, Repair, Laptops, Parts) */}
         <ServicesGrid />
 
         {/* Refurbished Phones Carousel */}
         {premiumPhones.length > 0 && (
-          <StorefrontCarousel 
-            title="Premium Refurbished Devices" 
-            subtitle="Highest Trust Scores. Best condition. Handpicked by AI."
-            items={premiumPhones}
-            viewAllLink="#catalog"
-          />
+          <div className="mt-16">
+            <StorefrontCarousel 
+              title="Premium Refurbished Devices" 
+              subtitle="Highest Trust Scores. Best condition. Handpicked by AI."
+              items={premiumPhones}
+              viewAllLink="#catalog"
+            />
+          </div>
         )}
 
-        {/* Laptops Carousel - Under Maintenance (Requested by User) */}
-        <section id="laptops" className="py-12 border-t border-white/5">
+        {/* Laptops Carousel - Under Maintenance */}
+        <section id="laptops" className="py-16 border-t border-black/[0.06] mt-16">
            <div className="mb-8">
-            <h2 className="font-display font-800 text-3xl text-white">Refurbished Laptops</h2>
-            <p className="text-white/40 text-sm mt-1">Premium laptops at unbeatable prices.</p>
+            <h2 className="font-display font-800 text-3xl text-slate-850">Refurbished Laptops</h2>
+            <p className="text-black/50 text-sm mt-1">Premium laptops at unbeatable prices.</p>
           </div>
           
-          <div className="bg-[#12121E] border border-white/10 rounded-3xl p-12 flex flex-col items-center justify-center text-center">
-            <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-400 mb-4 border border-blue-500/20">
+          <div className="bg-white border border-black/[0.06] rounded-3xl p-12 flex flex-col items-center justify-center text-center shadow-sm">
+            <div className="w-16 h-16 bg-blue-50 flex items-center justify-center text-blue-500 mb-4 rounded-2xl">
               <Wrench className="h-8 w-8" />
             </div>
-            <h3 className="font-display font-700 text-2xl text-white mb-2">Section Under Maintenance</h3>
-            <p className="text-white/50 text-sm max-w-md">
+            <h3 className="font-display font-700 text-2xl text-slate-850 mb-2">Section Under Maintenance</h3>
+            <p className="text-black/55 text-sm max-w-md">
               We are currently restocking and updating our laptop inventory to bring you the best deals. Please check back later!
             </p>
           </div>
         </section>
 
-        {/* Full Filterable Catalog (Moved to bottom) */}
-        <section id="catalog" className="py-12 border-t border-white/5">
+        {/* Full Filterable Catalog */}
+        <section id="catalog" className="py-16 border-t border-black/[0.06]">
           <div className="mb-8">
-            <h2 className="font-display font-800 text-3xl text-white">Explore All Devices</h2>
-            <p className="text-white/40 text-sm mt-1">Filter by brand, condition, and price.</p>
+            <h2 className="font-display font-800 text-3xl text-slate-850">Explore All Devices</h2>
+            <p className="text-black/50 text-sm mt-1">Filter by brand, condition, and price.</p>
           </div>
           <PhoneStoreClient
             initialPhones={serialized}

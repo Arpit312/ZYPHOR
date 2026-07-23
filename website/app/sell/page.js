@@ -180,14 +180,22 @@ export default function SellPage() {
   }
 
   return (
-    <section className="py-12">
-      <Container className="max-w-2xl">
-        <div className="mb-8">
-          <h1 className="font-display font-700 text-3xl text-slate-850">List your device</h1>
-          <p className="text-black/55 mt-1 text-sm">AI verification included — free, takes under 2 minutes.</p>
-        </div>
+    <div className="bg-paper min-h-screen">
+      {/* Hero Banner (DARK) */}
+      <div className="relative overflow-hidden bg-ink border-b border-white/5">
+        <Container className="relative py-12 text-center z-10">
+          <h1 className="font-display font-800 text-3xl sm:text-4xl lg:text-5xl text-white leading-tight mb-3">
+            List your <span className="text-coral">device</span>
+          </h1>
+          <p className="text-white/60 text-sm max-w-xl mx-auto">
+            AI verification included — free, takes under 2 minutes.
+          </p>
+        </Container>
+      </div>
 
-        {/* Steps */}
+      <section className="py-12">
+        <Container className="max-w-2xl">
+          {/* Steps */}
         <div className="flex gap-2 mb-8">
           {STEPS.map((s, i) => (
             <div key={s} className="flex-1 flex flex-col items-center gap-1">
@@ -468,6 +476,7 @@ export default function SellPage() {
           </div>
         </div>
       </Container>
-    </section>
+      </section>
+    </div>
   );
 }

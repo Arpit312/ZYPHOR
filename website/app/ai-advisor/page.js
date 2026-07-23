@@ -136,19 +136,25 @@ export default function AIAdvisorPage() {
   }
 
   return (
-    <section className="py-12 bg-paper min-h-screen">
-      <Container className="max-w-3xl">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-ink mb-4 shadow-md">
-            <Zap className="h-8 w-8 text-signal-green" />
+    <div className="bg-paper min-h-screen">
+      {/* Hero Banner (DARK) */}
+      <div className="relative overflow-hidden bg-ink border-b border-white/5">
+        <Container className="relative py-12 text-center z-10">
+          <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-coral/10 mb-4 border border-coral/20">
+            <Zap className="h-6 w-6 text-coral" />
           </div>
-          <h1 className="font-display font-700 text-3xl sm:text-4xl text-slate-850">AI Smartphone Advisor</h1>
-          <p className="text-black/55 mt-2 text-sm">
+          <h1 className="font-display font-800 text-3xl sm:text-4xl lg:text-5xl text-white leading-tight mb-3">
+            AI Smartphone <span className="text-coral">Advisor</span>
+          </h1>
+          <p className="text-white/60 text-sm max-w-xl mx-auto">
             Live catalog · Real-time AI Trust Scores · Multi-language Assistant
           </p>
-        </div>
+        </Container>
+      </div>
 
-        {/* STEP 1: MANDATORY LANGUAGE SELECTION SCREEN */}
+      <section className="py-12">
+        <Container className="max-w-3xl">
+          {/* STEP 1: MANDATORY LANGUAGE SELECTION SCREEN */}
         {!langChosen ? (
           <div className="bg-white border border-black/[0.08] rounded-3xl p-8 shadow-xl text-center space-y-6 animate-fade-in">
             <div className="space-y-2">
@@ -298,6 +304,7 @@ export default function AIAdvisorPage() {
           </div>
         )}
       </Container>
-    </section>
+      </section>
+    </div>
   );
 }
