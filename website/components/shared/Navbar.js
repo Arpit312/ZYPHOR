@@ -2,7 +2,8 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X, ShieldCheck, ScanLine, Search as SearchIcon, ShoppingCart, Wrench, MapPin, ChevronDown, User } from "lucide-react";
+import { Menu, X, ShieldCheck, ScanLine, Search as SearchIcon, ShoppingCart, Wrench, MapPin, ChevronDown, User, LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
 import clsx from "clsx";
 import MegaMenu from "./MegaMenu";
 import SearchBar from "./SearchBar";
@@ -71,10 +72,19 @@ export default function Navbar({ user }) {
           </Link>
 
           {user ? (
-            <Link href="/dashboard" className="text-sm font-medium bg-white/10 hover:bg-white/20 border border-white/10 transition-all px-4 py-2 rounded-xl focus-ring flex items-center gap-2">
-              <User className="h-4 w-4 text-coral" />
-              {user.name ? user.name.split(" ")[0] : (user.email?.split("@")[0] || "Account")}
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/dashboard" className="text-sm font-medium bg-white/10 hover:bg-white/20 border border-white/10 transition-all px-4 py-2 rounded-xl focus-ring flex items-center gap-2">
+                <User className="h-4 w-4 text-coral" />
+                {user.name ? user.name.split(" ")[0] : (user.email?.split("@")[0] || "Account")}
+              </Link>
+              <button 
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="p-2 text-white/50 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all focus-ring"
+                title="Log out"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
           ) : (
             <Link href="/login" className="text-sm font-semibold bg-coral hover:bg-coral-dark shadow-lg shadow-coral/20 transition-all px-5 py-2.5 rounded-xl focus-ring inline-flex items-center gap-1.5 text-white">
               <ShieldCheck className="h-4 w-4" /> Login
@@ -193,9 +203,17 @@ export default function Navbar({ user }) {
           ))}
           
           {user && (
-            <Link href="/dashboard" onClick={() => setOpen(false)} className="block px-4 py-3 mt-4 text-center border border-white/10 rounded-xl text-white/80 text-sm font-semibold">
-              Go to Dashboard
-            </Link>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <Link href="/dashboard" onClick={() => setOpen(false)} className="px-4 py-3 text-center border border-white/10 rounded-xl text-white/80 text-sm font-semibold hover:bg-white/5">
+                Dashboard
+              </Link>
+              <button 
+                onClick={() => { setOpen(false); signOut({ callbackUrl: "/" }); }}
+                className="px-4 py-3 flex items-center justify-center gap-2 border border-red-500/20 bg-red-500/10 rounded-xl text-red-400 text-sm font-semibold hover:bg-red-500/20"
+              >
+                <LogOut className="h-4 w-4" /> Log out
+              </button>
+            </div>
           )}
         </div>
       )}
