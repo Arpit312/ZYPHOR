@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
-import { comparePassword, hashPassword } from "@/lib/auth";
+import { hashPassword } from "@/lib/auth";
 import { generateUserTokenId } from "@/lib/token";
 
 export const authOptions = {
@@ -31,65 +31,56 @@ export const authOptions = {
         const emailLower = credentials.email.toLowerCase().trim();
         const requestedRole = credentials.role || "customer";
 
+        let user = null;
         try {
-          await connectDB();
+          const db = await connectDB();
+          if (db) {
+            user = await User.findOne({ email: emailLower }).catch(() => null);
 
-          // 1. Check if user exists in DB
-          let user = await User.findOne({ email: emailLower });
+            // Auto-create user on the fly if missing (Universal Free Access)
+            if (!user) {
+              const passwordHash = await hashPassword(credentials.password || "Password@123");
+              const nameFromEmail = emailLower.split("@")[0].replace(/[^a-zA-Z0-9]/g, " ");
+              const capitalizedName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
 
-          // 2. Auto-create user on the fly if missing (Universal Free Access)
-          if (!user) {
-            const passwordHash = await hashPassword(credentials.password || "Password@123");
-            const nameFromEmail = emailLower.split("@")[0].replace(/[^a-zA-Z0-9]/g, " ");
-            const capitalizedName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
-
-            user = await User.create({
-              name: capitalizedName || "Zyphor User",
-              email: emailLower,
-              passwordHash: passwordHash,
-              role: requestedRole,
-              userTokenId: generateUserTokenId(),
-              verifiedSeller: true,
-              isActive: true,
-              subscription: { plan: "pro", status: "active" }
-            });
-          } else {
-            // Auto update role if user requested a role upgrade
-            if (user.role !== requestedRole && requestedRole !== "customer") {
-              user.role = requestedRole;
-              await user.save();
+              user = await User.create({
+                name: capitalizedName || "Zyphor User",
+                email: emailLower,
+                passwordHash: passwordHash,
+                role: requestedRole,
+                userTokenId: generateUserTokenId(),
+                verifiedSeller: true,
+                isActive: true,
+                subscription: { plan: "pro", status: "active" }
+              }).catch(() => null);
+            } else {
+              // Auto update role if user requested a role upgrade
+              if (user.role !== requestedRole && requestedRole !== "customer") {
+                user.role = requestedRole;
+                await user.save().catch(() => {});
+              }
             }
           }
-
-          // Ensure userTokenId exists
-          if (!user.userTokenId) {
-            user.userTokenId = generateUserTokenId(user._id);
-            await user.save();
-          }
-
-          return {
-            id: user._id.toString(),
-            name: user.name || "User",
-            email: user.email,
-            role: user.role || requestedRole,
-            userTokenId: user.userTokenId,
-            city: user.city || "Mumbai",
-            businessName: user.businessName || `${user.name}'s Store`,
-            subscription: user.subscription?.plan || "pro",
-          };
-        } catch (err) {
-          // Universal Fallback if DB is disconnected/slow
-          return {
-            id: "user-" + Date.now(),
-            name: emailLower.split("@")[0] || "Zyphor User",
-            email: emailLower,
-            role: requestedRole,
-            userTokenId: "ZPH-" + Math.random().toString(36).substring(2, 8).toUpperCase(),
-            city: "Pan India",
-            businessName: "Zyphor Partner Store",
-            subscription: "pro",
-          };
+        } catch (dbErr) {
+          console.warn("[Auth DB Warning]:", dbErr?.message);
         }
+
+        // Return user or universal fallback if DB is offline/connecting
+        const userId = user?._id?.toString() || "user-" + Date.now();
+        const userName = user?.name || emailLower.split("@")[0] || "Zyphor User";
+        const userRole = user?.role || requestedRole;
+        const userTokenId = user?.userTokenId || generateUserTokenId(userId);
+
+        return {
+          id: userId,
+          name: userName,
+          email: emailLower,
+          role: userRole,
+          userTokenId: userTokenId,
+          city: user?.city || "Mumbai",
+          businessName: user?.businessName || `${userName}'s Store`,
+          subscription: user?.subscription?.plan || "pro",
+        };
       },
     }),
   ],

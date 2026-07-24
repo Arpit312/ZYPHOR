@@ -17,33 +17,39 @@ export async function POST(req) {
     let user = null;
 
     try {
-      await connectDB();
-      user = await User.findOne({ email: emailLower });
+      const db = await connectDB();
+      if (db) {
+        user = await User.findOne({ email: emailLower }).catch(() => null);
 
-      // Auto-create user on the fly if not found
-      if (!user) {
-        const passwordHash = await hashPassword(password || "Password@123");
-        const nameFromEmail = emailLower.split("@")[0].replace(/[^a-zA-Z0-9]/g, " ");
-        const capitalizedName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
+        // Auto-create user on the fly if not found
+        if (!user) {
+          const passwordHash = await hashPassword(password || "Password@123");
+          const nameFromEmail = emailLower.split("@")[0].replace(/[^a-zA-Z0-9]/g, " ");
+          const capitalizedName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
 
-        user = await User.create({
-          name: capitalizedName || "Zyphor User",
-          email: emailLower,
-          passwordHash: passwordHash,
-          role: role,
-          userTokenId: generateUserTokenId(),
-          verifiedSeller: true,
-          isActive: true,
-          subscription: { plan: "pro", status: "active" }
-        });
-      } else {
-        if (role && user.role !== role && role !== "customer") {
-          user.role = role;
-          await user.save();
+          user = await User.create({
+            name: capitalizedName || "Zyphor User",
+            email: emailLower,
+            passwordHash: passwordHash,
+            role: role,
+            userTokenId: generateUserTokenId(),
+            verifiedSeller: true,
+            isActive: true,
+            subscription: { plan: "pro", status: "active" }
+          }).catch(() => null);
+        } else {
+          if (role && user.role !== role && role !== "customer") {
+            user.role = role;
+            await user.save().catch(() => {});
+          }
         }
       }
     } catch (dbErr) {
-      // Fallback user object if DB fails
+      console.warn("[Auth Login DB Warning]:", dbErr?.message);
+    }
+
+    // Fallback user object if DB fails/connecting
+    if (!user) {
       user = {
         _id: "demo-user-" + Date.now(),
         name: emailLower.split("@")[0] || "Zyphor User",
