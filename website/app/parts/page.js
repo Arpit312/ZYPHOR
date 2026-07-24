@@ -3,7 +3,8 @@ import ListingCard from "@/components/shared/ListingCard";
 import { connectDB } from "@/lib/db";
 import Listing from "@/models/Listing";
 import Link from "next/link";
-import { Camera, Volume2, PhoneCall, Zap, ShieldAlert, Battery, Smartphone, Layers, CheckCircle } from "lucide-react";
+import { Camera, Volume2, PhoneCall, Zap, ShieldAlert, Battery, Smartphone, Layers, Sparkles } from "lucide-react";
+import { DEFAULT_PARTS } from "@/lib/partsData";
 
 export const metadata = {
   title: "Mobile Spare Parts & Accessories — ZYPHOR",
@@ -24,6 +25,7 @@ const PART_SECTIONS = [
 const BRANDS = ["Apple", "Samsung", "OnePlus", "Xiaomi", "Realme", "Vivo", "Oppo"];
 
 async function getParts(searchParams) {
+  let dbParts = [];
   try {
     await connectDB();
     const query = { status: "active", listingType: "part" };
@@ -45,11 +47,31 @@ async function getParts(searchParams) {
       ];
     }
 
-    return await Listing.find(query).sort({ createdAt: -1 }).lean();
+    dbParts = await Listing.find(query).sort({ createdAt: -1 }).lean();
   } catch (err) {
-    console.error(err);
-    return [];
+    console.error("DB Parts Error:", err);
   }
+
+  // If DB returns items, return them
+  if (dbParts && dbParts.length > 0) {
+    return dbParts.map(p => ({ ...p, _id: p._id.toString() }));
+  }
+
+  // Fallback to DEFAULT_PARTS with filtering
+  let fallback = DEFAULT_PARTS;
+
+  if (searchParams?.cat && searchParams.cat !== "all") {
+    fallback = fallback.filter(p => p.partCategory === searchParams.cat);
+  }
+  if (searchParams?.brand) {
+    fallback = fallback.filter(p => p.brand.toLowerCase().includes(searchParams.brand.toLowerCase()));
+  }
+  if (searchParams?.q) {
+    const q = searchParams.q.toLowerCase();
+    fallback = fallback.filter(p => p.title.toLowerCase().includes(q) || p.model.toLowerCase().includes(q));
+  }
+
+  return fallback;
 }
 
 export default async function PartsPage({ searchParams }) {
@@ -60,128 +82,133 @@ export default async function PartsPage({ searchParams }) {
   const listings = await getParts(params);
 
   return (
-    <div className="bg-paper min-h-screen">
-      {/* Hero Banner (LIGHT) */}
-      <div className="relative overflow-hidden bg-paper border-b border-black/[0.05]">
+    <div className="min-h-screen bg-[#07070C] text-white relative overflow-hidden">
+      {/* Background Ambient Orbs */}
+      <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-b from-coral/15 via-purple-600/10 to-transparent rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[400px] bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
+
+      {/* Hero Header */}
+      <div className="relative border-b border-white/10 bg-[#0E0E17]/60 backdrop-blur-xl">
         <Container className="relative py-12 text-center z-10">
-          <span className="text-[10px] font-mono font-bold text-coral bg-coral/10 border border-coral/20 px-3 py-1.5 rounded-full uppercase tracking-widest mb-4 inline-block">
-            Verified Spare Parts Catalog
-          </span>
-          <h1 className="font-display font-800 text-3xl sm:text-4xl lg:text-5xl text-slate-850 leading-tight mb-3">
+          <div className="inline-flex items-center gap-2 bg-coral/10 border border-coral/20 text-coral text-xs font-mono font-semibold px-4 py-1.5 rounded-full mb-4">
+            <Sparkles className="h-3.5 w-3.5" />
+            Verified OEM Spare Parts Catalog
+          </div>
+          <h1 className="font-display font-800 text-3xl sm:text-4xl lg:text-5xl text-white leading-tight mb-3">
             Mobile Spare Parts &amp; <span className="text-coral">Accessories</span>
           </h1>
-          <p className="text-black/60 text-sm max-w-xl mx-auto">
-            Select a part category below, choose your smartphone brand &amp; model to find 100% verified original replacement parts.
+          <p className="text-white/60 text-sm max-w-xl mx-auto">
+            100% genuine OEM camera modules, loudspeakers, earpieces, vibration motors, UV tempered glass &amp; high-capacity battery cells.
           </p>
         </Container>
       </div>
 
-      <section className="py-12">
+      <section className="py-12 relative z-10">
         <Container>
           {/* 1. Category Section Buttons */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-8">
-          {PART_SECTIONS.map((sec) => {
-            const Icon = sec.icon;
-            const isSelected = activeCat === sec.id;
-            return (
-              <Link
-                key={sec.id}
-                href={`/parts?cat=${sec.id}${activeBrand ? `&brand=${activeBrand}` : ""}`}
-                className={`p-3.5 rounded-2xl border text-center transition-all flex flex-col items-center justify-center group ${
-                  isSelected
-                    ? "bg-slate-850 text-white border-slate-850 shadow-md scale-[1.02]"
-                    : "bg-white text-slate-850 border-black/10 hover:border-coral hover:shadow-sm"
-                }`}
-              >
-                <div className={`p-2 rounded-xl mb-1.5 ${isSelected ? "bg-white/10 text-signal-green" : "bg-paper text-coral group-hover:scale-110"} transition-transform`}>
-                  <Icon className="h-5 w-5" />
-                </div>
-                <span className="font-display font-600 text-xs truncate w-full">{sec.label}</span>
-              </Link>
-            );
-          })}
-        </div>
-
-        {/* 2. Interactive Brand Filter Selector */}
-        <div className="bg-white border border-black/[0.08] rounded-2xl p-5 mb-8 shadow-sm">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-slate-850 uppercase tracking-wider font-mono">
-                Select Brand:
-              </span>
-              <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-8">
+            {PART_SECTIONS.map((sec) => {
+              const Icon = sec.icon;
+              const isSelected = activeCat === sec.id;
+              return (
                 <Link
-                  href={`/parts?cat=${activeCat}`}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                    !activeBrand ? "bg-coral text-white shadow-sm" : "bg-paper text-black/60 hover:text-black border border-black/5"
+                  key={sec.id}
+                  href={`/parts?cat=${sec.id}${activeBrand ? `&brand=${activeBrand}` : ""}`}
+                  className={`p-3.5 rounded-2xl border text-center transition-all flex flex-col items-center justify-center group ${
+                    isSelected
+                      ? "bg-coral text-white border-coral shadow-lg shadow-coral/20 scale-[1.03]"
+                      : "bg-[#0E0E17]/90 text-white/80 border-white/10 hover:border-coral/50 hover:bg-white/5"
                   }`}
                 >
-                  All Brands
+                  <div className={`p-2 rounded-xl mb-1.5 ${isSelected ? "bg-white/20 text-white" : "bg-white/5 text-coral group-hover:scale-110"} transition-transform`}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <span className="font-display font-600 text-xs truncate w-full">{sec.label}</span>
                 </Link>
-                {BRANDS.map((b) => (
+              );
+            })}
+          </div>
+
+          {/* 2. Interactive Brand Filter Selector */}
+          <div className="bg-[#0E0E17]/90 border border-white/10 rounded-2xl p-5 mb-8 shadow-xl">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="text-xs font-semibold text-white/50 uppercase tracking-wider font-mono">
+                  Filter Brand:
+                </span>
+                <div className="flex flex-wrap gap-2">
                   <Link
-                    key={b}
-                    href={`/parts?cat=${activeCat}&brand=${b}`}
+                    href={`/parts?cat=${activeCat}`}
                     className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                      activeBrand.toLowerCase() === b.toLowerCase()
-                        ? "bg-coral text-white shadow-sm"
-                        : "bg-paper text-black/60 hover:text-black border border-black/5"
+                      !activeBrand ? "bg-coral text-white shadow-md shadow-coral/20" : "bg-white/5 text-white/60 hover:text-white border border-white/10"
                     }`}
                   >
-                    {b}
+                    All Brands
                   </Link>
-                ))}
+                  {BRANDS.map((b) => (
+                    <Link
+                      key={b}
+                      href={`/parts?cat=${activeCat}&brand=${b}`}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                        activeBrand.toLowerCase() === b.toLowerCase()
+                          ? "bg-coral text-white shadow-md shadow-coral/20"
+                          : "bg-white/5 text-white/60 hover:text-white border border-white/10"
+                      }`}
+                    >
+                      {b}
+                    </Link>
+                  ))}
+                </div>
               </div>
+
+              {/* Active Filters Display */}
+              {(activeCat !== "all" || activeBrand || activeModel) && (
+                <div className="flex items-center gap-2 text-xs font-mono">
+                  <span className="text-white/40">Active Filter:</span>
+                  <span className="bg-signal-green/10 text-signal-green border border-signal-green/20 px-3 py-1 rounded-full font-bold">
+                    {activeCat.toUpperCase()} {activeBrand ? `• ${activeBrand}` : ""} {activeModel ? `• ${activeModel}` : ""}
+                  </span>
+                  <Link href="/parts" className="text-coral hover:underline font-semibold ml-1">
+                    Reset
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 3. Parts Catalog Grid */}
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-display font-800 text-xl text-white flex items-center gap-2">
+                Available OEM Spare Parts
+                <span className="text-xs font-mono bg-coral/10 border border-coral/20 text-coral px-3 py-1 rounded-full font-bold">
+                  {listings.length} Parts Available
+                </span>
+              </h2>
             </div>
 
-            {/* Active Filters Display */}
-            {(activeCat !== "all" || activeBrand || activeModel) && (
-              <div className="flex items-center gap-2 text-xs font-mono">
-                <span className="text-black/40">Active Filter:</span>
-                <span className="bg-signal-green/10 text-signal-green border border-signal-green/20 px-2.5 py-1 rounded-full font-bold">
-                  {activeCat.toUpperCase()} {activeBrand ? `• ${activeBrand}` : ""} {activeModel ? `• ${activeModel}` : ""}
-                </span>
-                <Link href="/parts" className="text-coral hover:underline font-semibold ml-1">
-                  Reset
+            {listings.length === 0 ? (
+              <div className="bg-[#0E0E17]/90 rounded-3xl border border-white/10 p-12 text-center space-y-4">
+                <div className="inline-flex p-4 rounded-full bg-white/5 text-coral border border-coral/20">
+                  <Layers className="h-8 w-8" />
+                </div>
+                <h3 className="font-display font-700 text-lg text-white">No spare parts found for selected filter</h3>
+                <p className="text-xs text-white/50 max-w-sm mx-auto">
+                  Try selecting a different brand or category filter above to view available components.
+                </p>
+                <Link href="/parts" className="inline-block bg-coral text-white font-bold text-xs px-6 py-3 rounded-xl hover:bg-coral-dark shadow-lg shadow-coral/20">
+                  View All Spare Parts Catalog
                 </Link>
+              </div>
+            ) : (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {listings.map((l) => (
+                  <ListingCard key={l._id.toString()} listing={{ ...l, _id: l._id.toString() }} />
+                ))}
               </div>
             )}
           </div>
-        </div>
-
-        {/* 3. Parts Catalog Grid */}
-        <div>
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="font-display font-700 text-xl text-slate-850 flex items-center gap-2">
-              Available Spare Parts
-              <span className="text-xs font-mono bg-black/5 px-2.5 py-0.5 rounded-full text-black/60">
-                {listings.length} items
-              </span>
-            </h2>
-          </div>
-
-          {listings.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-black/10 p-12 text-center space-y-3">
-              <div className="inline-flex p-4 rounded-full bg-paper text-black/40">
-                <Layers className="h-8 w-8" />
-              </div>
-              <h3 className="font-display font-700 text-lg text-slate-850">No spare parts found</h3>
-              <p className="text-xs text-black/55 max-w-sm mx-auto">
-                Is brand/category ke liye filhaal listing nahi hai. Reset filter karein ya master admin se add karne ki request karein!
-              </p>
-              <Link href="/parts" className="inline-block bg-coral text-white font-semibold text-xs px-5 py-2.5 rounded-xl hover:bg-coral-dark">
-                View All Spare Parts
-              </Link>
-            </div>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {listings.map((l) => (
-                <ListingCard key={l._id.toString()} listing={{ ...l, _id: l._id.toString() }} />
-              ))}
-            </div>
-          )}
-        </div>
-      </Container>
+        </Container>
       </section>
     </div>
   );

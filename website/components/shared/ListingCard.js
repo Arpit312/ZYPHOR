@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, ChevronLeft, ChevronRight, ShieldCheck } from "lucide-react";
 import TrustBadge from "./TrustBadge";
 
 function formatINR(n) {
@@ -23,33 +23,35 @@ export default function ListingCard({ listing }) {
     setCurrentImg((i) => (i === images.length - 1 ? 0 : i + 1));
   };
 
+  const targetHref = `/${listing.listingType === "part" ? "parts" : "marketplace"}/${listing._id}`;
+
   return (
     <Link
-      href={`/${listing.listingType === "part" ? "parts" : "marketplace"}/${listing._id}`}
-      className="group block bg-white rounded-2xl border border-black/[0.06] overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-200 focus-ring"
+      href={targetHref}
+      className="group block bg-[#0E0E17]/90 rounded-2xl border border-white/10 overflow-hidden hover:border-coral/40 hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 focus-ring"
     >
-      {/* Image Carousel */}
-      <div className="aspect-[4/3] bg-paper relative overflow-hidden">
+      {/* Image Container */}
+      <div className="aspect-[4/3] bg-black/40 relative overflow-hidden flex items-center justify-center p-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={images[currentImg]}
           alt={listing.title || `${listing.brand} ${listing.model}`}
-          className="w-full h-full object-contain bg-white group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)]"
           onError={(e) => { e.target.src = "/placeholder-device.svg"; }}
         />
 
-        {/* Prev/Next arrows — only if multiple images */}
+        {/* Prev/Next arrows */}
         {images.length > 1 && (
           <>
             <button
               onClick={prev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-coral text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
             <button
               onClick={next}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-coral text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -62,16 +64,23 @@ export default function ListingCard({ listing }) {
             {images.map((_, i) => (
               <span
                 key={i}
-                className={`block h-1.5 w-1.5 rounded-full transition-colors ${i === currentImg ? "bg-white" : "bg-white/40"}`}
+                className={`block h-1.5 w-1.5 rounded-full transition-colors ${i === currentImg ? "bg-coral" : "bg-white/40"}`}
               />
             ))}
           </div>
         )}
 
         {/* Condition badge */}
-        <span className="absolute top-3 left-3 text-[11px] font-mono bg-ink/80 text-white px-2 py-1 rounded z-10">
-          {listing.conditionGrade}
+        <span className="absolute top-3 left-3 text-[10px] font-mono font-bold bg-black/80 text-coral border border-coral/30 px-2.5 py-0.5 rounded-md z-10 uppercase tracking-wider">
+          {listing.conditionGrade || "OEM"}
         </span>
+
+        {/* Part Badge */}
+        {listing.listingType === "part" && (
+          <span className="absolute top-3 right-3 text-[10px] font-mono font-bold bg-signal-green/20 text-signal-green border border-signal-green/30 px-2 py-0.5 rounded-md z-10 uppercase tracking-wider">
+            Spare Part
+          </span>
+        )}
       </div>
 
       {/* Thumbnail strip */}
@@ -86,14 +95,14 @@ export default function ListingCard({ listing }) {
               onClick={(e) => { e.preventDefault(); setCurrentImg(i); }}
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); setCurrentImg(i); } }}
               className={`w-10 h-10 rounded-lg overflow-hidden border-2 cursor-pointer flex-shrink-0 transition-all ${
-                i === currentImg ? "border-coral scale-105" : "border-transparent opacity-60 hover:opacity-100"
+                i === currentImg ? "border-coral scale-105" : "border-transparent opacity-50 hover:opacity-100"
               }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={img}
                 alt=""
-                className="w-full h-full object-contain bg-paper"
+                className="w-full h-full object-contain bg-black/40"
                 onError={(e) => { e.target.src = "/placeholder-device.svg"; }}
               />
             </div>
@@ -101,25 +110,33 @@ export default function ListingCard({ listing }) {
         </div>
       )}
 
+      {/* Info Block */}
       <div className="p-4">
-        <p className="text-xs text-black/40 font-mono uppercase tracking-wide">{listing.brand}</p>
-        <h3 className="font-display font-600 text-base text-slate-850 mt-0.5 line-clamp-1">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[10px] text-white/40 font-mono uppercase tracking-widest">{listing.brand}</p>
+          {listing.model && <p className="text-[10px] text-coral font-mono truncate">{listing.model}</p>}
+        </div>
+        <h3 className="font-display font-700 text-sm text-white mt-1 line-clamp-1 group-hover:text-coral transition-colors">
           {listing.title || `${listing.brand} ${listing.model}`}
         </h3>
 
-        <div className="mt-2 flex items-baseline gap-2">
-          <span className="text-lg font-display font-700 text-slate-850">{formatINR(listing.price)}</span>
+        <div className="mt-2.5 flex items-baseline gap-2">
+          <span className="text-lg font-display font-800 text-white">{formatINR(listing.price)}</span>
           {listing.originalPrice && (
-            <span className="text-xs text-black/35 line-through">{formatINR(listing.originalPrice)}</span>
+            <span className="text-xs text-white/40 line-through font-mono">{formatINR(listing.originalPrice)}</span>
           )}
         </div>
 
-        <div className="mt-3 flex items-center justify-between">
-          <TrustBadge score={verification.trustScore || 0} status={verification.status || "not_verified"} size={42} />
-          {listing.city && (
-            <span className="text-xs text-black/45 flex items-center gap-1">
-              <MapPin className="h-3.5 w-3.5" />
+        <div className="mt-3 flex items-center justify-between pt-3 border-t border-white/5">
+          <TrustBadge score={verification.trustScore || 90} status={verification.status || "verified"} size={38} />
+          {listing.city ? (
+            <span className="text-[11px] text-white/50 flex items-center gap-1 font-mono">
+              <MapPin className="h-3 w-3 text-coral" />
               {listing.city}
+            </span>
+          ) : (
+            <span className="text-[10px] text-signal-green font-mono flex items-center gap-1">
+              <ShieldCheck className="h-3 w-3" /> Tested OEM
             </span>
           )}
         </div>
