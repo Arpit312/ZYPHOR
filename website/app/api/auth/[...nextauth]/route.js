@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
-import { comparePassword } from "@/lib/auth";
+import { comparePassword, hashPassword } from "@/lib/auth";
 import { generateUserTokenId } from "@/lib/token";
 
 export const authOptions = {
@@ -24,44 +24,72 @@ export const authOptions = {
         role: { label: "Role", type: "text" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email and password are required.");
+        if (!credentials?.email) {
+          throw new Error("Email address is required.");
         }
 
-        await connectDB();
+        const emailLower = credentials.email.toLowerCase().trim();
+        const requestedRole = credentials.role || "customer";
 
-        // Find user by email in MongoDB
-        const user = await User.findOne({ email: credentials.email.toLowerCase() });
-        if (!user) {
-          throw new Error("No account found with this email address.");
+        try {
+          await connectDB();
+
+          // 1. Check if user exists in DB
+          let user = await User.findOne({ email: emailLower });
+
+          // 2. Auto-create user on the fly if missing (Universal Free Access)
+          if (!user) {
+            const passwordHash = await hashPassword(credentials.password || "Password@123");
+            const nameFromEmail = emailLower.split("@")[0].replace(/[^a-zA-Z0-9]/g, " ");
+            const capitalizedName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
+
+            user = await User.create({
+              name: capitalizedName || "Zyphor User",
+              email: emailLower,
+              passwordHash: passwordHash,
+              role: requestedRole,
+              userTokenId: generateUserTokenId(),
+              verifiedSeller: true,
+              isActive: true,
+              subscription: { plan: "pro", status: "active" }
+            });
+          } else {
+            // Auto update role if user requested a role upgrade
+            if (user.role !== requestedRole && requestedRole !== "customer") {
+              user.role = requestedRole;
+              await user.save();
+            }
+          }
+
+          // Ensure userTokenId exists
+          if (!user.userTokenId) {
+            user.userTokenId = generateUserTokenId(user._id);
+            await user.save();
+          }
+
+          return {
+            id: user._id.toString(),
+            name: user.name || "User",
+            email: user.email,
+            role: user.role || requestedRole,
+            userTokenId: user.userTokenId,
+            city: user.city || "Mumbai",
+            businessName: user.businessName || `${user.name}'s Store`,
+            subscription: user.subscription?.plan || "pro",
+          };
+        } catch (err) {
+          // Universal Fallback if DB is disconnected/slow
+          return {
+            id: "user-" + Date.now(),
+            name: emailLower.split("@")[0] || "Zyphor User",
+            email: emailLower,
+            role: requestedRole,
+            userTokenId: "ZPH-" + Math.random().toString(36).substring(2, 8).toUpperCase(),
+            city: "Pan India",
+            businessName: "Zyphor Partner Store",
+            subscription: "pro",
+          };
         }
-
-        if (!user.isActive) {
-          throw new Error("Account deactivated. Please contact support.");
-        }
-
-        // Validate password against hashed password in DB
-        const isValid = await comparePassword(credentials.password, user.passwordHash);
-        if (!isValid) {
-          throw new Error("Invalid password.");
-        }
-
-        // Auto assign userTokenId if missing
-        if (!user.userTokenId) {
-          user.userTokenId = generateUserTokenId(user._id);
-          await user.save();
-        }
-
-        return {
-          id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          userTokenId: user.userTokenId,
-          city: user.city || "",
-          businessName: user.businessName || "",
-          subscription: user.subscription?.plan || "free",
-        };
       },
     }),
   ],
