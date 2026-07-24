@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, ScanLine, Loader2, AlertTriangle } from "lucide-react";
+import { Check, ScanLine, Loader2, AlertTriangle, Sparkles, ShieldCheck, Upload, Trash2, ArrowRight } from "lucide-react";
 import Container from "@/components/shared/Container";
 import TrustBadge from "@/components/shared/TrustBadge";
 
-const STEPS = ["Basic Info", "Condition", "Verification", "Preview & Submit"];
+const STEPS = ["Basic Info", "Condition", "AI Verification", "Review & Publish"];
 const BRANDS = ["Apple", "Samsung", "Xiaomi", "OnePlus", "Vivo", "Oppo", "Realme", "Poco", "Motorola", "Nokia", "Other"];
 const CATEGORIES = [
   { value: "Smartphone", label: "Smartphone" },
@@ -17,9 +17,9 @@ const CATEGORIES = [
 function Field({ label, children, hint }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-850 mb-1.5">{label}</label>
+      <label className="block text-xs font-mono text-white/60 uppercase tracking-wider mb-2">{label}</label>
       {children}
-      {hint && <p className="mt-1 text-xs text-black/45">{hint}</p>}
+      {hint && <p className="mt-1.5 text-xs text-white/40">{hint}</p>}
     </div>
   );
 }
@@ -27,16 +27,16 @@ function Field({ label, children, hint }) {
 function Input({ className = "", ...props }) {
   return (
     <input
-      className={`w-full border border-black/10 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-coral/30 focus:border-coral/50 ${className}`}
+      className={`w-full bg-[#141422] border border-white/10 focus:border-coral rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:ring-1 focus:ring-coral transition-all ${className}`}
       {...props}
     />
   );
 }
 
-function Select({ children, ...props }) {
+function Select({ children, className = "", ...props }) {
   return (
     <select
-      className="w-full border border-black/10 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-coral/30 bg-white"
+      className={`w-full bg-[#141422] border border-white/10 focus:border-coral rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-coral transition-all ${className}`}
       {...props}
     >
       {children}
@@ -180,303 +180,407 @@ export default function SellPage() {
   }
 
   return (
-    <div className="bg-paper min-h-screen">
-      {/* Hero Banner (LIGHT) */}
-      <div className="relative overflow-hidden bg-paper border-b border-black/[0.05]">
-        <Container className="relative py-12 text-center z-10">
-          <h1 className="font-display font-800 text-3xl sm:text-4xl lg:text-5xl text-slate-850 leading-tight mb-3">
-            List your <span className="text-coral">device</span>
-          </h1>
-          <p className="text-black/60 text-sm max-w-xl mx-auto">
-            AI verification included — free, takes under 2 minutes.
-          </p>
-        </Container>
-      </div>
+    <div className="min-h-screen bg-[#07070C] text-white relative overflow-hidden flex flex-col justify-between">
+      {/* Background Ambient Orbs */}
+      <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-b from-coral/15 via-purple-600/10 to-transparent rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[400px] bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
 
-      <section className="py-12">
-        <Container className="max-w-2xl">
-          {/* Steps */}
-        <div className="flex gap-2 mb-8">
-          {STEPS.map((s, i) => (
-            <div key={s} className="flex-1 flex flex-col items-center gap-1">
-              <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-mono transition-colors ${i < step ? "bg-signal-green text-white" : i === step ? "bg-ink text-white" : "bg-black/[0.06] text-black/40"}`}>
-                {i < step ? <Check className="h-4 w-4" /> : i + 1}
-              </div>
-              <span className={`text-[11px] font-mono text-center hidden sm:block ${i === step ? "text-slate-850 font-medium" : "text-black/40"}`}>{s}</span>
+      {/* Main Content */}
+      <div className="relative z-10 py-12">
+        <Container className="max-w-3xl">
+          {/* Header */}
+          <div className="text-center mb-10 space-y-3">
+            <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-white/70 text-xs font-mono font-semibold px-4 py-1.5 rounded-full">
+              <Sparkles className="h-3.5 w-3.5 text-coral" />
+              AI-Guided Listing Portal
             </div>
-          ))}
-        </div>
+            <h1 className="font-display font-800 text-3xl sm:text-5xl text-white tracking-tight">
+              Sell Your Device on <span className="text-coral">ZYPHOR</span>
+            </h1>
+            <p className="text-white/50 text-sm max-w-lg mx-auto">
+              Automated AI verification, CEIR blacklist check, and instant valuation — free & takes under 2 minutes.
+            </p>
+          </div>
 
-        <div className="bg-white border border-black/[0.06] rounded-2xl p-7 shadow-sm">
+          {/* Stepper Progress Bar */}
+          <div className="flex gap-2 mb-8">
+            {STEPS.map((s, i) => (
+              <div key={s} className="flex-1 flex flex-col items-center gap-1.5">
+                <div 
+                  className={`h-9 w-9 rounded-xl flex items-center justify-center text-xs font-mono font-bold transition-all ${
+                    i < step 
+                      ? "bg-signal-green text-white shadow-lg shadow-signal-green/20" 
+                      : i === step 
+                      ? "bg-coral text-white shadow-lg shadow-coral/30 border border-coral" 
+                      : "bg-white/5 border border-white/10 text-white/40"
+                  }`}
+                >
+                  {i < step ? <Check className="h-4 w-4" /> : i + 1}
+                </div>
+                <span className={`text-[11px] font-mono text-center hidden sm:block ${i === step ? "text-coral font-semibold" : "text-white/40"}`}>{s}</span>
+              </div>
+            ))}
+          </div>
 
-          {/* STEP 0 – Basic Info */}
-          {step === 0 && (
-            <div className="space-y-5">
-              <h2 className="font-display font-600 text-lg text-slate-850">Basic information</h2>
+          {/* Main Form Glass Card */}
+          <div className="bg-[#0E0E17]/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl relative">
 
-              <Field label="Product Images" hint="Upload clear images of your product (At least one is required)">
-                <div className="flex flex-wrap gap-4 items-center mt-2">
-                  {form.images.map((img, idx) => (
-                    <div key={idx} className="relative w-24 h-24 rounded-lg overflow-hidden border border-black/10">
-                      <img src={img} alt="Product" className="object-cover w-full h-full" />
-                      <button type="button" onClick={() => removeImage(idx)} className="absolute top-1 right-1 bg-signal-red text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow hover:bg-signal-red-600 transition-colors">×</button>
+            {/* Error Banner */}
+            {error && (
+              <div className="mb-6 flex items-start gap-3 bg-red-500/10 border border-red-500/30 rounded-2xl p-4 text-red-400 text-sm font-medium">
+                <AlertTriangle className="h-5 w-5 shrink-0 text-red-400 mt-0.5" />
+                <div className="flex-1">{error}</div>
+              </div>
+            )}
+
+            {/* STEP 0 – Basic Info */}
+            {step === 0 && (
+              <div className="space-y-6">
+                <h2 className="font-display font-700 text-xl text-white">Basic Information</h2>
+
+                <Field label="Product Images" hint="Upload clear images of your device (Front, Back, Sides)">
+                  <div className="flex flex-wrap gap-4 items-center mt-2">
+                    {form.images.map((img, idx) => (
+                      <div key={idx} className="relative w-24 h-24 rounded-2xl overflow-hidden border border-white/20 group">
+                        <img src={img} alt="Product" className="object-cover w-full h-full" />
+                        <button 
+                          type="button" 
+                          onClick={() => removeImage(idx)} 
+                          className="absolute top-1.5 right-1.5 bg-red-500 text-white rounded-full p-1 shadow-lg hover:bg-red-600 transition-colors"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                    <label className="w-24 h-24 border-2 border-dashed border-white/20 hover:border-coral/60 rounded-2xl flex flex-col items-center justify-center text-white/50 hover:text-white hover:bg-white/5 cursor-pointer transition-all">
+                      {uploadingImage ? <Loader2 size={24} className="animate-spin text-coral" /> : <Upload size={20} />}
+                      <span className="text-[10px] font-mono mt-1.5 uppercase tracking-wider">{uploadingImage ? "Uploading..." : "Upload"}</span>
+                      <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploadingImage} />
+                    </label>
+                  </div>
+                </Field>
+
+                <Field label="Listing Type">
+                  <div className="flex gap-3">
+                    {["device", "part"].map((t) => (
+                      <button 
+                        key={t} 
+                        type="button"
+                        onClick={() => set("listingType", t)}
+                        className={`flex-1 py-3 text-sm font-display font-600 rounded-xl border capitalize transition-all ${
+                          form.listingType === t 
+                            ? "bg-coral border-coral text-white shadow-lg shadow-coral/20" 
+                            : "bg-[#141422] border-white/10 text-white/60 hover:text-white hover:border-white/20"
+                        }`}
+                      >
+                        {t === "device" ? "📱 Full Device" : "🔧 Spare Part"}
+                      </button>
+                    ))}
+                  </div>
+                </Field>
+
+                {form.listingType === "device" && (
+                  <Field label="Category">
+                    <Select value={form.category} onChange={(e) => set("category", e.target.value)}>
+                      {CATEGORIES.map((c) => <option key={c.value} value={c.value} className="bg-[#141422]">{c.label}</option>)}
+                    </Select>
+                  </Field>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Field label="Brand">
+                    <Select value={form.brand} onChange={(e) => set("brand", e.target.value)}>
+                      <option value="" className="bg-[#141422]">Select brand</option>
+                      {BRANDS.map((b) => <option key={b} value={b} className="bg-[#141422]">{b}</option>)}
+                    </Select>
+                  </Field>
+                  <Field label="Model">
+                    <Input value={form.model} onChange={(e) => set("model", e.target.value)} placeholder="e.g. iPhone 14 Pro Max" />
+                  </Field>
+                </div>
+
+                <Field label="Listing Title" hint="A clear title helps buyers find your listing faster.">
+                  <Input value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="e.g. Apple iPhone 14 128GB – Superb condition with box" />
+                </Field>
+
+                <Field label="Description">
+                  <textarea 
+                    value={form.description} 
+                    onChange={(e) => set("description", e.target.value)}
+                    rows={3} 
+                    placeholder="Describe the phone honestly — usage duration, accessories included, reason for selling…"
+                    className="w-full bg-[#141422] border border-white/10 focus:border-coral rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:ring-1 focus:ring-coral transition-all resize-none" 
+                  />
+                </Field>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Field label="Asking Price (₹)">
+                    <div className="relative">
+                      <Input type="number" value={form.price} onChange={(e) => set("price", e.target.value)} placeholder="15000" />
+                      <button 
+                        type="button" 
+                        onClick={getAiPrice} 
+                        disabled={fetchingPrice} 
+                        className="absolute right-2 top-2 bottom-2 px-3 bg-coral/20 text-coral hover:bg-coral/30 border border-coral/30 rounded-lg text-xs font-mono font-semibold flex items-center gap-1 transition-all"
+                      >
+                        {fetchingPrice ? <Loader2 size={12} className="animate-spin" /> : "⚡ AI Price"}
+                      </button>
                     </div>
-                  ))}
-                  <label className="w-24 h-24 border-2 border-dashed border-black/20 rounded-lg flex flex-col items-center justify-center text-black/50 hover:bg-black/5 hover:border-black/30 cursor-pointer transition-colors">
-                    {uploadingImage ? <Loader2 size={24} className="animate-spin text-coral" /> : <ScanLine size={24} />}
-                    <span className="text-[10px] font-medium mt-1 uppercase tracking-wider">{uploadingImage ? "Uploading" : "Upload"}</span>
-                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploadingImage} />
-                  </label>
-                </div>
-              </Field>
+                    {aiPrice && (
+                      <div className="mt-2 text-xs bg-white/5 text-coral p-3 rounded-xl border border-coral/30">
+                        <p><strong>AI Recommended:</strong> ₹{aiPrice.recommendedPrice.toLocaleString()} (Min: ₹{aiPrice.minPrice.toLocaleString()} - Max: ₹{aiPrice.maxPrice.toLocaleString()})</p>
+                        <button type="button" onClick={() => set("price", aiPrice.recommendedPrice.toString())} className="text-white font-semibold underline mt-1 block">Apply suggested price</button>
+                      </div>
+                    )}
+                  </Field>
 
-              <Field label="Listing type">
-                <div className="flex gap-2">
-                  {["device", "part"].map((t) => (
-                    <button key={t} onClick={() => set("listingType", t)}
-                      className={`flex-1 py-2.5 text-sm rounded-lg border capitalize transition-colors ${form.listingType === t ? "bg-ink text-white border-ink" : "border-black/10 text-black/65 hover:border-ink/30"}`}>
-                      {t}
-                    </button>
-                  ))}
+                  <Field label="Original Price (₹)" hint="Optional — shows buyer discount">
+                    <Input type="number" value={form.originalPrice} onChange={(e) => set("originalPrice", e.target.value)} placeholder="22000" />
+                  </Field>
                 </div>
-              </Field>
-              {form.listingType === "device" && (
-                <Field label="Category">
-                  <Select value={form.category} onChange={(e) => set("category", e.target.value)}>
-                    {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-                  </Select>
-                </Field>
-              )}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label="Brand">
-                  <Select value={form.brand} onChange={(e) => set("brand", e.target.value)}>
-                    <option value="">Select brand</option>
-                    {BRANDS.map((b) => <option key={b} value={b}>{b}</option>)}
-                  </Select>
-                </Field>
-                <Field label="Model">
-                  <Input value={form.model} onChange={(e) => set("model", e.target.value)} placeholder="e.g. iPhone 14" />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Field label="Storage">
+                    <Input value={form.storage} onChange={(e) => set("storage", e.target.value)} placeholder="128GB" />
+                  </Field>
+                  <Field label="RAM">
+                    <Input value={form.ram} onChange={(e) => set("ram", e.target.value)} placeholder="6GB" />
+                  </Field>
+                </div>
+
+                <Field label="City / Location">
+                  <Input value={form.city} onChange={(e) => set("city", e.target.value)} placeholder="e.g. Mumbai, Bhopal, Delhi" />
                 </Field>
               </div>
-              <Field label="Listing title" hint="A clear title helps buyers find your listing faster.">
-                <Input value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="e.g. Apple iPhone 14 128GB – Superb condition" />
-              </Field>
-              <Field label="Description">
-                <textarea value={form.description} onChange={(e) => set("description", e.target.value)}
-                  rows={3} placeholder="Describe the phone honestly — usage, accessories included, reason for selling…"
-                  className="w-full border border-black/10 rounded-lg px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-coral/30" />
-              </Field>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label="Asking price (₹)">
+            )}
+
+            {/* STEP 1 – Condition */}
+            {step === 1 && (
+              <div className="space-y-6">
+                <h2 className="font-display font-700 text-xl text-white">Condition & IMEI Screening</h2>
+                
+                <Field label="Condition Grade">
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { grade: "Superb", desc: "Like new, zero scratches" },
+                      { grade: "Good", desc: "Minor cosmetic wear" },
+                      { grade: "Fair", desc: "Visible wear, 100% working" }
+                    ].map(({ grade, desc }) => (
+                      <button 
+                        key={grade} 
+                        type="button"
+                        onClick={() => set("conditionGrade", grade)}
+                        className={`p-4 rounded-2xl border text-left transition-all ${
+                          form.conditionGrade === grade 
+                            ? "border-coral bg-coral/10 text-white shadow-lg shadow-coral/10" 
+                            : "border-white/10 bg-[#141422] text-white/60 hover:border-white/20"
+                        }`}
+                      >
+                        <p className="font-display font-700 text-sm text-white">{grade}</p>
+                        <p className="text-xs text-white/50 mt-1">{desc}</p>
+                      </button>
+                    ))}
+                  </div>
+                </Field>
+
+                <Field label="Honest Condition Claim" hint="Mention any hairline scratches, battery health, or missing accessories. Honest listings get higher Trust Scores.">
+                  <textarea 
+                    value={form.conditionClaim} 
+                    onChange={(e) => set("conditionClaim", e.target.value)}
+                    rows={4} 
+                    placeholder="e.g. Used for 8 months. Battery health 89%. Minor scuff on bottom edge. Includes original box & charger."
+                    className="w-full bg-[#141422] border border-white/10 focus:border-coral rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:ring-1 focus:ring-coral transition-all resize-none" 
+                  />
+                </Field>
+
+                <Field label="15-Digit IMEI Number" hint="Dial *#06# on phone. A verified clean IMEI adds +10 Trust Score.">
                   <div className="relative">
-                    <Input type="number" value={form.price} onChange={(e) => set("price", e.target.value)} placeholder="15000" />
-                    <button type="button" onClick={getAiPrice} disabled={fetchingPrice} className="absolute right-2 top-1.5 bottom-1.5 px-3 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded text-xs font-semibold flex items-center gap-1 transition-colors">
-                      {fetchingPrice ? <Loader2 size={12} className="animate-spin" /> : "AI Price"}
+                    <Input 
+                      type="text" 
+                      inputMode="numeric" 
+                      maxLength={15}
+                      value={form.imei} 
+                      onChange={(e) => set("imei", e.target.value.replace(/\D/g, "").slice(0, 15))}
+                      placeholder="Enter 15-digit IMEI" 
+                      className="font-mono tracking-wider" 
+                    />
+                    <button 
+                      type="button" 
+                      onClick={checkImei} 
+                      disabled={checkingImei || form.imei.length < 15} 
+                      className="absolute right-2 top-2 bottom-2 px-3 bg-signal-green/20 text-signal-green hover:bg-signal-green/30 border border-signal-green/30 rounded-lg text-xs font-mono font-semibold flex items-center gap-1 transition-all disabled:opacity-50"
+                    >
+                      {checkingImei ? <Loader2 size={12} className="animate-spin" /> : "⚡ Check CEIR"}
                     </button>
                   </div>
-                  {aiPrice && (
-                    <div className="mt-2 text-xs bg-indigo-50 text-indigo-800 p-2 rounded-lg border border-indigo-100">
-                      <p><strong>AI Suggestion:</strong> ₹{aiPrice.recommendedPrice.toLocaleString()} (Min: ₹{aiPrice.minPrice.toLocaleString()} - Max: ₹{aiPrice.maxPrice.toLocaleString()})</p>
-                      <button type="button" onClick={() => set("price", aiPrice.recommendedPrice.toString())} className="text-indigo-600 font-semibold underline mt-1">Use suggested price</button>
+                  {imeiStatus && (
+                    <div className={`mt-2.5 text-xs p-3 rounded-xl border ${imeiStatus.valid ? 'bg-signal-green/10 text-signal-green border-signal-green/30' : 'bg-red-500/10 text-red-400 border-red-500/30'}`}>
+                      <p><strong>AI Status:</strong> {imeiStatus.message}</p>
+                      {imeiStatus.ceirStatus && <p className="mt-1 font-mono uppercase">CEIR Database Status: {imeiStatus.ceirStatus}</p>}
                     </div>
                   )}
                 </Field>
-                <Field label="Original price (₹)" hint="Optional — helps show savings">
-                  <Input type="number" value={form.originalPrice} onChange={(e) => set("originalPrice", e.target.value)} placeholder="22000" />
-                </Field>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label="Storage">
-                  <Input value={form.storage} onChange={(e) => set("storage", e.target.value)} placeholder="128GB" />
-                </Field>
-                <Field label="RAM">
-                  <Input value={form.ram} onChange={(e) => set("ram", e.target.value)} placeholder="6GB" />
-                </Field>
-              </div>
-              <Field label="City">
-                <Input value={form.city} onChange={(e) => set("city", e.target.value)} placeholder="Bhopal" />
-              </Field>
-            </div>
-          )}
 
-          {/* STEP 1 – Condition */}
-          {step === 1 && (
-            <div className="space-y-5">
-              <h2 className="font-display font-600 text-lg text-slate-850">Condition details</h2>
-              <Field label="Condition grade">
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { grade: "Superb", desc: "Like new, no marks" },
-                    { grade: "Good", desc: "Minor cosmetic wear" },
-                    { grade: "Fair", desc: "Visible wear, fully working" }
-                  ].map(({ grade, desc }) => (
-                    <button key={grade} onClick={() => set("conditionGrade", grade)}
-                      className={`p-3 rounded-xl border text-left transition-colors ${form.conditionGrade === grade ? "border-coral bg-coral/5" : "border-black/10 hover:border-black/20"}`}>
-                      <p className="font-display font-600 text-sm">{grade}</p>
-                      <p className="text-xs text-black/50 mt-0.5">{desc}</p>
-                    </button>
-                  ))}
+                <Field label="Battery Health %" hint="Check Settings → Battery → Battery Health">
+                  <Input 
+                    type="number" 
+                    min={1} 
+                    max={100}
+                    value={form.batteryHealth} 
+                    onChange={(e) => set("batteryHealth", e.target.value)}
+                    placeholder="e.g. 89" 
+                  />
+                </Field>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Field label="Photos Uploaded">
+                    <Select value={form.photoCount} onChange={(e) => set("photoCount", e.target.value)}>
+                      {[0,1,2,3,4,5].map((n) => <option key={n} value={n} className="bg-[#141422]">{n} Photo{n !== 1 ? "s" : ""}</option>)}
+                    </Select>
+                  </Field>
+                  <Field label="Video Evidence">
+                    <Select value={form.videoCount} onChange={(e) => set("videoCount", e.target.value)}>
+                      {[0,1,2,3].map((n) => <option key={n} value={n} className="bg-[#141422]">{n} Video{n !== 1 ? "s" : ""}</option>)}
+                    </Select>
+                  </Field>
                 </div>
-              </Field>
-              <Field label="Describe the condition honestly" hint="Be specific — mention scratches, battery health, missing accessories. Honest sellers get higher trust scores.">
-                <textarea value={form.conditionClaim} onChange={(e) => set("conditionClaim", e.target.value)}
-                  rows={4} placeholder="e.g. Used for 8 months. Battery health 89%. Minor scuff on the bottom-left corner. Comes with original charger and box."
-                  className="w-full border border-black/10 rounded-lg px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-coral/30" />
-              </Field>
-              <Field label="IMEI (15 digits)" hint="Dial *#06# on the phone. A valid IMEI adds 10+ points to your trust score.">
-                <div className="relative">
-                  <Input type="text" inputMode="numeric" maxLength={15}
-                    value={form.imei} onChange={(e) => set("imei", e.target.value.replace(/\D/g, "").slice(0, 15))}
-                    placeholder="Enter 15-digit IMEI" className="font-mono tracking-wider" />
-                  <button type="button" onClick={checkImei} disabled={checkingImei || form.imei.length < 15} className="absolute right-2 top-1.5 bottom-1.5 px-3 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded text-xs font-semibold flex items-center gap-1 transition-colors disabled:opacity-50">
-                    {checkingImei ? <Loader2 size={12} className="animate-spin" /> : "AI Verify"}
+              </div>
+            )}
+
+            {/* STEP 2 – Verification */}
+            {step === 2 && (
+              <div className="space-y-6 text-center py-4">
+                <div className="w-16 h-16 rounded-2xl bg-coral/10 border border-coral/30 flex items-center justify-center text-coral mx-auto">
+                  <ScanLine className="h-8 w-8" />
+                </div>
+                <div>
+                  <h2 className="font-display font-800 text-2xl text-white">AI Trust Score Verification</h2>
+                  <p className="text-white/50 text-sm max-w-md mx-auto mt-2 leading-relaxed">
+                    Our AI Verification Agent will analyze your evidence and compute a Trust Score (0–100) for buyers.
+                  </p>
+                </div>
+
+                {!verification && !verifying && (
+                  <button 
+                    type="button"
+                    onClick={runVerification}
+                    className="w-full bg-gradient-to-r from-coral via-orange-500 to-coral hover:opacity-95 text-white font-display font-700 text-base py-4 rounded-2xl shadow-lg shadow-coral/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <ScanLine className="h-5 w-5" />
+                    Compute AI Trust Score Now
                   </button>
-                </div>
-                {imeiStatus && (
-                  <div className={`mt-2 text-xs p-2 rounded-lg border ${imeiStatus.valid ? 'bg-green-50 text-green-800 border-green-100' : 'bg-red-50 text-red-800 border-red-100'}`}>
-                    <p><strong>AI Analysis:</strong> {imeiStatus.message}</p>
-                    {imeiStatus.ceirStatus && <p className="mt-0.5">CEIR Status: <span className="capitalize">{imeiStatus.ceirStatus}</span></p>}
+                )}
+
+                {verifying && (
+                  <div className="flex flex-col items-center gap-4 py-8">
+                    <Loader2 className="h-12 w-12 text-coral animate-spin" />
+                    <p className="text-sm text-white/60 font-mono">AI analyzing evidence & CEIR blacklist status...</p>
                   </div>
                 )}
-              </Field>
-              <Field label="Battery health %" hint="Go to Settings → Battery → Battery Health. Higher = more trust score.">
-                <Input type="number" min={1} max={100}
-                  value={form.batteryHealth} onChange={(e) => set("batteryHealth", e.target.value)}
-                  placeholder="e.g. 89" />
-              </Field>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label="Photos submitted" hint="Up to 5 — front, back, sides, screen-on">
-                  <Select value={form.photoCount} onChange={(e) => set("photoCount", e.target.value)}>
-                    {[0,1,2,3,4,5].map((n) => <option key={n} value={n}>{n} photo{n !== 1 ? "s" : ""}</option>)}
-                  </Select>
-                </Field>
-                <Field label="Video evidence" hint="Speaker test, screen touch test">
-                  <Select value={form.videoCount} onChange={(e) => set("videoCount", e.target.value)}>
-                    {[0,1,2,3].map((n) => <option key={n} value={n}>{n} video{n !== 1 ? "s" : ""}</option>)}
-                  </Select>
-                </Field>
+
+                {verification && (
+                  <div className="space-y-5 bg-white/5 border border-white/10 rounded-2xl p-6 text-left">
+                    <div className="flex items-center justify-center">
+                      <TrustBadge score={verification.trustScore} status={verification.status} size={72} />
+                    </div>
+                    {verification.aiSummary && (
+                      <p className="text-sm text-white/80 leading-relaxed bg-[#141422] rounded-xl p-4 border border-white/10 font-mono">
+                        {verification.aiSummary}
+                      </p>
+                    )}
+                    {verification.status === "failed" && (
+                      <div className="flex gap-2 text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">
+                        <AlertTriangle className="h-5 w-5 flex-shrink-0" />
+                        Verification failed. Please revise listing details.
+                      </div>
+                    )}
+                    <button type="button" onClick={runVerification} className="text-xs font-mono text-coral hover:underline block mx-auto">
+                      Re-run AI Verification
+                    </button>
+                  </div>
+                )}
               </div>
-              <Field label="CEIR / IMEI blacklist status" hint="Check at ceir.gov.in or SMS KYM IMEI to 14422 before listing.">
-                <Select value={form.ceir} onChange={(e) => set("ceir", e.target.value)}>
-                  <option value="unknown">Unknown (not checked yet)</option>
-                  <option value="white">White — clean and safe ✓</option>
-                  <option value="grey">Grey — pending review</option>
-                  <option value="black">Black — blocked / stolen ✗</option>
-                </Select>
-              </Field>
-            </div>
-          )}
+            )}
 
-          {/* STEP 2 – Verification */}
-          {step === 2 && (
-            <div className="space-y-5">
-              <h2 className="font-display font-600 text-lg text-slate-850">AI Verification</h2>
-              <p className="text-sm text-black/60 leading-relaxed">
-                Our AI Verification Agent will now analyze your submitted details and compute a Trust Score.
-                This score appears on your listing and helps buyers feel confident. It takes about 5 seconds.
-              </p>
+            {/* STEP 3 – Review */}
+            {step === 3 && (
+              <div className="space-y-6">
+                <h2 className="font-display font-700 text-xl text-white">Review &amp; Publish Listing</h2>
+                
+                <div className="bg-[#141422] border border-white/10 rounded-2xl p-6 space-y-3.5 text-sm">
+                  <div className="flex justify-between border-b border-white/5 pb-2">
+                    <span className="text-white/40 font-mono">Brand &amp; Model</span>
+                    <span className="font-semibold text-white">{form.brand} {form.model}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-white/5 pb-2">
+                    <span className="text-white/40 font-mono">Asking Price</span>
+                    <span className="font-display font-800 text-coral text-base">₹{Number(form.price || 0).toLocaleString("en-IN")}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-white/5 pb-2">
+                    <span className="text-white/40 font-mono">Condition Grade</span>
+                    <span className="font-semibold text-white">{form.conditionGrade}</span>
+                  </div>
+                  {form.city && (
+                    <div className="flex justify-between">
+                      <span className="text-white/40 font-mono">City</span>
+                      <span className="font-semibold text-white">{form.city}</span>
+                    </div>
+                  )}
+                </div>
 
-              {!verification && !verifying && (
-                <button onClick={runVerification}
-                  className="w-full flex items-center justify-center gap-2 bg-ink hover:bg-ink-700 text-white font-display font-600 py-4 rounded-xl transition-colors focus-ring">
-                  <ScanLine className="h-5 w-5 text-signal-green" />
-                  Run AI Verification now
+                {verification && (
+                  <div className="flex justify-center">
+                    <TrustBadge score={verification.trustScore} status={verification.status} size={64} />
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={submit}
+                  disabled={submitting || verification?.status === "failed"}
+                  className="w-full bg-gradient-to-r from-coral via-orange-500 to-coral hover:opacity-95 disabled:opacity-50 text-white font-display font-700 py-4 rounded-2xl shadow-lg shadow-coral/20 transition-all text-base flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  {submitting ? (
+                    <span className="flex items-center gap-2 font-mono">
+                      <Loader2 className="h-5 w-5 animate-spin" /> Publishing to Marketplace...
+                    </span>
+                  ) : (
+                    <>
+                      <span>Publish Listing Now</span>
+                      <ArrowRight className="h-5 w-5" />
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+
+            {/* Stepper Navigation Buttons */}
+            <div className="mt-8 flex gap-3 pt-4 border-t border-white/10">
+              {step > 0 && (
+                <button 
+                  type="button" 
+                  onClick={back} 
+                  className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl py-3.5 text-sm font-display font-600 transition-all"
+                >
+                  Back
                 </button>
               )}
-
-              {verifying && (
-                <div className="flex flex-col items-center gap-4 py-10">
-                  <Loader2 className="h-10 w-10 text-coral animate-spin" />
-                  <p className="text-sm text-black/60 font-mono">Analyzing evidence… this takes 5–10 seconds</p>
-                </div>
-              )}
-
-              {verification && (
-                <div className="space-y-4">
-                  <TrustBadge score={verification.trustScore} status={verification.status} size={72} />
-                  {verification.aiSummary && (
-                    <p className="text-sm text-black/65 leading-relaxed bg-paper rounded-xl p-4">
-                      {verification.aiSummary}
-                    </p>
-                  )}
-                  {verification.flags?.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {verification.flags.map((f) => (
-                        <span key={f} className="text-xs font-mono px-2 py-1 bg-signal-amber/10 text-signal-amber border border-signal-amber/25 rounded">
-                          {f.replace(/_/g, " ")}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  {verification.status === "failed" && (
-                    <div className="flex gap-2 text-sm text-signal-red bg-signal-red/8 border border-signal-red/20 rounded-xl px-4 py-3">
-                      <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                      This listing cannot be published. Please fix the issues above and re-verify.
-                    </div>
-                  )}
-                  {verification.status !== "failed" && (
-                    <p className="text-xs text-black/45 font-mono">
-                      You can proceed to publish. {verification.status === "needs_review" ? "A team member will review before the listing goes live." : "Your listing will go live immediately."}
-                    </p>
-                  )}
-                  <button onClick={runVerification} className="text-sm text-coral hover:underline focus-ring">
-                    Re-run verification
-                  </button>
-                </div>
+              {step < 3 && (
+                <button
+                  type="button"
+                  onClick={next}
+                  disabled={step === 2 && (!verification || verification.status === "failed")}
+                  className="flex-1 bg-gradient-to-r from-coral via-orange-500 to-coral hover:opacity-95 disabled:opacity-40 text-white rounded-xl py-3.5 text-sm font-display font-700 shadow-lg shadow-coral/20 transition-all flex items-center justify-center gap-2"
+                >
+                  <span>{step === 1 ? "Continue to AI Verification" : "Continue"}</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
               )}
             </div>
-          )}
 
-          {/* STEP 3 – Preview */}
-          {step === 3 && (
-            <div className="space-y-5">
-              <h2 className="font-display font-600 text-lg text-slate-850">Review &amp; publish</h2>
-              <div className="bg-paper rounded-xl p-5 space-y-3 text-sm">
-                <div className="flex justify-between"><span className="text-black/50">Brand / Model</span><span className="font-medium">{form.brand} {form.model}</span></div>
-                <div className="flex justify-between"><span className="text-black/50">Category</span><span className="font-medium">{form.category}</span></div>
-                <div className="flex justify-between"><span className="text-black/50">Price</span><span className="font-display font-700 text-slate-850">₹{Number(form.price).toLocaleString("en-IN")}</span></div>
-                <div className="flex justify-between"><span className="text-black/50">Condition</span><span className="font-medium">{form.conditionGrade}</span></div>
-                {form.city && <div className="flex justify-between"><span className="text-black/50">City</span><span className="font-medium">{form.city}</span></div>}
-              </div>
-              {verification && (
-                <TrustBadge score={verification.trustScore} status={verification.status} size={56} />
-              )}
-              <button
-                onClick={submit}
-                disabled={submitting || verification?.status === "failed"}
-                className="w-full bg-coral hover:bg-coral-dark disabled:opacity-50 text-white font-display font-700 py-4 rounded-xl transition-colors focus-ring text-base"
-              >
-                {submitting ? "Publishing…" : "Publish listing"}
-              </button>
-            </div>
-          )}
-
-          {error && (
-            <p className="mt-4 text-sm text-signal-red bg-signal-red/8 border border-signal-red/20 rounded-lg px-4 py-3">
-              {error}
-            </p>
-          )}
-
-          {/* Nav buttons */}
-          <div className="mt-7 flex gap-3">
-            {step > 0 && (
-              <button onClick={back} className="flex-1 border border-black/10 rounded-xl py-3 text-sm font-medium hover:bg-paper transition-colors focus-ring">
-                Back
-              </button>
-            )}
-            {step < 3 && (
-              <button
-                onClick={next}
-                disabled={step === 2 && (!verification || verification.status === "failed")}
-                className="flex-1 bg-ink hover:bg-ink-700 disabled:opacity-40 text-white rounded-xl py-3 text-sm font-medium transition-colors focus-ring"
-              >
-                {step === 1 ? "Continue to verification" : "Continue"}
-              </button>
-            )}
           </div>
-        </div>
-      </Container>
-      </section>
+        </Container>
+      </div>
     </div>
   );
 }
