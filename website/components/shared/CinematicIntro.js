@@ -2,214 +2,323 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+/* ─────────────────────────────────────────────────────
+   CINEMATIC INTRO — ZYPHOR  
+   Theme: ink (#0B1220), coral (#FF5A3C), white
+   
+   Flow:
+   0. Ink background (instant)
+   1. Background fades in + phone slides onto table (0.5s)
+   2. Phone lifts majestically to center (1.8s)
+   3. Coral scan line heals the cracks (3.0s)
+   4. "Welcome to" + "ZYPHOR" inside screen (4.2s)
+   5. Zoom into screen → website (5.2s)
+   Done at 5.8s
+───────────────────────────────────────────────────── */
+
+// Pre-calculated floating particles
+const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
+  id: i,
+  x: Math.random() * 100,
+  y: Math.random() * 100,
+  size: 2 + Math.random() * 3,
+  dur: 3 + Math.random() * 4,
+  del: Math.random() * 2,
+  isCoral: i % 3 === 0,
+}));
+
 export default function CinematicIntro({ onComplete }) {
   const [phase, setPhase] = useState(0);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
-    // 5.5s PHOTOREALISTIC CINEMATIC REPAIR SEQUENCE
-    const t1 = setTimeout(() => setPhase(1), 500);   // 0.5s: Lift from repair table
-    const t2 = setTimeout(() => setPhase(2), 1600);  // 1.6s: AI Energy Beam Heals Cracks
-    const t3 = setTimeout(() => setPhase(3), 3200);  // 3.2s: "WELCOME" inside screen
-    const t4 = setTimeout(() => setPhase(4), 4000);  // 4.0s: "ZYPHOR" inside screen
-    const t5 = setTimeout(() => setPhase(5), 5000);  // 5.0s: Zoom into the screen to reveal site
-    const t6 = setTimeout(() => {
-      onComplete(); // 5.7s: Complete
-    }, 5700);
-
+    const t1 = setTimeout(() => setPhase(1), 500);
+    const t2 = setTimeout(() => setPhase(2), 1800);
+    const t3 = setTimeout(() => setPhase(3), 3000);
+    const t4 = setTimeout(() => setPhase(4), 4200);
+    const t5 = setTimeout(() => setPhase(5), 5200);
+    const t6 = setTimeout(() => setDone(true), 5800);
     return () => [t1, t2, t3, t4, t5, t6].forEach(clearTimeout);
-  }, [onComplete]);
+  }, []);
 
-  // Phone Animation Variants
-  const phoneVariants = {
-    table: { 
-      y: "30%", 
-      rotateX: 55, 
-      rotateY: 0,
-      rotateZ: 25, 
-      scale: 0.6, 
-      opacity: 0,
-      boxShadow: "0 50px 100px rgba(0,0,0,0.9)"
-    },
-    lift: { 
-      y: "0%", 
-      rotateX: 0, 
-      rotateZ: 0, 
-      scale: 1, 
-      opacity: 1,
-      boxShadow: "0 30px 100px rgba(14,165,233,0.4)",
-      transition: { type: "spring", stiffness: 60, damping: 25, mass: 1, duration: 1.2 } 
-    },
-    heal: { 
-      y: "0%", rotateX: 0, rotateZ: 0, scale: 1, opacity: 1,
-      boxShadow: "0 0 150px rgba(14,165,233,0.8)", // massive blue glow when healing
-      transition: { duration: 0.8 }
-    },
-    text: { 
-      y: "0%", rotateX: 0, rotateZ: 0, scale: 1, opacity: 1,
-      boxShadow: "0 30px 100px rgba(14,165,233,0.2)"
-    },
-    expand: {
-      scale: 50, // Massive Camera Dive INTO the phone screen
-      opacity: 0,
-      transition: { duration: 0.8, ease: [0.7, 0, 0.3, 1] } 
-    }
-  };
+  useEffect(() => {
+    if (done) onComplete();
+  }, [done, onComplete]);
 
   return (
-    <motion.div 
-      key="intro-container"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.7 } }}
-      className="fixed inset-0 z-[9999] bg-[#020202] overflow-hidden flex items-center justify-center perspective-[1500px]"
+    <motion.div
+      key="cinematic-root"
+      initial={{ opacity: 1 }}
+      animate={{ opacity: phase === 5 ? 0 : 1 }}
+      transition={{ duration: phase === 5 ? 0.6 : 0.3 }}
+      className="fixed inset-0 z-[9999] overflow-hidden"
+      style={{ background: "#0B1220" }}
     >
-      {/* ==================================================== */}
-      {/* PHOTOREALISTIC REPAIR TABLE BACKGROUND                 */}
-      {/* ==================================================== */}
-      <motion.div 
-        className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none"
+
+      {/* ═══════════════════════════════════════
+          LAYER 1: ANIMATED BACKGROUND
+      ═══════════════════════════════════════ */}
+      <motion.div
+        className="absolute inset-0"
+        initial={{ opacity: 0, scale: 1 }}
         animate={{ 
-          opacity: phase >= 5 ? 0 : 1,
-          scale: phase >= 1 ? 1.05 : 1 // Slow cinematic zoom in on background
+          opacity: phase >= 1 ? 1 : 0,
+          scale: phase >= 1 ? 1.06 : 1,
         }}
-        transition={{ scale: { duration: 5, ease: "linear" }, opacity: { duration: 0.5 } }}
+        transition={{ 
+          opacity: { duration: 1, ease: "easeOut" }, 
+          scale: { duration: 6, ease: "linear" } 
+        }}
       >
-        <div 
-          className="absolute inset-0 bg-[url('/images/repair_table_bg.png')] bg-cover bg-center"
-          style={{ filter: "brightness(0.6) contrast(1.2)" }}
+        {/* Repair table photo */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: "url('/images/repair_table_bg.png')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            filter: "brightness(0.4) saturate(0.85)",
+          }}
         />
-        {/* Subtle Dark Overlay to make phone pop */}
-        <div className="absolute inset-0 bg-black/40" />
+
+        {/* Vignette */}
+        <div
+          className="absolute inset-0"
+          style={{ background: "radial-gradient(ellipse at center, transparent 25%, #0B1220 75%)" }}
+        />
+
+        {/* ZYPHOR watermark on table */}
+        <div className="absolute inset-0 flex items-center justify-center select-none pointer-events-none">
+          <motion.span
+            className="font-display font-900 text-white whitespace-nowrap"
+            style={{ fontSize: "clamp(6rem, 22vw, 18rem)", letterSpacing: "0.25em" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.04 }}
+            transition={{ duration: 2, delay: 1 }}
+          />
+        </div>
+
+        {/* ── FLOATING PARTICLES ── */}
+        {PARTICLES.map((p) => (
+          <motion.div
+            key={p.id}
+            className="absolute rounded-full pointer-events-none"
+            style={{
+              left: `${p.x}%`,
+              top: `${p.y}%`,
+              width: p.size,
+              height: p.size,
+              background: p.isCoral ? "#FF5A3C" : "rgba(255,255,255,0.5)",
+            }}
+            animate={{ y: [0, -25, 0], opacity: [0, 0.6, 0] }}
+            transition={{ duration: p.dur, delay: p.del, repeat: Infinity, ease: "easeInOut" }}
+          />
+        ))}
+
+        {/* ── AMBIENT LIGHT SWEEP ── */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          animate={{
+            background: [
+              "linear-gradient(120deg, transparent 0%, rgba(255,90,60,0.04) 40%, transparent 80%)",
+              "linear-gradient(120deg, transparent 20%, rgba(255,90,60,0.07) 60%, transparent 100%)",
+              "linear-gradient(120deg, transparent 0%, rgba(255,90,60,0.04) 40%, transparent 80%)",
+            ],
+          }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        />
       </motion.div>
 
-      {/* ==================================================== */}
-      {/* THE SMARTPHONE CHASSIS                                 */}
-      {/* ==================================================== */}
-      <motion.div
-        variants={phoneVariants}
-        initial="table"
-        animate={
-          phase === 0 ? "table" : 
-          phase === 1 ? "lift" : 
-          phase === 2 ? "heal" : 
-          phase === 3 ? "text" : 
-          phase === 4 ? "text" : 
-          "expand"
-        }
-        style={{ transformStyle: "preserve-3d", willChange: "transform, opacity" }}
-        className="relative z-10 w-[300px] h-[640px] transform origin-center"
-      >
-        {/* Chassis */}
-        <div className="absolute inset-0 rounded-[44px] bg-[#0A0A0A] shadow-[inset_0_0_0_2px_#333,0_0_0_1px_#000] overflow-visible">
-          
-          {/* Hardware Buttons */}
-          <div className="absolute -left-[2px] top-[100px] w-[2px] h-[25px] bg-[#444] rounded-l-sm" /> 
-          <div className="absolute -left-[2px] top-[140px] w-[2px] h-[50px] bg-[#444] rounded-l-sm" /> 
-          <div className="absolute -right-[2px] top-[160px] w-[2px] h-[70px] bg-[#444] rounded-r-sm" /> 
+      {/* ═══════════════════════════════════════
+          LAYER 2: THE SMARTPHONE
+      ═══════════════════════════════════════ */}
+      <div className="absolute inset-0 flex items-center justify-center" style={{ perspective: "1200px" }}>
+        <motion.div
+          style={{ transformStyle: "preserve-3d", willChange: "transform, opacity" }}
+          initial={{ opacity: 0, y: 200, rotateX: 55, rotateZ: 20, scale: 0.45 }}
+          animate={
+            phase === 0
+              ? { opacity: 0, y: 200, rotateX: 55, rotateZ: 20, scale: 0.45 }
+              : phase === 1
+              ? { opacity: 1, y: 100, rotateX: 55, rotateZ: 20, scale: 0.45 }
+              : phase === 2
+              ? { opacity: 1, y: 0, rotateX: 0, rotateZ: 0, scale: 1 }
+              : phase <= 4
+              ? { opacity: 1, y: 0, rotateX: 0, rotateZ: 0, scale: 1 }
+              : { opacity: 0, y: 0, rotateX: 0, rotateZ: 0, scale: 12 }
+          }
+          transition={
+            phase === 1
+              ? { duration: 0.8, ease: "easeOut" }
+              : phase === 2
+              ? { type: "spring", stiffness: 55, damping: 18, mass: 1 }
+              : phase === 5
+              ? { duration: 0.6, ease: [0.76, 0, 0.24, 1] }
+              : { duration: 0.5, ease: "easeOut" }
+          }
+        >
+          {/* Phone body */}
+          <div
+            className="relative rounded-[42px] overflow-hidden"
+            style={{
+              width: 270,
+              height: 580,
+              background: "#0e0e0e",
+              boxShadow:
+                phase >= 3
+                  ? "0 0 60px 8px rgba(255,90,60,0.3), 0 30px 80px rgba(0,0,0,0.8)"
+                  : phase >= 2
+                  ? "0 30px 80px rgba(0,0,0,0.9), 0 0 40px rgba(255,90,60,0.1)"
+                  : "0 40px 60px rgba(0,0,0,0.95)",
+              transition: "box-shadow 0.8s ease",
+            }}
+          >
+            {/* Bezel */}
+            <div className="absolute inset-0 rounded-[42px] border-[3px] border-[#252525] pointer-events-none z-50" />
+            {/* Buttons */}
+            <div className="absolute -left-[3px] top-[85px]  w-[3px] h-[20px] bg-[#2a2a2a] rounded-l-sm z-50" />
+            <div className="absolute -left-[3px] top-[120px] w-[3px] h-[40px] bg-[#2a2a2a] rounded-l-sm z-50" />
+            <div className="absolute -right-[3px] top-[140px] w-[3px] h-[55px] bg-[#2a2a2a] rounded-r-sm z-50" />
 
-          {/* ==================================================== */}
-          {/* THE SCREEN (Where the magic happens)                   */}
-          {/* ==================================================== */}
-          <div className="absolute inset-[3px] rounded-[41px] bg-[#020202] overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,1)] flex flex-col items-center justify-center relative">
-            
-            {/* Camera Hole */}
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[14px] h-[14px] bg-black rounded-full z-50 border border-white/10 flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
-               <div className="w-1.5 h-1.5 rounded-full bg-blue-900 shadow-[0_0_4px_#0ea5e9]"></div>
-            </div>
+            {/* ═══ SCREEN ═══ */}
+            <div className="absolute inset-[5px] rounded-[37px] overflow-hidden bg-black relative">
 
-            {/* Glowing Screen Base (Fades when healed) */}
-            <motion.div 
-              className="absolute inset-0 z-10 opacity-30"
-              animate={{ opacity: phase >= 2 ? 0 : [0.1, 0.4, 0.1, 0.5, 0.2] }}
-              transition={{ duration: 0.3, repeat: phase >= 2 ? 0 : Infinity }}
-              style={{ background: "radial-gradient(ellipse at center, rgba(14,165,233,0.3) 0%, transparent 80%)" }}
-            />
+              {/* Camera island */}
+              <div className="absolute top-[10px] left-1/2 -translate-x-1/2 w-[50px] h-[18px] bg-[#0a0a0a] rounded-full z-40 flex items-center justify-center gap-2 border border-[#1a1a1a]">
+                <div className="w-[6px] h-[6px] rounded-full bg-[#111] border border-[#2a2a2a]" />
+                <div className="w-[3px] h-[3px] rounded-full bg-[#111] shadow-[inset_0_0_2px_rgba(255,90,60,0.4)]" />
+              </div>
 
-            {/* PHOTOREALISTIC SHATTERED GLASS OVERLAY */}
-            <AnimatePresence>
-              {phase < 3 && (
-                <motion.div 
-                  className="absolute inset-0 z-20 pointer-events-none"
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 1.0, ease: "easeOut" }}
-                >
-                  <div 
-                    className="w-full h-full bg-[url('/images/shattered_glass.png')] bg-cover bg-center"
-                    style={{ 
-                      mixBlendMode: "screen", 
-                      filter: "contrast(1.5) brightness(1.2)" 
-                    }} 
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
+              {/* CRACKED GLASS */}
+              <AnimatePresence>
+                {phase >= 1 && phase < 4 && (
+                  <motion.div
+                    className="absolute inset-0 z-30"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: phase >= 3 ? 0.8 : 0.4 }}
+                  >
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        backgroundImage: "url('/images/shattered_glass.png')",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        mixBlendMode: "screen",
+                        opacity: 0.8,
+                      }}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-            {/* THE HEALING ENERGY BEAM */}
-            <AnimatePresence>
-              {phase === 2 && (
+              {/* BROKEN SCREEN GLITCH */}
+              {phase >= 1 && phase < 3 && (
                 <motion.div
-                  initial={{ top: "-20%", opacity: 0 }}
-                  animate={{ top: "120%", opacity: [0, 1, 1, 0] }}
-                  transition={{ duration: 1.5, ease: "easeInOut" }}
-                  className="absolute left-0 right-0 h-[8px] bg-[#0ea5e9] z-30 pointer-events-none"
+                  className="absolute inset-0 z-10"
+                  animate={{ opacity: [0, 0.2, 0, 0.35, 0, 0.15] }}
+                  transition={{ duration: 0.4, repeat: Infinity }}
                   style={{
-                    boxShadow: "0 0 40px 20px rgba(14,165,233,0.8), 0 0 100px 40px rgba(255,255,255,0.4)"
+                    background: "linear-gradient(180deg, transparent 15%, rgba(255,90,60,0.12) 50%, transparent 85%)",
                   }}
                 />
               )}
-            </AnimatePresence>
 
-            {/* ==================================================== */}
-            {/* INSIDE-SCREEN TYPOGRAPHY REVEAL                        */}
-            {/* ==================================================== */}
-            <AnimatePresence mode="wait">
+              {/* HEALING SCAN LINE */}
               {phase === 3 && (
                 <motion.div
-                  key="welcome-inner"
-                  initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
-                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
-                  transition={{ duration: 0.6, ease: "easeOut" }}
-                  className="absolute z-40 font-mono font-bold tracking-[0.3em] text-white/90 text-sm drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]"
-                >
-                  WELCOME
-                </motion.div>
-              )}
-              {phase >= 4 && (
-                <motion.div
-                  key="zyphor-inner"
-                  initial={{ opacity: 0, scale: 0.7, filter: "blur(15px)" }}
-                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
-                  className="absolute z-40 font-display font-900 text-white w-full text-center"
-                  style={{ 
-                    fontSize: "3.5rem",
-                    letterSpacing: "0.1em",
-                    textShadow: "0 0 30px rgba(14,165,233,0.9), 0 0 60px rgba(255,255,255,0.5)",
-                    willChange: "transform, opacity" 
+                  className="absolute left-0 right-0 z-40 pointer-events-none"
+                  style={{
+                    height: 3,
+                    background: "#FF5A3C",
+                    boxShadow: "0 0 20px 8px rgba(255,90,60,0.6), 0 0 60px 20px rgba(255,90,60,0.25)",
                   }}
-                >
-                  ZYPHOR
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Screen Inner Glow during Logo Reveal */}
-            <AnimatePresence>
-              {phase >= 4 && (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(14,165,233,0.3)_0%,transparent_80%)] pointer-events-none z-20"
+                  initial={{ top: "-5%" }}
+                  animate={{ top: "105%" }}
+                  transition={{ duration: 1.1, ease: "easeInOut" }}
                 />
               )}
-            </AnimatePresence>
 
+              {/* CLEAN HEALED SCREEN */}
+              {phase >= 4 && (
+                <motion.div
+                  className="absolute inset-0 bg-black z-20"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.4 }}
+                />
+              )}
+
+              {/* ZYPHOR LOGO INSIDE SCREEN */}
+              {phase === 4 && (
+                <motion.div
+                  className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-2"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{ background: "radial-gradient(ellipse at center, rgba(255,90,60,0.1) 0%, transparent 65%)" }}
+                  />
+                  <motion.span
+                    className="font-mono text-[10px] tracking-[0.35em] text-white/40 uppercase"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1, duration: 0.4 }}
+                  >
+                    Welcome to
+                  </motion.span>
+                  <motion.span
+                    className="font-display font-900 text-white"
+                    style={{
+                      fontSize: "2.6rem",
+                      letterSpacing: "0.15em",
+                      textShadow: "0 0 25px rgba(255,90,60,0.5), 0 0 50px rgba(255,90,60,0.15)",
+                    }}
+                    initial={{ opacity: 0, scale: 0.85 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2, duration: 0.5, ease: "easeOut" }}
+                  >
+                    ZYPHOR
+                  </motion.span>
+                  <motion.span
+                    className="font-mono text-[8px] tracking-[0.15em] text-white/25 uppercase"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.45, duration: 0.4 }}
+                  >
+                    AI-Verified Marketplace
+                  </motion.span>
+                </motion.div>
+              )}
+
+            </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
+
+      {/* ═══════════════════════════════════════
+          LAYER 3: BOTTOM STATUS
+      ═══════════════════════════════════════ */}
+      <AnimatePresence mode="wait">
+        {phase >= 1 && phase <= 3 && (
+          <motion.div
+            key={phase <= 2 ? "detect" : "repair"}
+            className="absolute bottom-8 left-0 right-0 flex justify-center z-20"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.3 }}
+          >
+            <span className="font-mono text-[10px] tracking-[0.3em] uppercase" style={{ color: "rgba(255,90,60,0.5)" }}>
+              {phase <= 2 ? "● Detecting damage..." : "● Repairing device..."}
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </motion.div>
   );
 }
