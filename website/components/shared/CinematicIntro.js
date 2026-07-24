@@ -1,14 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Wrench, Settings, Microscope, PenTool } from "lucide-react";
 
-// Generate a optimized procedural spiderweb shatter for 144hz mobile
+// Procedural spiderweb shatter (Optimized for 144Hz)
 const generateCracks = () => {
   const cx = 170, cy = 360;
   const paths = [];
   
-  // Radial cracks (Reduced for performance)
-  for (let a = 0; a < 360; a += 30) { 
+  // Radial cracks
+  for (let a = 0; a < 360; a += 24) { 
     let rad = (a * Math.PI) / 180;
     let r1 = 10 + Math.random() * 20;
     let r2 = 100 + Math.random() * 80;
@@ -17,34 +18,29 @@ const generateCracks = () => {
     let x1 = cx + Math.cos(rad) * r1;
     let y1 = cy + Math.sin(rad) * r1;
     
-    let angleOffset = (Math.random() * 0.1 - 0.05);
-    let x2 = cx + Math.cos(rad + angleOffset) * r2;
-    let y2 = cy + Math.sin(rad + angleOffset) * r2;
+    let x2 = cx + Math.cos(rad) * r2;
+    let y2 = cy + Math.sin(rad) * r2;
     
-    angleOffset = (Math.random() * 0.1 - 0.05);
-    let x3 = cx + Math.cos(rad + angleOffset) * r3;
-    let y3 = cy + Math.sin(rad + angleOffset) * r3;
+    let x3 = cx + Math.cos(rad) * r3;
+    let y3 = cy + Math.sin(rad) * r3;
     
     paths.push(`M ${cx} ${cy} L ${x1.toFixed(1)} ${y1.toFixed(1)} L ${x2.toFixed(1)} ${y2.toFixed(1)} L ${x3.toFixed(1)} ${y3.toFixed(1)}`);
   }
   
-  // Concentric web cracks (Reduced for performance)
-  const rings = [40, 100, 200];
+  // Concentric web cracks
+  const rings = [40, 100, 180];
   for (let r of rings) {
-    for (let a = 0; a < 360; a += 45) {
+    for (let a = 0; a < 360; a += 36) {
       if (Math.random() > 0.6) continue; 
       
       let rad1 = (a * Math.PI) / 180;
-      let rad2 = ((a + 45) * Math.PI) / 180;
+      let rad2 = ((a + 36) * Math.PI) / 180;
       
-      let r_jitter1 = r + (Math.random() * 10 - 5);
-      let r_jitter2 = r + (Math.random() * 10 - 5);
+      let x1 = cx + Math.cos(rad1) * r;
+      let y1 = cy + Math.sin(rad1) * r;
       
-      let x1 = cx + Math.cos(rad1) * r_jitter1;
-      let y1 = cy + Math.sin(rad1) * r_jitter1;
-      
-      let x2 = cx + Math.cos(rad2) * r_jitter2;
-      let y2 = cy + Math.sin(rad2) * r_jitter2;
+      let x2 = cx + Math.cos(rad2) * r;
+      let y2 = cy + Math.sin(rad2) * r;
       
       paths.push(`M ${x1.toFixed(1)} ${y1.toFixed(1)} L ${x2.toFixed(1)} ${y2.toFixed(1)}`);
     }
@@ -59,35 +55,47 @@ export default function CinematicIntro({ onComplete }) {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
-    // 4.5s FAST, CINEMATIC, 144Hz OPTIMIZED PACING
-    const t1 = setTimeout(() => setPhase(1), 100);   // 0.1s: Phone falls in
-    const t2 = setTimeout(() => setPhase(2), 1200);  // 1.2s: Cracks start healing (Blue/White)
-    const t3 = setTimeout(() => setPhase(3), 2500);  // 2.5s: WELCOME text
-    const t4 = setTimeout(() => setPhase(4), 3100);  // 3.1s: ZYPHOR Logo
-    const t5 = setTimeout(() => setPhase(5), 3800);  // 3.8s: Cinematic Zoom Into Screen
+    // 5.0s ADVANCED CINEMATIC REPAIR TABLE SEQUENCE
+    const t1 = setTimeout(() => setPhase(1), 500);   // 0.5s: Lift from repair table
+    const t2 = setTimeout(() => setPhase(2), 1600);  // 1.6s: Cracks heal (Blue sparks)
+    const t3 = setTimeout(() => setPhase(3), 3000);  // 3.0s: "WELCOME" inside screen
+    const t4 = setTimeout(() => setPhase(4), 3700);  // 3.7s: "ZYPHOR" inside screen
+    const t5 = setTimeout(() => setPhase(5), 4500);  // 4.5s: Zoom into the screen to reveal site
     const t6 = setTimeout(() => {
-      onComplete(); // 4.5s: Complete & unmount
-    }, 4500);
+      onComplete(); // 5.2s: Complete
+    }, 5200);
 
     return () => [t1, t2, t3, t4, t5, t6].forEach(clearTimeout);
   }, [onComplete]);
 
-  // Hardware Accelerated Variants
+  // Phone Animation Variants
   const phoneVariants = {
-    initial: { y: "-100%", rotateX: -30, rotateZ: 10, scale: 0.6, opacity: 0 },
-    fall: { 
-      y: "0%", rotateX: 0, rotateZ: 0, scale: 1, opacity: 1,
-      transition: { type: "spring", stiffness: 120, damping: 20, mass: 1 } // Smooth fall
+    table: { 
+      y: "40%", 
+      rotateX: 65, 
+      rotateY: 0,
+      rotateZ: 40, 
+      scale: 0.35, 
+      opacity: 1,
+      boxShadow: "0 50px 100px rgba(0,0,0,0.9)"
+    },
+    lift: { 
+      y: "0%", 
+      rotateX: 0, 
+      rotateZ: 0, 
+      scale: 1, 
+      opacity: 1,
+      boxShadow: "0 20px 80px rgba(14,165,233,0.3)",
+      transition: { type: "spring", stiffness: 70, damping: 20, mass: 1, duration: 1.1 } // Majestic rise
     },
     heal: { 
       y: "0%", rotateX: 0, rotateZ: 0, scale: 1, opacity: 1,
-      x: [0, -2, 2, -1, 1, 0], // Subtle vibration while healing
-      transition: { x: { duration: 0.5 } }
+      x: [0, -2, 2, -1, 1, 0], // Subtle vibration while fixing
+      transition: { x: { duration: 0.6 } }
     },
-    text1: { y: "0%", rotateX: 0, scale: 1, opacity: 1 },
-    text2: { y: "0%", rotateX: 0, scale: 1, opacity: 1 },
+    text: { y: "0%", rotateX: 0, rotateZ: 0, scale: 1, opacity: 1 },
     expand: {
-      scale: 30, // Massive zoom
+      scale: 40, // Camera dives INTO the phone screen
       opacity: 0,
       transition: { duration: 0.7, ease: [0.7, 0, 0.3, 1] } 
     }
@@ -96,113 +104,113 @@ export default function CinematicIntro({ onComplete }) {
   return (
     <motion.div 
       key="intro-container"
-      initial={{ opacity: 1 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.5 } }}
       className="fixed inset-0 z-[9999] bg-[#020202] overflow-hidden flex items-center justify-center perspective-[1500px]"
     >
-      {/* Background ambient glow (Blueish white for the theme) */}
+      {/* ==================================================== */}
+      {/* 3D REPAIR TABLE ENVIRONMENT                            */}
+      {/* ==================================================== */}
       <motion.div 
-        className="absolute inset-0 pointer-events-none"
-        animate={{
-          background: phase >= 2 
-            ? "radial-gradient(circle at center, rgba(14,165,233,0.15) 0%, transparent 60%)" 
-            : "radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 60%)"
-        }}
-        transition={{ duration: 0.8 }}
-      />
+        className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none"
+        animate={{ opacity: phase >= 5 ? 0 : 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div 
+          className="w-[200vw] h-[200vh] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          style={{ 
+            transform: "perspective(1000px) rotateX(65deg) translateZ(-200px)",
+            transformStyle: "preserve-3d"
+          }}
+        >
+          {/* Glowing Grid Mat */}
+          <div 
+            className="absolute inset-0 opacity-[0.15]"
+            style={{
+              backgroundImage: "linear-gradient(to right, #0ea5e9 1px, transparent 1px), linear-gradient(to bottom, #0ea5e9 1px, transparent 1px)",
+              backgroundSize: "60px 60px"
+            }}
+          />
+          
+          {/* Huge Table Watermark */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-display font-900 text-[20rem] text-[#0ea5e9] opacity-[0.03] tracking-[0.2em] pointer-events-none">
+            ZYPHOR
+          </div>
 
-      {/* Sparks shooting out from the sides during Heal */}
-      <AnimatePresence>
-        {phase === 2 && (
-          <motion.div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center">
-            {[...Array(12)].map((_, i) => {
-              const isLeft = i % 2 === 0;
-              const angle = isLeft ? Math.PI + (Math.random() - 0.5) * 1.5 : (Math.random() - 0.5) * 1.5;
-              const distance = 150 + Math.random() * 200;
-              return (
-                <motion.div
-                  key={i}
-                  className="absolute w-2 h-1 rounded-full bg-white shadow-[0_0_8px_2px_rgba(14,165,233,0.8)]"
-                  style={{
-                    left: "50%", 
-                    top: "50%",
-                    transformOrigin: "center"
-                  }}
-                  initial={{ x: isLeft ? -80 : 80, y: (Math.random() - 0.5) * 200, opacity: 1, scale: 1, rotate: angle * (180 / Math.PI) }}
-                  animate={{ 
-                    x: Math.cos(angle) * distance,
-                    y: Math.sin(angle) * distance,
-                    opacity: 0, 
-                    scale: 0 
-                  }}
-                  transition={{ 
-                    duration: 0.6 + Math.random() * 0.4, 
-                    ease: "easeOut",
-                  }}
-                />
-              );
-            })}
-          </motion.div>
-        )}
-      </AnimatePresence>
+          {/* Abstract Tool Icons Scattered on the table */}
+          <div className="absolute top-[40%] left-[30%] opacity-20 text-[#0ea5e9] rotate-45 drop-shadow-[0_0_10px_#0ea5e9]"><Wrench size={100} strokeWidth={1} /></div>
+          <div className="absolute top-[60%] right-[30%] opacity-20 text-[#0ea5e9] -rotate-12 drop-shadow-[0_0_10px_#0ea5e9]"><Microscope size={120} strokeWidth={1} /></div>
+          <div className="absolute top-[30%] right-[40%] opacity-10 text-[#0ea5e9] rotate-90 drop-shadow-[0_0_10px_#0ea5e9]"><Settings size={80} strokeWidth={1} /></div>
+          <div className="absolute top-[65%] left-[40%] opacity-15 text-[#0ea5e9] -rotate-45 drop-shadow-[0_0_10px_#0ea5e9]"><PenTool size={90} strokeWidth={1} /></div>
+          
+          {/* Table Ambient Glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle_at_center,rgba(14,165,233,0.1)_0%,transparent_70%)]" />
+        </div>
+      </motion.div>
 
+      {/* ==================================================== */}
+      {/* THE SMARTPHONE DEVICE                                  */}
+      {/* ==================================================== */}
       <motion.div
         variants={phoneVariants}
-        initial="initial"
+        initial="table"
         animate={
-          phase === 0 ? "initial" : 
-          phase === 1 ? "fall" : 
+          phase === 0 ? "table" : 
+          phase === 1 ? "lift" : 
           phase === 2 ? "heal" : 
-          phase === 3 ? "text1" : 
-          phase === 4 ? "text2" : 
+          phase === 3 ? "text" : 
+          phase === 4 ? "text" : 
           "expand"
         }
         style={{ transformStyle: "preserve-3d", willChange: "transform, opacity" }}
-        className="relative w-[320px] h-[680px] transform scale-[0.8] min-[380px]:scale-[0.9] sm:scale-100 origin-center"
+        className="relative z-10 w-[300px] h-[640px] transform origin-center"
       >
-        {/* Outer Frame */}
-        <div className="absolute inset-0 rounded-[48px] bg-black shadow-[inset_0_0_0_4px_#3a3a3a,0_40px_100px_rgba(0,0,0,1)] overflow-visible">
+        {/* Outer Chassis */}
+        <div className="absolute inset-0 rounded-[44px] bg-[#111] shadow-[inset_0_0_0_2px_#333] overflow-visible">
           
           {/* Hardware Buttons */}
-          <div className="absolute -left-[3px] top-[120px] w-[3px] h-[30px] bg-[#666] rounded-l-sm" /> 
-          <div className="absolute -left-[3px] top-[170px] w-[3px] h-[60px] bg-[#666] rounded-l-sm" /> 
-          <div className="absolute -right-[3px] top-[190px] w-[3px] h-[90px] bg-[#666] rounded-r-sm" /> 
+          <div className="absolute -left-[2px] top-[100px] w-[2px] h-[25px] bg-[#444] rounded-l-sm" /> 
+          <div className="absolute -left-[2px] top-[140px] w-[2px] h-[50px] bg-[#444] rounded-l-sm" /> 
+          <div className="absolute -right-[2px] top-[160px] w-[2px] h-[70px] bg-[#444] rounded-r-sm" /> 
 
-          {/* INNER SCREEN */}
-          <div className="absolute inset-[4px] rounded-[44px] bg-[#050505] overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,1)]">
+          {/* ==================================================== */}
+          {/* THE SCREEN (Where the magic happens)                   */}
+          {/* ==================================================== */}
+          <div className="absolute inset-[3px] rounded-[41px] bg-[#050505] overflow-hidden shadow-[inset_0_0_20px_rgba(0,0,0,1)] flex flex-col items-center justify-center relative">
             
-            {/* Minimalist Camera Hole */}
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[16px] h-[16px] bg-black rounded-full z-50 flex items-center justify-center border border-white/5">
-               <div className="w-1.5 h-1.5 rounded-full bg-blue-900/60 shadow-[0_0_4px_rgba(59,130,246,0.8)]"></div>
+            {/* Camera Hole */}
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[14px] h-[14px] bg-black rounded-full z-50 border border-white/5 flex items-center justify-center">
+               <div className="w-1 h-1 rounded-full bg-blue-900 shadow-[0_0_3px_#0ea5e9]"></div>
             </div>
 
-            {/* Glowing Screen Background effect (Glitchy when broken) */}
+            {/* Glowing Broken Screen Background (Disappears when healed) */}
             <AnimatePresence>
               {phase < 2 && (
                 <motion.div 
                   className="absolute inset-0 z-10 opacity-20"
-                  animate={{ opacity: [0.1, 0.4, 0.1, 0.6, 0.05, 0.3] }}
-                  transition={{ duration: 0.4, repeat: Infinity, repeatType: "reverse" }}
+                  animate={{ opacity: [0.1, 0.3, 0.1, 0.5, 0.05, 0.2] }}
+                  transition={{ duration: 0.3, repeat: Infinity, repeatType: "reverse" }}
                   exit={{ opacity: 0, transition: { duration: 0.5 } }}
-                  style={{ background: "linear-gradient(to bottom, transparent, rgba(255,255,255,0.2) 50%, transparent)" }}
+                  style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 40%, rgba(14,165,233,0.1) 100%)" }}
                 />
               )}
             </AnimatePresence>
 
-            {/* THE CRACKS (SVG) - Optimized without SVG Blur */}
-            <svg className="absolute inset-0 w-full h-full z-30 pointer-events-none" style={{ willChange: "opacity, transform" }}>
+            {/* THE CRACKS (SVG) */}
+            <svg className="absolute inset-0 w-full h-full z-30 pointer-events-none" style={{ willChange: "opacity" }}>
               {CRACK_PATHS.map((path, i) => (
                 <g key={i}>
-                  {/* Base Crack (White/Silver) */}
+                  {/* Physical Crack Line */}
                   <motion.path
                     d={path}
                     fill="none"
-                    stroke="rgba(255,255,255,0.8)"
+                    stroke="rgba(255,255,255,0.6)"
                     strokeWidth="1.5"
                     strokeLinecap="round"
                     initial={{ pathLength: 1, pathOffset: 0, opacity: 0 }}
                     animate={
-                      phase === 0 ? { opacity: 0 } :
+                      phase === 0 ? { opacity: 1 } :
                       phase >= 2 
                         ? { pathLength: 0, pathOffset: 1, opacity: 0 } 
                         : { pathLength: 1, pathOffset: 0, opacity: 1 }
@@ -216,33 +224,16 @@ export default function CinematicIntro({ onComplete }) {
                     }}
                   />
                   
-                  {/* Healing Spark (Blue) */}
+                  {/* Healing Spark (Blue Core) - Optimized for 144Hz */}
                   {phase === 2 && (
                     <motion.path
                       d={path}
                       fill="none"
                       stroke="#0ea5e9" 
-                      strokeWidth="4"
+                      strokeWidth="3"
                       strokeLinecap="round"
                       initial={{ pathLength: 0, pathOffset: 0, opacity: 1 }}
-                      animate={{ pathLength: [0, 0.4, 0], pathOffset: [0, 0.6, 1], opacity: [1, 1, 0] }}
-                      transition={{ 
-                        duration: 1.0, 
-                        ease: "easeOut",
-                        delay: i * 0.02 
-                      }}
-                    />
-                  )}
-                  {/* Healing Spark Core (White) */}
-                  {phase === 2 && (
-                    <motion.path
-                      d={path}
-                      fill="none"
-                      stroke="#ffffff" 
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      initial={{ pathLength: 0, pathOffset: 0, opacity: 1 }}
-                      animate={{ pathLength: [0, 0.2, 0], pathOffset: [0, 0.8, 1], opacity: [1, 1, 0] }}
+                      animate={{ pathLength: [0, 0.3, 0], pathOffset: [0, 0.7, 1], opacity: [1, 1, 0] }}
                       transition={{ 
                         duration: 1.0, 
                         ease: "easeOut",
@@ -254,57 +245,52 @@ export default function CinematicIntro({ onComplete }) {
               ))}
             </svg>
 
-            {/* THE HEALED STATE: BLACK SCREEN / PREP FOR TEXT */}
-            <motion.div 
-              className="absolute inset-0 flex flex-col items-center justify-center bg-[#030303] z-20"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: phase >= 3 ? 1 : 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08)_0%,transparent_60%)] pointer-events-none" />
-            </motion.div>
+            {/* ==================================================== */}
+            {/* INSIDE-SCREEN TYPOGRAPHY REVEAL                        */}
+            {/* ==================================================== */}
+            <AnimatePresence mode="wait">
+              {phase === 3 && (
+                <motion.div
+                  key="welcome-inner"
+                  initial={{ opacity: 0, scale: 0.8, filter: "blur(5px)" }}
+                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, scale: 1.1, filter: "blur(5px)" }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className="absolute z-40 font-mono font-bold tracking-[0.2em] text-white/90 text-sm drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]"
+                >
+                  WELCOME
+                </motion.div>
+              )}
+              {phase >= 4 && (
+                <motion.div
+                  key="zyphor-inner"
+                  initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, scale: 1.2 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className="absolute z-40 font-display font-900 tracking-[0.1em] text-white text-3xl sm:text-4xl"
+                  style={{ textShadow: "0 0 20px rgba(14,165,233,0.8)" }}
+                >
+                  ZYPHOR
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Screen Inner Glow during Logo Reveal */}
+            <AnimatePresence>
+              {phase >= 3 && (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(14,165,233,0.2)_0%,transparent_70%)] pointer-events-none z-20"
+                />
+              )}
+            </AnimatePresence>
+
           </div>
         </div>
       </motion.div>
-
-      {/* ==================================================== */}
-      {/* 3D FLASH TYPOGRAPHY OVERLAYS - FIXED FOR MOBILE      */}
-      {/* ==================================================== */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center z-[100] pointer-events-none px-4">
-        <AnimatePresence mode="wait">
-          {phase === 3 && (
-            <motion.div
-              key="welcome"
-              initial={{ opacity: 0, scale: 0.8, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 1.1 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
-              className="absolute font-mono font-bold tracking-[0.3em] text-white/90 text-center"
-              style={{ fontSize: "clamp(1.5rem, 5vw, 3rem)" }} // Responsive scale
-            >
-              WELCOME
-            </motion.div>
-          )}
-          {phase >= 4 && (
-            <motion.div
-              key="zyphor"
-              initial={{ opacity: 0, scale: 0.8, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 1.2 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="absolute font-display font-900 tracking-[0.1em] text-white text-center"
-              style={{ 
-                fontSize: "clamp(2.5rem, 12vw, 8rem)", // Prevents mobile overflow
-                textShadow: "0 0 40px rgba(255,255,255,0.6)",
-                willChange: "transform, opacity" 
-              }}
-            >
-              ZYPHOR
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
     </motion.div>
   );
 }
