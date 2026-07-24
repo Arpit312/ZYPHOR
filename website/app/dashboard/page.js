@@ -22,7 +22,6 @@ function safeStr(val) {
 function serializeDoc(doc) {
   if (!doc) return null;
   const obj = { ...doc };
-  // Convert all ObjectId / Date fields
   for (const key of Object.keys(obj)) {
     if (obj[key]?._bsontype === "ObjectID" || obj[key]?._bsontype === "ObjectId") {
       obj[key] = obj[key].toString();
@@ -44,19 +43,9 @@ export default async function DashboardPage() {
   try {
     await connectDB();
 
-    // 2. Find full user record and auto-assign Token ID
-    const user = await User.findById(session.id).lean();
-    if (!user) redirect("/login?next=/dashboard");
-
-    // Assign token ID if not present
-    if (!user.userTokenId) {
-      await User.findByIdAndUpdate(session.id, {
-        userTokenId: generateUserTokenId(session.id)
-      });
-      user.userTokenId = generateUserTokenId(session.id);
-    }
-
-    const userTokenId = user.userTokenId || generateUserTokenId(session.id);
+    // 2. Find user or use fallback for instant demo/synthetic users
+    const user = await User.findById(session.id).lean().catch(() => null);
+    const userTokenId = user?.userTokenId || session.userTokenId || generateUserTokenId(session.id);
 
     // 3. Fetch all dashboard data in parallel with safe fallbacks
     const isAdmin = session.role === "admin";
@@ -97,7 +86,7 @@ export default async function DashboardPage() {
               name: session.name,
               email: session.email,
               role: session.role,
-              businessName: user?.businessName || null,
+              businessName: user?.businessName || session.businessName || `${session.name || "User"}'s Store`,
             }}
             userTokenId={userTokenId}
             myListings={sanitizedListings}
@@ -110,7 +99,6 @@ export default async function DashboardPage() {
     );
   } catch (err) {
     console.error("[Dashboard Error]", err);
-    // Graceful degradation — show dashboard with empty data
     return (
       <section className="py-12 bg-paper min-h-screen">
         <Container>
@@ -120,7 +108,7 @@ export default async function DashboardPage() {
               name: session.name,
               email: session.email,
               role: session.role,
-              businessName: null,
+              businessName: session.businessName || `${session.name || "User"}'s Store`,
             }}
             userTokenId={generateUserTokenId(session.id)}
             myListings={[]}
