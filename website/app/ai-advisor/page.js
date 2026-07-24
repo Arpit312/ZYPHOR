@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Send, ScanLine, Zap, ShieldCheck, Globe, ArrowRight, Sparkles } from "lucide-react";
+import { Send, ScanLine, Zap, ShieldCheck, ArrowRight, Sparkles } from "lucide-react";
 import Container from "@/components/shared/Container";
 
 const LANGUAGES = [
@@ -19,37 +19,45 @@ const QUICK_PROMPTS = [
 ];
 
 function formatINR(n) {
-  return "₹" + Number(n).toLocaleString("en-IN");
+  return "₹" + Number(n || 0).toLocaleString("en-IN");
 }
 
-function RecommendationCard({ rec, catalog }) {
-  const listing = catalog.find((l) => l._id === rec.id);
-  const img = listing?.images?.[0] || "/placeholder-device.svg";
+function RecommendationCard({ rec, catalog = [] }) {
+  const listing = catalog.find((l) => l._id?.toString() === rec.id?.toString() || l.id === rec.id);
+  const img = listing?.images?.[0] || rec.image || "/placeholder-device.svg";
+  const targetHref = listing ? `/marketplace/${listing._id}` : `/store`;
 
   return (
     <Link
-      href={listing ? `/marketplace/${rec.id}` : "#"}
-      className="block bg-white border border-black/[0.06] rounded-xl overflow-hidden hover:shadow-md transition-all"
+      href={targetHref}
+      className="block bg-white border border-black/[0.08] rounded-2xl overflow-hidden hover:shadow-lg hover:border-coral/40 transition-all group"
     >
-      <div className="flex gap-4 p-4">
+      <div className="flex gap-4 p-4 items-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={img} alt={rec.model} className="h-20 w-20 object-cover rounded-lg flex-shrink-0 bg-paper border border-black/5" />
+        <img 
+          src={img} 
+          alt={rec.model || "Phone"} 
+          className="h-20 w-20 object-cover rounded-xl flex-shrink-0 bg-paper border border-black/5 group-hover:scale-105 transition-transform" 
+        />
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2 flex-wrap mb-1">
-            <span className="font-mono text-xs text-black/40 uppercase">{rec.brand}</span>
-            <span className="flex items-center gap-1 text-xs font-semibold text-signal-green bg-signal-green/10 px-2 py-0.5 rounded-full font-mono">
+            <span className="font-mono text-[10px] font-bold text-black/40 uppercase tracking-wider">{rec.brand}</span>
+            <span className="flex items-center gap-1 text-[11px] font-semibold text-signal-green bg-signal-green/10 px-2.5 py-0.5 rounded-full font-mono">
               <ShieldCheck className="h-3 w-3" /> Trust Score: {rec.trustScore || 90}/100
             </span>
           </div>
-          <p className="font-display font-600 text-sm text-slate-850 truncate">{rec.model}</p>
-          <p className="text-base font-700 font-display text-slate-850 mt-0.5">{formatINR(rec.price)}</p>
+          <p className="font-display font-700 text-base text-slate-850 truncate group-hover:text-coral transition-colors">{rec.model}</p>
+          <p className="text-base font-800 font-display text-slate-850 mt-0.5">{formatINR(rec.price)}</p>
         </div>
       </div>
-      <div className="border-t border-black/[0.06] px-4 py-3 bg-paper">
-        <p className="text-xs text-slate-850 leading-relaxed font-medium">{rec.whyItFits}</p>
+      <div className="border-t border-black/[0.06] px-4 py-3 bg-paper/60 flex flex-col gap-1">
+        <p className="text-xs text-slate-850 leading-relaxed font-medium">✨ {rec.whyItFits}</p>
         {rec.tradeoff && (
-          <p className="text-xs text-amber-600 mt-1.5 font-medium">⚠ Tradeoff: {rec.tradeoff}</p>
+          <p className="text-[11px] text-amber-700 font-medium">⚠ Tradeoff: {rec.tradeoff}</p>
         )}
+        <div className="mt-1 flex items-center justify-end text-xs font-bold text-coral group-hover:translate-x-1 transition-transform">
+          View Deal →
+        </div>
       </div>
     </Link>
   );
@@ -67,14 +75,14 @@ export default function AIAdvisorPage() {
   useEffect(() => {
     fetch("/api/listings?type=device&limit=40&sort=trust")
       .then((r) => r.json())
-      .then((d) => setCatalog(d.listings || []));
+      .then((d) => setCatalog(d.listings || []))
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Handle mandatory language choice button click
   function chooseLanguage(langId) {
     setSelectedLang(langId);
     setLangChosen(true);
@@ -88,12 +96,7 @@ export default function AIAdvisorPage() {
       greeting = "Namaste! 👋 Main hoon ZYPHOR AI Advisor (Hinglish).\n\nApna budget aur zarurat batao — gaming, camera, battery, study — main live catalog se aapke liye TOP 3 best-matching verified phones dhundhunga.";
     }
 
-    setMessages([
-      {
-        role: "ai",
-        text: greeting
-      }
-    ]);
+    setMessages([{ role: "ai", text: greeting }]);
   }
 
   async function send(text) {
@@ -122,7 +125,7 @@ export default function AIAdvisorPage() {
           {
             role: "ai",
             text: recs.length > 0
-              ? `Yeh rehe aapke TOP ${recs.length} recommendations (${selectedLang}):`
+              ? `Yeh rahe aapke TOP ${recs.length} recommendations (${selectedLang}):`
               : "Maafi, is budget ke liye live catalog mein phone nahi mila.",
             recommendations: recs
           }
@@ -137,7 +140,7 @@ export default function AIAdvisorPage() {
 
   return (
     <div className="bg-paper min-h-screen">
-      {/* Hero Banner (LIGHT) */}
+      {/* Hero Banner */}
       <div className="relative overflow-hidden bg-paper border-b border-black/[0.05]">
         <Container className="relative py-12 text-center z-10">
           <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-coral bg-coral/10 border border-coral/20 px-3 py-1.5 rounded-full uppercase tracking-widest mb-4">
@@ -156,155 +159,154 @@ export default function AIAdvisorPage() {
       <section className="py-12">
         <Container className="max-w-3xl">
           {/* STEP 1: MANDATORY LANGUAGE SELECTION SCREEN */}
-        {!langChosen ? (
-          <div className="bg-white border border-black/[0.08] rounded-3xl p-8 shadow-xl text-center space-y-6 animate-fade-in">
-            <div className="space-y-2">
-              <span className="text-xs font-mono text-coral font-bold uppercase tracking-widest bg-coral/10 px-3 py-1 rounded-full">
-                Step 1 of 2: Select Language
-              </span>
-              <h2 className="font-display font-700 text-2xl text-slate-850">
-                Pehle apni bhasha (Language) choose karein:
-              </h2>
-              <p className="text-xs text-black/55 max-w-md mx-auto leading-relaxed">
-                Choose your preferred language to start chatting with Zyphor AI Smartphone Advisor.
-              </p>
-            </div>
-
-            {/* Mandatory Language Selection Buttons */}
-            <div className="grid md:grid-cols-3 gap-4 pt-2">
-              {LANGUAGES.map((lang) => (
-                <button
-                  key={lang.id}
-                  onClick={() => chooseLanguage(lang.id)}
-                  className="p-6 rounded-2xl border-2 border-black/10 hover:border-coral hover:bg-coral/5 text-left transition-all group flex flex-col justify-between hover:shadow-lg focus-ring"
-                >
-                  <div>
-                    <div className="text-3xl mb-3">{lang.flag}</div>
-                    <h3 className="font-display font-700 text-lg text-slate-850 group-hover:text-coral transition-colors">
-                      {lang.label}
-                    </h3>
-                    <p className="text-xs font-medium text-black/60 mt-1">{lang.desc}</p>
-                    <p className="text-[11px] text-black/40 mt-0.5">{lang.sub}</p>
-                  </div>
-                  <div className="mt-4 flex items-center text-xs font-bold text-coral group-hover:translate-x-1 transition-transform">
-                    Start Chat <ArrowRight className="h-4 w-4 ml-1" />
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : (
-          /* STEP 2: UNLOCKED AI ADVISOR CHAT INTERFACE */
-          <div className="bg-white border border-black/[0.07] rounded-3xl overflow-hidden shadow-xl animate-fade-in">
-            
-            {/* Header bar with current language indicator */}
-            <div className="bg-ink text-white px-6 py-4 flex items-center justify-between border-b border-white/10">
-              <div className="flex items-center gap-2 text-xs font-semibold">
-                <Sparkles className="h-4 w-4 text-signal-green animate-pulse" />
-                <span>ZYPHOR AI Advisor</span>
-                <span className="text-white/40">•</span>
-                <span className="text-signal-green font-mono bg-signal-green/20 px-2.5 py-0.5 rounded-full text-[11px]">
-                  Language: {selectedLang}
+          {!langChosen ? (
+            <div className="bg-white border border-black/[0.08] rounded-3xl p-8 shadow-xl text-center space-y-6 animate-fade-in">
+              <div className="space-y-2">
+                <span className="text-xs font-mono text-coral font-bold uppercase tracking-widest bg-coral/10 px-3 py-1 rounded-full">
+                  Step 1 of 2: Select Language
                 </span>
+                <h2 className="font-display font-700 text-2xl text-slate-850">
+                  Pehle apni bhasha (Language) choose karein:
+                </h2>
+                <p className="text-xs text-black/55 max-w-md mx-auto leading-relaxed">
+                  Choose your preferred language to start chatting with Zyphor AI Smartphone Advisor.
+                </p>
               </div>
-              <button
-                onClick={() => setLangChosen(false)}
-                className="text-xs text-white/60 hover:text-white underline font-medium"
-              >
-                Change Language
-              </button>
-            </div>
 
-            <div className="h-[480px] overflow-y-auto p-5 space-y-5" id="chat-scroll">
-              {messages.map((msg, i) => (
-                <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} gap-3`}>
-                  {msg.role === "ai" && (
-                    <div className="h-8 w-8 rounded-full bg-ink flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <ScanLine className="h-4 w-4 text-signal-green" />
-                    </div>
-                  )}
-                  <div className={`max-w-[85%] ${msg.role === "user" ? "order-first" : ""}`}>
-                    <div
-                      className={`rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-line ${
-                        msg.role === "user"
-                          ? "bg-ink text-white rounded-br-sm"
-                          : "bg-paper text-slate-850 rounded-bl-sm border border-black/5"
-                      }`}
-                    >
-                      {msg.text}
-                    </div>
-                    {msg.recommendations?.length > 0 && (
-                      <div className="mt-3 space-y-3">
-                        {msg.recommendations.map((rec, ri) => (
-                          <RecommendationCard key={ri} rec={rec} catalog={catalog} />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-              {loading && (
-                <div className="flex gap-3">
-                  <div className="h-8 w-8 rounded-full bg-ink flex items-center justify-center flex-shrink-0">
-                    <ScanLine className="h-4 w-4 text-signal-green" />
-                  </div>
-                  <div className="bg-paper rounded-2xl rounded-bl-sm px-5 py-4 border border-black/5">
-                    <div className="flex gap-1.5">
-                      {[0, 1, 2].map((i) => (
-                        <div
-                          key={i}
-                          className="h-2 w-2 bg-black/20 rounded-full animate-bounce"
-                          style={{ animationDelay: `${i * 0.15}s` }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div ref={bottomRef} />
-            </div>
-
-            {/* Quick prompts */}
-            {messages.length <= 1 && (
-              <div className="px-5 pb-3 flex flex-wrap gap-2">
-                {QUICK_PROMPTS.map((p) => (
+              <div className="grid md:grid-cols-3 gap-4 pt-2">
+                {LANGUAGES.map((lang) => (
                   <button
-                    key={p}
-                    onClick={() => send(p)}
-                    className="text-xs bg-paper hover:bg-black/5 text-black/60 rounded-full px-3 py-1.5 transition-colors border border-black/5"
+                    key={lang.id}
+                    onClick={() => chooseLanguage(lang.id)}
+                    className="p-6 rounded-2xl border-2 border-black/10 hover:border-coral hover:bg-coral/5 text-left transition-all group flex flex-col justify-between hover:shadow-lg focus-ring"
                   >
-                    {p}
+                    <div>
+                      <div className="text-3xl mb-3">{lang.flag}</div>
+                      <h3 className="font-display font-700 text-lg text-slate-850 group-hover:text-coral transition-colors">
+                        {lang.label}
+                      </h3>
+                      <p className="text-xs font-medium text-black/60 mt-1">{lang.desc}</p>
+                      <p className="text-[11px] text-black/40 mt-0.5">{lang.sub}</p>
+                    </div>
+                    <div className="mt-4 flex items-center text-xs font-bold text-coral group-hover:translate-x-1 transition-transform">
+                      Start Chat <ArrowRight className="h-4 w-4 ml-1" />
+                    </div>
                   </button>
                 ))}
               </div>
-            )}
+            </div>
+          ) : (
+            /* STEP 2: UNLOCKED AI ADVISOR CHAT INTERFACE */
+            <div className="bg-white border border-black/[0.07] rounded-3xl overflow-hidden shadow-xl animate-fade-in">
+              
+              {/* Header bar */}
+              <div className="bg-ink text-white px-6 py-4 flex items-center justify-between border-b border-white/10">
+                <div className="flex items-center gap-2 text-xs font-semibold">
+                  <Sparkles className="h-4 w-4 text-signal-green animate-pulse" />
+                  <span>ZYPHOR AI Advisor</span>
+                  <span className="text-white/40">•</span>
+                  <span className="text-signal-green font-mono bg-signal-green/20 px-2.5 py-0.5 rounded-full text-[11px]">
+                    Language: {selectedLang}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setLangChosen(false)}
+                  className="text-xs text-white/60 hover:text-white underline font-medium"
+                >
+                  Change Language
+                </button>
+              </div>
 
-            {/* Input form */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                send();
-              }}
-              className="p-3 bg-paper border-t border-black/[0.06] flex gap-2"
-            >
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder={`Ask in ${selectedLang} (e.g. Best gaming phone under ₹25,000)...`}
-                className="flex-1 bg-white border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-coral/30"
-              />
-              <button
-                type="submit"
-                disabled={loading || !input.trim()}
-                className="bg-coral hover:bg-coral-dark text-white px-5 rounded-xl transition-colors disabled:opacity-40 focus-ring flex items-center justify-center"
+              <div className="h-[480px] overflow-y-auto p-5 space-y-5" id="chat-scroll">
+                {messages.map((msg, i) => (
+                  <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} gap-3`}>
+                    {msg.role === "ai" && (
+                      <div className="h-8 w-8 rounded-full bg-ink flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <ScanLine className="h-4 w-4 text-signal-green" />
+                      </div>
+                    )}
+                    <div className={`max-w-[85%] ${msg.role === "user" ? "order-first" : ""}`}>
+                      <div
+                        className={`rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-line ${
+                          msg.role === "user"
+                            ? "bg-ink text-white rounded-br-sm"
+                            : "bg-paper text-slate-850 rounded-bl-sm border border-black/5"
+                        }`}
+                      >
+                        {msg.text}
+                      </div>
+                      {msg.recommendations?.length > 0 && (
+                        <div className="mt-3 space-y-3">
+                          {msg.recommendations.map((rec, ri) => (
+                            <RecommendationCard key={ri} rec={rec} catalog={catalog} />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {loading && (
+                  <div className="flex gap-3">
+                    <div className="h-8 w-8 rounded-full bg-ink flex items-center justify-center flex-shrink-0">
+                      <ScanLine className="h-4 w-4 text-signal-green" />
+                    </div>
+                    <div className="bg-paper rounded-2xl rounded-bl-sm px-5 py-4 border border-black/5">
+                      <div className="flex gap-1.5">
+                        {[0, 1, 2].map((i) => (
+                          <div
+                            key={i}
+                            className="h-2 w-2 bg-black/20 rounded-full animate-bounce"
+                            style={{ animationDelay: `${i * 0.15}s` }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div ref={bottomRef} />
+              </div>
+
+              {/* Quick prompts */}
+              {messages.length <= 1 && (
+                <div className="px-5 pb-3 flex flex-wrap gap-2">
+                  {QUICK_PROMPTS.map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => send(p)}
+                      className="text-xs bg-paper hover:bg-black/5 text-black/60 rounded-full px-3 py-1.5 transition-colors border border-black/5"
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Input form */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  send();
+                }}
+                className="p-3 bg-paper border-t border-black/[0.06] flex gap-2"
               >
-                <Send className="h-4 w-4" />
-              </button>
-            </form>
-          </div>
-        )}
-      </Container>
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={`Ask in ${selectedLang} (e.g. Best gaming phone under ₹25,000)...`}
+                  className="flex-1 bg-white border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-coral/30"
+                />
+                <button
+                  type="submit"
+                  disabled={loading || !input.trim()}
+                  className="bg-coral hover:bg-coral-dark text-white px-5 rounded-xl transition-colors disabled:opacity-40 focus-ring flex items-center justify-center"
+                >
+                  <Send className="h-4 w-4" />
+                </button>
+              </form>
+            </div>
+          )}
+        </Container>
       </section>
     </div>
   );

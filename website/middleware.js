@@ -14,15 +14,17 @@ export function middleware(request) {
     }
   }
 
-  // Admin routes
+  // Admin routes - requires admin role
   if (pathname.startsWith("/admin") && (!user || user.role !== "admin")) {
     return NextResponse.redirect(new URL("/login?redirect=/admin/dashboard", request.url));
   }
-  // Protected routes
-  if (["/dashboard","/sell"].some(p => pathname.startsWith(p)) && !user) {
+  
+  // Dashboard routes - requires authenticated user
+  if (pathname.startsWith("/dashboard") && !user) {
     return NextResponse.redirect(new URL(`/login?redirect=${pathname}`, request.url));
   }
+
   return NextResponse.next();
 }
 
-export const config = { matcher: ["/dashboard/:path*","/sell/:path*","/admin/:path*"] };
+export const config = { matcher: ["/dashboard/:path*", "/admin/:path*"] };
