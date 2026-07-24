@@ -72,7 +72,7 @@ Provide JSON output in this exact structure:
 
 Only respond with valid JSON.`;
 
-    const resultObj = await callGemini({ system: "You are a real-world smartphone pricing valuation agent for India.", content: prompt });
+    const resultObj = await callGemini({ system: "You are a real-world smartphone pricing valuation agent for India.", content: prompt, isJSON: true });
 
     if (resultObj.ok) {
       const result = parseModelJSON(resultObj.text);

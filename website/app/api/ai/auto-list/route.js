@@ -64,7 +64,7 @@ Price: ₹${price || "Auto"}
 Video URL: ${videoUrl || "None"}
 Has Bill: ${hasBill ? "Yes" : "No"}, Has Box: ${hasBox ? "Yes" : "No"}, Has Charger: ${hasCharger ? "Yes" : "No"}`;
 
-    const aiRes = await callGemini({ system: systemPrompt, content: userPrompt });
+    const aiRes = await callGemini({ system: systemPrompt, content: userPrompt, isJSON: true });
 
     let listingData = null;
 

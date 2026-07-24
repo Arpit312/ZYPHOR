@@ -220,7 +220,7 @@ USER CHOICE/REQUEST: "${message}"`;
 
     let recs = [];
     try {
-      const resultObj = await callGemini({ system: systemPrompt, content: userContent });
+      const resultObj = await callGemini({ system: systemPrompt, content: userContent, isJSON: true });
       if (resultObj.ok) {
         recs = parseModelJSON(resultObj.text);
       }

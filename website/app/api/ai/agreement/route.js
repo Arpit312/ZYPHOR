@@ -50,7 +50,7 @@ Email: ${email || "user@zyphor.in"}
 Role: ${userRole}
 Action: ${action || "login"}`;
 
-    const aiRes = await callGemini({ system: systemPrompt, content: userPrompt });
+    const aiRes = await callGemini({ system: systemPrompt, content: userPrompt, isJSON: true });
 
     if (aiRes.ok) {
       const parsed = parseModelJSON(aiRes.text);

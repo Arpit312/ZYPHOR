@@ -112,7 +112,7 @@ Asking price: ₹${price || 0} | ${priceVsFmv}
 
 Compute the Trust Score and return the result JSON.`;
 
-    const result = await callGemini({ system: SYSTEM, content: prompt });
+    const result = await callGemini({ system: SYSTEM, content: prompt, isJSON: true });
 
     if (!result.ok) {
       return NextResponse.json({ error: result.error }, { status: 500 });

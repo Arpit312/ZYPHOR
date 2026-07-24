@@ -2,7 +2,7 @@
  * Calls the Google Gemini REST API with Ultra-Fast Flash Performance settings.
  * Requires GEMINI_API_KEY to be set in the environment.
  */
-export async function callGemini({ system, content }) {
+export async function callGemini({ system, content, isJSON = false }) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return {
@@ -14,6 +14,15 @@ export async function callGemini({ system, content }) {
   // Fast Flash Model
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
+  const generationConfig = {
+    temperature: 0.2, // Fast, deterministic outputs
+    maxOutputTokens: 600, // Speed optimization
+    topP: 0.8
+  };
+  if (isJSON) {
+    generationConfig.responseMimeType = "application/json";
+  }
+
   const payload = {
     contents: [
       {
@@ -24,12 +33,7 @@ export async function callGemini({ system, content }) {
     systemInstruction: system ? {
       parts: [{ text: system }]
     } : undefined,
-    generationConfig: {
-      responseMimeType: "application/json",
-      temperature: 0.2, // Fast, deterministic outputs
-      maxOutputTokens: 600, // Speed optimization
-      topP: 0.8
-    }
+    generationConfig
   };
 
   try {
