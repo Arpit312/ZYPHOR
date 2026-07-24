@@ -3,16 +3,22 @@ import { useState, useEffect } from "react";
 import CinematicIntro from "./CinematicIntro";
 
 export default function IntroWrapper() {
-  const [showIntro, setShowIntro] = useState(true);
+  const [showIntro, setShowIntro] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    // For testing and review, the intro will always play on refresh.
-    // In production, we can re-enable sessionStorage.
+    // Play intro only once per session for lightning fast navigation & responsiveness
+    const hasSeenIntro = sessionStorage.getItem("zyphor_intro_seen");
+    if (!hasSeenIntro) {
+      setShowIntro(true);
+    }
   }, []);
 
   const handleComplete = () => {
+    try {
+      sessionStorage.setItem("zyphor_intro_seen", "true");
+    } catch (e) {}
     setShowIntro(false);
   };
 

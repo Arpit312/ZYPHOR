@@ -23,9 +23,9 @@ export async function connectDB() {
     const opts = {
       bufferCommands: false,
       maxPoolSize: 10,
-      serverSelectionTimeoutMS: 8000,
-      socketTimeoutMS: 45000,
-      connectTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 3000, // Faster 3s selection timeout for responsive page loads
+      socketTimeoutMS: 30000,
+      connectTimeoutMS: 5000,
     };
     cached.promise = mongoose.connect(uri, opts).then((m) => m).catch(err => {
       console.error("⚠️ Vercel MongoDB Connection Warning:", err.message);
