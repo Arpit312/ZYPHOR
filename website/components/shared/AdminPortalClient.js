@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { ShieldCheck, Search, Users, Package, Lock, Sparkles, MessageSquare, Plus, Trash2, Wrench, Database, RefreshCw } from "lucide-react";
 import toast from "react-hot-toast";
+import { DEFAULT_PARTS } from "@/lib/partsData";
 
 export default function AdminPortalClient({ adminUser, initialUsers, initialListings, initialOrders, initialMessages }) {
   const [users, setUsers] = useState(initialUsers || []);
@@ -44,6 +45,7 @@ export default function AdminPortalClient({ adminUser, initialUsers, initialList
   });
 
   const partsListings = listings.filter((l) => l.listingType === "part");
+  const displayParts = partsListings.length > 0 ? partsListings : DEFAULT_PARTS;
 
   // Search User / Token ID via Gemini AI
   async function handleAiSearch(e) {
@@ -98,14 +100,14 @@ export default function AdminPortalClient({ adminUser, initialUsers, initialList
       const data = await res.json();
       if (data.success) {
         setListings(prev => prev.filter(l => l._id !== listingId));
-        toast.success("Listing removed from catalog.");
+        toast.success("Listing removed!");
       }
     } catch (err) {
       console.error(err);
     }
   }
 
-  // Add Spare Part (Master Admin)
+  // Add Spare Part from Admin Portal
   async function handleAddPart(e) {
     e.preventDefault();
     try {
@@ -115,7 +117,7 @@ export default function AdminPortalClient({ adminUser, initialUsers, initialList
         body: JSON.stringify({ action: "addPart", partData: newPartForm })
       });
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.part) {
         setListings(prev => [data.part, ...prev]);
         setShowAddPartModal(false);
         setNewPartForm({
@@ -127,154 +129,142 @@ export default function AdminPortalClient({ adminUser, initialUsers, initialList
           image: "/parts/camera-module.svg",
           description: ""
         });
-        toast.success("New Spare Part added to Zyphor Catalog!");
+        toast.success("Spare part added to Zyphor Catalog!");
       } else {
-        toast.error(data.error || "Failed to add part");
+        toast.error(data.error || "Failed to add spare part.");
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Network error");
+      toast.error("Error adding spare part.");
     }
   }
 
   return (
     <div className="space-y-8">
-      {/* Top Banner */}
-      <div className="bg-slate-800 rounded-3xl p-6 md:p-8 border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-2xl">
+      {/* Header Banner */}
+      <div className="bg-slate-800 rounded-3xl p-6 md:p-8 border border-white/10 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <div className="flex items-center gap-2 text-signal-green text-xs font-mono font-semibold uppercase tracking-widest mb-2">
-            <Lock className="h-4 w-4" /> MASTER ENVIRONMENTAL CONTROL PORTAL
-          </div>
-          <h1 className="font-display font-700 text-3xl text-white">Zyphor Master Control Center</h1>
-          <p className="text-slate-400 text-sm mt-1">Logged in as Master Administrator ({adminUser.email})</p>
-
-          {/* Live MongoDB Status Badge */}
-          <div className="flex items-center gap-2 mt-3">
-            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono font-bold border ${
-              dbStatus.state === "connected"
-                ? "bg-signal-green/10 border-signal-green/30 text-signal-green"
-                : dbStatus.state === "checking"
-                ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
-                : "bg-signal-red/10 border-signal-red/30 text-signal-red"
-            }`}>
-              <Database className="h-3.5 w-3.5" />
-              MongoDB:
-              <span className="uppercase">{dbStatus.state}</span>
-              {dbStatus.state === "connected" && (
-                <span className="ml-1 h-2 w-2 rounded-full bg-signal-green animate-pulse inline-block" />
-              )}
+          <div className="flex items-center gap-3 mb-2">
+            <span className="text-xs font-mono text-coral font-bold uppercase tracking-widest bg-coral/10 border border-coral/20 px-3 py-1 rounded-full">
+              MASTER GOVERNANCE PORTAL
+            </span>
+            <div className="flex items-center gap-2 bg-slate-900 px-3 py-1 rounded-full border border-white/10 text-xs font-mono">
+              <Database className={`h-3.5 w-3.5 ${dbStatus.state === "connected" ? "text-signal-green" : "text-amber-400"}`} />
+              <span className="text-slate-300">MongoDB:</span>
+              <span className={`font-bold ${dbStatus.state === "connected" ? "text-signal-green" : "text-amber-400"}`}>
+                {dbStatus.state.toUpperCase()}
+              </span>
             </div>
-            {dbStatus.host && (
-              <span className="text-xs text-slate-500 font-mono">{dbStatus.host}</span>
-            )}
           </div>
+          <h1 className="font-display font-800 text-3xl text-white tracking-tight">
+            System Admin Control Center
+          </h1>
+          <p className="text-slate-400 text-xs mt-1">
+            Logged in as <strong className="text-white">{adminUser?.name || "Admin"}</strong> ({adminUser?.email})
+          </p>
         </div>
-        <div className="flex items-center gap-4 bg-slate-900/60 p-4 rounded-2xl border border-white/5">
-          <div>
-            <p className="text-xs text-slate-400 font-mono">Platform Revenue (3%)</p>
-            <p className="font-display font-700 text-2xl text-signal-green">₹{(initialOrders.length * 1350).toLocaleString("en-IN")}</p>
-          </div>
+
+        {/* Tab Controls */}
+        <div className="flex bg-slate-900/80 p-1.5 rounded-2xl border border-white/10 gap-1">
+          <button
+            onClick={() => setActiveTab("users")}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold font-display transition-all ${
+              activeTab === "users" ? "bg-coral text-white shadow-md shadow-coral/20" : "text-slate-400 hover:text-white"
+            }`}
+          >
+            User Access ({users.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("listings")}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold font-display transition-all ${
+              activeTab === "listings" ? "bg-coral text-white shadow-md shadow-coral/20" : "text-slate-400 hover:text-white"
+            }`}
+          >
+            Listings ({listings.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("parts")}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold font-display transition-all flex items-center gap-1.5 ${
+              activeTab === "parts" ? "bg-coral text-white shadow-md shadow-coral/20" : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <Wrench className="h-3.5 w-3.5" /> Parts ({displayParts.length})
+          </button>
         </div>
       </div>
 
-      {/* Gemini AI Search Assistant Bar */}
-      <div className="bg-slate-800/80 rounded-2xl p-6 border border-white/10 space-y-4">
+      {/* Gemini AI Admin Search Assistant */}
+      <div className="bg-slate-800 rounded-2xl border border-white/10 p-6 shadow-xl space-y-4">
+        <div className="flex items-center gap-2 text-coral font-display font-700 text-sm uppercase tracking-wider">
+          <Sparkles className="h-4 w-4" /> AI User &amp; Token Search Assistant
+        </div>
         <form onSubmit={handleAiSearch} className="flex gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" />
+            <Search className="absolute left-4 top-3.5 h-4 w-4 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search User by Token ID (e.g. ZYP-USR-ADM001-X), Name, or Email..."
-              className="w-full bg-slate-900 text-white rounded-xl pl-12 pr-4 py-3 text-sm border border-white/10 focus:outline-none focus:border-coral"
+              placeholder="Search user by Name, Email, Role or Token ID (e.g. ZPH-89A2...)"
+              className="w-full bg-slate-900 border border-white/10 focus:border-coral rounded-xl pl-11 pr-4 py-3 text-xs text-white placeholder-slate-500 outline-none"
             />
           </div>
           <button
             type="submit"
             disabled={aiLoading}
-            className="bg-coral hover:bg-coral-dark text-white font-display font-600 px-6 py-3 rounded-xl text-sm transition-all focus-ring flex items-center gap-2 shadow-lg shadow-coral/20 shrink-0"
+            className="bg-coral hover:bg-coral-dark text-white font-display font-600 text-xs px-6 rounded-xl transition-all flex items-center gap-2 disabled:opacity-50"
           >
-            <Sparkles className="h-4 w-4 animate-pulse" /> {aiLoading ? "Searching..." : "AI Search Token"}
+            {aiLoading ? <RefreshCw className="h-4 w-4 animate-spin" /> : "AI Audit"}
           </button>
         </form>
 
         {aiAnalysis && (
-          <div className="bg-slate-900/90 rounded-xl p-5 border border-coral/30 space-y-3 animate-fade-in">
-            <h4 className="font-display font-600 text-sm text-coral flex items-center gap-2">
-              <Sparkles className="h-4 w-4" /> AI Governance Report for &quot;{searchQuery}&quot;
-            </h4>
-            <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-line">{aiAnalysis.aiSummary}</p>
+          <div className="bg-slate-900/90 border border-coral/30 rounded-xl p-4 text-xs space-y-2 animate-fade-in">
+            <p className="text-coral font-mono font-bold">🤖 Gemini AI Analysis Report:</p>
+            <p className="text-slate-300 whitespace-pre-line leading-relaxed">{aiAnalysis.summary}</p>
           </div>
         )}
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-3 border-b border-white/10 pb-4 overflow-x-auto">
-        {[
-          { id: "users", label: `User Management (${users.length})`, icon: Users },
-          { id: "listings", label: `Listings Control (${listings.length})`, icon: Package },
-          { id: "parts", label: `Parts Management (${partsListings.length})`, icon: Wrench },
-          { id: "messages", label: `Support Messages (${messages.length})`, icon: MessageSquare }
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-display font-600 text-xs transition-all shrink-0 ${
-                isActive
-                  ? "bg-coral text-white shadow-lg shadow-coral/20"
-                  : "bg-slate-800 text-slate-400 hover:text-white border border-white/5"
-              }`}
-            >
-              <Icon className="h-4 w-4" />
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* TAB 1: USERS */}
+      {/* TAB 1: USERS ACCESS CONTROL */}
       {activeTab === "users" && (
         <div className="bg-slate-800 rounded-2xl border border-white/10 overflow-hidden shadow-xl">
-          <div className="p-6 border-b border-white/10">
-            <h3 className="font-display font-700 text-lg text-white">Registered Users &amp; Unique Token Access</h3>
+          <div className="p-6 border-b border-white/10 flex items-center justify-between">
+            <h3 className="font-display font-700 text-lg text-white">Registered Users &amp; Roles</h3>
+            <span className="text-xs font-mono text-slate-400">Total Users: {users.length}</span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-900/60 text-slate-400 font-mono uppercase border-b border-white/5">
                 <tr>
                   <th className="p-4">User Details</th>
-                  <th className="p-4">Unique Token ID</th>
                   <th className="p-4">Role</th>
-                  <th className="p-4">Access Control</th>
+                  <th className="p-4">Token ID</th>
+                  <th className="p-4">Access Status</th>
+                  <th className="p-4">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-slate-300">
                 {users.map((u) => (
                   <tr key={u._id} className="hover:bg-slate-700/30 transition-colors">
                     <td className="p-4">
-                      <p className="font-bold text-white text-sm">{u.name}</p>
-                      <p className="text-slate-400">{u.email}</p>
+                      <p className="font-bold text-white">{u.name}</p>
+                      <p className="text-slate-400 font-mono text-[11px]">{u.email}</p>
                     </td>
-                    <td className="p-4 font-mono">
-                      <span className="bg-slate-900 text-coral border border-coral/30 px-2.5 py-1 rounded-md font-bold">
-                        {u.userTokenId || "ZYP-USR-0000-X"}
+                    <td className="p-4 uppercase font-mono text-coral font-bold">{u.role}</td>
+                    <td className="p-4 font-mono text-signal-green">{u.userTokenId || "Auto-Assign"}</td>
+                    <td className="p-4">
+                      <span className={`px-2.5 py-1 rounded-full font-mono text-[10px] font-bold ${
+                        u.isAccessGranted !== false ? "bg-signal-green/20 text-signal-green" : "bg-signal-red/20 text-signal-red"
+                      }`}>
+                        {u.isAccessGranted !== false ? "ACTIVE GRANTED" : "REVOKED"}
                       </span>
                     </td>
-                    <td className="p-4 uppercase font-mono text-slate-400 font-bold">{u.role}</td>
                     <td className="p-4">
                       <button
-                        onClick={() => toggleAccess(u._id, u.isAccessGranted)}
-                        className={`px-4 py-1.5 rounded-lg text-xs font-semibold font-mono transition-all ${
-                          u.isAccessGranted
-                            ? "bg-signal-green/20 text-signal-green border border-signal-green/30 hover:bg-signal-green/30"
-                            : "bg-signal-red/20 text-signal-red border border-signal-red/30 hover:bg-signal-red/30"
-                        }`}
+                        onClick={() => toggleAccess(u._id, u.isAccessGranted !== false)}
+                        className="bg-white/10 hover:bg-white/20 text-white font-mono text-[11px] px-3 py-1.5 rounded-lg transition-colors"
                       >
-                        {u.isAccessGranted ? "✓ Access Granted" : "✕ Access Revoked"}
+                        {u.isAccessGranted !== false ? "Revoke Access" : "Grant Access"}
                       </button>
                     </td>
                   </tr>
@@ -352,7 +342,7 @@ export default function AdminPortalClient({ adminUser, initialUsers, initialList
                     type="text"
                     value={newPartForm.title}
                     onChange={(e) => setNewPartForm({ ...newPartForm, title: e.target.value })}
-                    placeholder="e.g. iPhone 13 Back Camera Module"
+                    placeholder="e.g. iPhone 13 Original Back Camera Module"
                     className="w-full bg-slate-800 text-white border border-white/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-coral"
                     required
                   />
@@ -374,7 +364,7 @@ export default function AdminPortalClient({ adminUser, initialUsers, initialList
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-mono text-slate-400 mb-1">Compatible Model</label>
+                  <label className="block text-xs font-mono text-slate-400 mb-1">Model</label>
                   <input
                     type="text"
                     value={newPartForm.model}
@@ -444,22 +434,22 @@ export default function AdminPortalClient({ adminUser, initialUsers, initialList
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-slate-300">
-                {partsListings.map((p) => (
+                {displayParts.map((p) => (
                   <tr key={p._id} className="hover:bg-slate-700/30 transition-colors">
                     <td className="p-4 font-bold text-white flex items-center gap-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={p.images?.[0] || "/placeholder-device.svg"} alt="" className="h-10 w-10 object-cover rounded-lg bg-slate-900 border border-white/10" />
+                      <img src={p.images?.[0] || "/placeholder-device.svg"} alt="" className="w-9 h-9 object-contain bg-slate-900 rounded-lg border border-white/10 p-1" />
                       <span>{p.title}</span>
                     </td>
                     <td className="p-4 font-mono text-slate-400">{p.brand} {p.model}</td>
-                    <td className="p-4 uppercase font-mono font-bold text-coral">{p.partCategory || "part"}</td>
+                    <td className="p-4 uppercase font-mono text-coral font-bold">{p.partCategory || "part"}</td>
                     <td className="p-4 font-bold text-signal-green">₹{p.price?.toLocaleString("en-IN")}</td>
                     <td className="p-4">
                       <button
                         onClick={() => deleteListing(p._id)}
-                        className="text-signal-red hover:text-red-400 font-semibold flex items-center gap-1 bg-signal-red/10 border border-signal-red/20 px-3 py-1 rounded-lg"
+                        className="text-signal-red hover:text-red-400 font-semibold flex items-center gap-1 bg-signal-red/10 border border-signal-red/20 px-2.5 py-1 rounded-lg text-[11px]"
                       >
-                        <Trash2 className="h-3.5 w-3.5" /> Remove
+                        <Trash2 className="h-3 w-3" /> Remove
                       </button>
                     </td>
                   </tr>
@@ -467,28 +457,6 @@ export default function AdminPortalClient({ adminUser, initialUsers, initialList
               </tbody>
             </table>
           </div>
-        </div>
-      )}
-
-      {/* TAB 4: SUPPORT MESSAGES */}
-      {activeTab === "messages" && (
-        <div className="bg-slate-800 rounded-2xl border border-white/10 overflow-hidden shadow-xl p-6">
-          <h3 className="font-display font-700 text-lg text-white mb-4">Direct User Support Messages</h3>
-          {messages.length === 0 ? (
-            <p className="text-slate-400 text-xs">No direct support messages yet.</p>
-          ) : (
-            <div className="space-y-4">
-              {messages.map((m) => (
-                <div key={m._id} className="bg-slate-900/80 rounded-xl p-4 border border-white/5 space-y-1 text-xs">
-                  <div className="flex justify-between font-mono text-slate-400">
-                    <span className="font-bold text-white">{m.senderName || m.senderEmail}</span>
-                    <span>{new Date(m.createdAt).toLocaleDateString("en-IN")}</span>
-                  </div>
-                  <p className="text-slate-300 pt-1">{m.content}</p>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       )}
     </div>

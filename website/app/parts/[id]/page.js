@@ -1,14 +1,15 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { 
-  ShieldCheck, Star, MapPin, Zap, CreditCard, ArrowLeft, CheckCircle, 
-  Layers, Wrench, Truck, Award, RefreshCcw, Tag, Cpu, Smartphone, AlertCircle 
+  ShieldCheck, ArrowLeft, CheckCircle, 
+  Truck, Award 
 } from "lucide-react";
 import Container from "@/components/shared/Container";
 import { connectDB } from "@/lib/db";
 import Listing from "@/models/Listing";
 import { getSessionUser } from "@/lib/auth";
 import { DEFAULT_PARTS } from "@/lib/partsData";
+import PartActionButtons from "@/components/shared/PartActionButtons";
 
 async function getPart(id) {
   try {
@@ -199,21 +200,8 @@ export default async function PartDetailPage({ params }) {
               </div>
             )}
 
-            {/* Action Button */}
-            <div className="pt-2">
-              {user ? (
-                <form action="/api/orders" method="POST" className="flex gap-3">
-                  <input type="hidden" name="listingId" value={part._id.toString()} />
-                  <button type="submit" className="flex-1 bg-gradient-to-r from-coral via-orange-500 to-coral hover:opacity-95 text-white font-display font-700 py-4 rounded-xl shadow-lg shadow-coral/20 transition-all flex items-center justify-center gap-2 cursor-pointer text-base">
-                    <Zap className="h-5 w-5 fill-white/20" /> Order Part Now (₹{part.price?.toLocaleString()})
-                  </button>
-                </form>
-              ) : (
-                <Link href={`/login?redirect=/parts/${part._id}`} className="block w-full text-center bg-gradient-to-r from-coral via-orange-500 to-coral hover:opacity-95 text-white font-display font-700 py-4 rounded-xl shadow-lg shadow-coral/20 transition-all text-base">
-                  Log in to Purchase Part
-                </Link>
-              )}
-            </div>
+            {/* Action Buttons Component */}
+            <PartActionButtons part={part} user={user} />
 
           </div>
         </div>

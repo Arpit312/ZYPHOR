@@ -1,4 +1,5 @@
 export const DEFAULT_PARTS = [
+  // 📸 CAMERAS
   {
     _id: "part-iphone13-camera",
     title: "Apple iPhone 13 Main Back Camera Module (Dual 12MP OIS)",
@@ -14,6 +15,23 @@ export const DEFAULT_PARTS = [
     images: ["/parts/camera-module.svg"],
     status: "active",
     verification: { trustScore: 96, status: "verified" },
+    specs: { warranty: "6 Months", qualityGrade: "Original OEM Pull", testStatus: "100% Passed" }
+  },
+  {
+    _id: "part-iphone14pro-camera",
+    title: "Apple iPhone 14 Pro 48MP Triple Main Camera Sensor",
+    brand: "Apple",
+    model: "iPhone 14 Pro",
+    partCategory: "camera",
+    category: "Parts",
+    listingType: "part",
+    price: 6499,
+    originalPrice: 8999,
+    conditionGrade: "Superb",
+    description: "Original 48MP main camera module replacement for iPhone 14 Pro & 14 Pro Max. Includes 2nd Gen Sensor-shift OIS and telephoto lens.",
+    images: ["/parts/camera-module.svg"],
+    status: "active",
+    verification: { trustScore: 98, status: "verified" },
     specs: { warranty: "6 Months", qualityGrade: "Original OEM Pull", testStatus: "100% Passed" }
   },
   {
@@ -33,6 +51,8 @@ export const DEFAULT_PARTS = [
     verification: { trustScore: 98, status: "verified" },
     specs: { warranty: "6 Months", qualityGrade: "Genuine Samsung OEM", testStatus: "100% Passed" }
   },
+
+  // 🔊 LOUDSPEAKERS
   {
     _id: "part-op11r-speaker",
     title: "OnePlus 11R Bottom Loudspeaker Speaker Ringer Module",
@@ -51,6 +71,25 @@ export const DEFAULT_PARTS = [
     specs: { warranty: "3 Months", qualityGrade: "Original Service Pack", testStatus: "100% Passed" }
   },
   {
+    _id: "part-s22-speaker",
+    title: "Samsung Galaxy S22 5G Stereo Loudspeaker Ringer Assembly",
+    brand: "Samsung",
+    model: "Galaxy S22",
+    partCategory: "speaker",
+    category: "Parts",
+    listingType: "part",
+    price: 849,
+    originalPrice: 1399,
+    conditionGrade: "Superb",
+    description: "Original bottom loudspeaker module tuned by AKG for Samsung Galaxy S22 5G.",
+    images: ["/parts/loudspeaker.svg"],
+    status: "active",
+    verification: { trustScore: 94, status: "verified" },
+    specs: { warranty: "6 Months", qualityGrade: "Genuine Samsung OEM", testStatus: "100% Passed" }
+  },
+
+  // 📞 CALLING SPEAKERS / EARPIECES
+  {
     _id: "part-iphone14p-earpiece",
     title: "Apple iPhone 14 Pro Earpiece Receiver Calling Speaker",
     brand: "Apple",
@@ -68,6 +107,25 @@ export const DEFAULT_PARTS = [
     specs: { warranty: "6 Months", qualityGrade: "Original OEM Pull", testStatus: "100% Passed" }
   },
   {
+    _id: "part-vivo-x90-earpiece",
+    title: "Vivo X90 Pro Top Calling Receiver Earpiece Speaker",
+    brand: "Vivo",
+    model: "Vivo X90",
+    partCategory: "calling_speaker",
+    category: "Parts",
+    listingType: "part",
+    price: 649,
+    originalPrice: 999,
+    conditionGrade: "Superb",
+    description: "Original call receiver speaker replacement for Vivo X90 and X90 Pro 5G.",
+    images: ["/parts/earpiece-speaker.svg"],
+    status: "active",
+    verification: { trustScore: 91, status: "verified" },
+    specs: { warranty: "3 Months", qualityGrade: "OEM Service Pack", testStatus: "100% Passed" }
+  },
+
+  // 📳 VIBRATION MOTORS
+  {
     _id: "part-iphone13pm-motor",
     title: "iPhone 13 Pro Max Taptic Engine Linear Haptic Motor",
     brand: "Apple",
@@ -84,6 +142,25 @@ export const DEFAULT_PARTS = [
     verification: { trustScore: 95, status: "verified" },
     specs: { warranty: "6 Months", qualityGrade: "Original OEM Pull", testStatus: "100% Passed" }
   },
+  {
+    _id: "part-realme11-motor",
+    title: "Realme 11 Pro+ X-Axis Linear Haptic Vibration Motor",
+    brand: "Realme",
+    model: "Realme 11 Pro",
+    partCategory: "motor",
+    category: "Parts",
+    listingType: "part",
+    price: 499,
+    originalPrice: 799,
+    conditionGrade: "Superb",
+    description: "X-axis tactile linear haptic motor replacement for Realme 11 Pro & 11 Pro+ 5G.",
+    images: ["/parts/vibration-motor.svg"],
+    status: "active",
+    verification: { trustScore: 90, status: "verified" },
+    specs: { warranty: "3 Months", qualityGrade: "OEM Service Pack", testStatus: "100% Passed" }
+  },
+
+  // 🛡️ TEMPERED GLASS
   {
     _id: "part-s23u-glass",
     title: "Samsung Galaxy S23 Ultra UV Curved 9H Tempered Glass",
@@ -118,6 +195,8 @@ export const DEFAULT_PARTS = [
     verification: { trustScore: 89, status: "verified" },
     specs: { warranty: "Replacement Guarantee", qualityGrade: "11D Matte Gaming Glass", testStatus: "Touch Tested" }
   },
+
+  // 🔋 BATTERIES
   {
     _id: "part-iphone13-battery",
     title: "Apple iPhone 13 Original 3227mAh Battery Cell",
@@ -136,6 +215,25 @@ export const DEFAULT_PARTS = [
     specs: { warranty: "6 Months", qualityGrade: "Original Zero-Cycle OEM", testStatus: "100% Health" }
   },
   {
+    _id: "part-samsung-s22-battery",
+    title: "Samsung Galaxy S22 5G Original 3700mAh Battery Cell",
+    brand: "Samsung",
+    model: "Galaxy S22",
+    partCategory: "battery",
+    category: "Parts",
+    listingType: "part",
+    price: 1899,
+    originalPrice: 2799,
+    conditionGrade: "Superb",
+    description: "Genuine Samsung OEM 3700mAh battery replacement cell for Galaxy S22 5G.",
+    images: ["/parts/battery-cell.svg"],
+    status: "active",
+    verification: { trustScore: 96, status: "verified" },
+    specs: { warranty: "6 Months", qualityGrade: "Genuine Samsung Service Pack", testStatus: "100% Health" }
+  },
+
+  // 📱 DISPLAY SCREEN FOLDERS
+  {
     _id: "part-op11r-display",
     title: "OnePlus 11R 120Hz Fluid AMOLED Curved Display Screen Assembly",
     brand: "OnePlus",
@@ -151,5 +249,22 @@ export const DEFAULT_PARTS = [
     status: "active",
     verification: { trustScore: 98, status: "verified" },
     specs: { warranty: "6 Months", qualityGrade: "Original Service Pack AMOLED", testStatus: "100% Touch & Color Tested" }
+  },
+  {
+    _id: "part-iphone14-display",
+    title: "Apple iPhone 14 Super Retina XDR OLED Display Screen Assembly",
+    brand: "Apple",
+    model: "iPhone 14",
+    partCategory: "display",
+    category: "Parts",
+    listingType: "part",
+    price: 7999,
+    originalPrice: 11999,
+    conditionGrade: "Superb",
+    description: "Original OEM pull Super Retina XDR OLED display folder screen assembly for iPhone 14. True Tone reprogrammed & tested.",
+    images: ["/parts/display-screen.svg"],
+    status: "active",
+    verification: { trustScore: 99, status: "verified" },
+    specs: { warranty: "6 Months", qualityGrade: "Original OEM Pull OLED", testStatus: "True Tone & Touch Tested" }
   }
 ];
