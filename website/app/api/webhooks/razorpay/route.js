@@ -5,7 +5,9 @@ import Order from "@/models/Order";
 import User from "@/models/User";
 import sgMail from "@sendgrid/mail";
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+if (process.env.SENDGRID_API_KEY?.startsWith("SG.")) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
 
 export async function POST(req) {
   try {
@@ -13,13 +15,15 @@ export async function POST(req) {
     const signature = req.headers.get("x-razorpay-signature");
 
     // Verify webhook signature
-    const hash = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(body)
-      .digest("hex");
+    if (process.env.RAZORPAY_KEY_SECRET) {
+      const hash = crypto
+        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+        .update(body)
+        .digest("hex");
 
-    if (hash !== signature) {
-      return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+      if (hash !== signature) {
+        return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+      }
     }
 
     const data = JSON.parse(body);
@@ -41,35 +45,40 @@ export async function POST(req) {
       order.paidAt = new Date();
       await order.save();
 
-      // Send confirmation email to seller
-      const seller = await User.findById(order.sellerId);
-      const buyer = await User.findById(order.buyerId);
+      // Send confirmation emails if SendGrid configured
+      if (process.env.SENDGRID_API_KEY?.startsWith("SG.")) {
+        const seller = await User.findById(order.sellerId);
+        const buyer = await User.findById(order.buyerId);
 
-      await sgMail.send({
-        to: seller.email,
-        from: process.env.SENDGRID_FROM_EMAIL,
-        subject: `ZYPHOR - Payment Received for Order #${order._id}`,
-        html: `
-          <h2>Payment Confirmed!</h2>
-          <p>Buyer: ${buyer.name}</p>
-          <p>Amount: ₹${order.amount}</p>
-          <p>Status: ${order.status}</p>
-          <p>Please ship the item promptly.</p>
-        `
-      });
+        if (seller?.email) {
+          await sgMail.send({
+            to: seller.email,
+            from: process.env.SENDGRID_FROM_EMAIL || "noreply@zyphor.in",
+            subject: `ZYPHOR - Payment Received for Order #${order._id}`,
+            html: `
+              <h2>Payment Confirmed!</h2>
+              <p>Buyer: ${buyer?.name || "Buyer"}</p>
+              <p>Amount: ₹${order.amount}</p>
+              <p>Status: ${order.status}</p>
+              <p>Please ship the item promptly.</p>
+            `
+          }).catch(() => {});
+        }
 
-      // Send confirmation email to buyer
-      await sgMail.send({
-        to: buyer.email,
-        from: process.env.SENDGRID_FROM_EMAIL,
-        subject: `ZYPHOR - Your Order #${order._id} Confirmed`,
-        html: `
-          <h2>Order Confirmed</h2>
-          <p>Item: ${order.itemName}</p>
-          <p>Amount: ₹${order.amount}</p>
-          <p>Your seller will contact you within 24 hours.</p>
-        `
-      });
+        if (buyer?.email) {
+          await sgMail.send({
+            to: buyer.email,
+            from: process.env.SENDGRID_FROM_EMAIL || "noreply@zyphor.in",
+            subject: `ZYPHOR - Your Order #${order._id} Confirmed`,
+            html: `
+              <h2>Order Confirmed</h2>
+              <p>Item: ${order.itemName}</p>
+              <p>Amount: ₹${order.amount}</p>
+              <p>Your seller will contact you within 24 hours.</p>
+            `
+          }).catch(() => {});
+        }
+      }
     }
 
     if (event === "payment.failed") {

@@ -1,10 +1,13 @@
 import User from "@/models/User";
 import sgMail from "@sendgrid/mail";
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+if (process.env.SENDGRID_API_KEY?.startsWith("SG.")) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
 
 export async function checkSubscriptionExpirations() {
-  // Run daily via cron job
+  if (!process.env.SENDGRID_API_KEY?.startsWith("SG.")) return;
+
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 7);
 
@@ -17,17 +20,19 @@ export async function checkSubscriptionExpirations() {
   });
 
   for (const user of expiringUsers) {
-    await sgMail.send({
-      to: user.email,
-      from: process.env.SENDGRID_FROM_EMAIL,
-      subject: "ZYPHOR - Your subscription expires in 7 days",
-      html: `
-        <h2>Subscription Expiring Soon</h2>
-        <p>Your ${user.subscription.plan} plan expires on ${user.subscription.endDate}.</p>
-        <p><a href="https://zyphor.in/subscription">Renew Now</a></p>
-      `
-    });
+    try {
+      await sgMail.send({
+        to: user.email,
+        from: process.env.SENDGRID_FROM_EMAIL || "noreply@zyphor.in",
+        subject: "ZYPHOR - Your subscription expires in 7 days",
+        html: `
+          <h2>Subscription Expiring Soon</h2>
+          <p>Your ${user.subscription.plan} plan expires on ${user.subscription.endDate}.</p>
+          <p><a href="https://zyphor.in/subscription">Renew Now</a></p>
+        `
+      });
+    } catch (e) {
+      console.warn("SendGrid warning:", e.message);
+    }
   }
 }
-
-// Call this from a cron job (e.g., Vercel Cron or external service)

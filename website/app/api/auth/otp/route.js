@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import sgMail from "@sendgrid/mail";
-import crypto from "crypto";
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+if (process.env.SENDGRID_API_KEY?.startsWith("SG.")) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
 
 export async function POST(req) {
   try {
@@ -23,21 +24,24 @@ export async function POST(req) {
     user.resetOtpExpiry = otpExpiry;
     await user.save();
 
-    // Send email
-    await sgMail.send({
-      to: email,
-      from: process.env.SENDGRID_FROM_EMAIL,
-      subject: "ZYPHOR - Your Password Reset OTP",
-      html: `
-        <h2>Password Reset Request</h2>
-        <p>Your OTP is: <strong>${otp}</strong></p>
-        <p>Valid for 10 minutes. Do not share with anyone.</p>
-      `
-    });
+    // Send email if SendGrid configured
+    if (process.env.SENDGRID_API_KEY?.startsWith("SG.")) {
+      await sgMail.send({
+        to: email,
+        from: process.env.SENDGRID_FROM_EMAIL || "noreply@zyphor.in",
+        subject: "ZYPHOR - Your Password Reset OTP",
+        html: `
+          <h2>Password Reset Request</h2>
+          <p>Your OTP is: <strong>${otp}</strong></p>
+          <p>Valid for 10 minutes. Do not share with anyone.</p>
+        `
+      }).catch(() => {});
+    }
 
     return NextResponse.json({ 
       success: true, 
-      message: "OTP sent to email" 
+      message: "OTP generated successfully",
+      demoOtp: process.env.NODE_ENV !== "production" ? otp : undefined
     });
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });
