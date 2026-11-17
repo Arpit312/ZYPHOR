@@ -7,7 +7,7 @@ export default function AdminLayoutWrapper({ children }) {
   const isLoginPage = pathname === "/login";
 
   if (isLoginPage) {
-    return <main className="min-h-screen bg-gray-950">{children}</main>;
+    return <main className="min-h-screen w-full bg-black overflow-x-hidden">{children}</main>;
   }
 
   return (

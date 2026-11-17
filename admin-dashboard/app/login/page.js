@@ -1,13 +1,31 @@
 "use client";
+
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, Lock, Mail, Loader2, AlertCircle } from "lucide-react";
+import { 
+  ShieldCheck, 
+  Lock, 
+  Mail, 
+  Loader2, 
+  AlertCircle, 
+  Eye, 
+  EyeOff, 
+  KeyRound,
+  Shield, 
+  CheckCircle2, 
+  Cpu, 
+  Activity, 
+  Layers, 
+  ArrowRight
+} from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("admin@zyphor.in");
   const [password, setPassword] = useState("Admin@123");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -20,7 +38,7 @@ export default function AdminLoginPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password, rememberMe })
       });
       const data = await res.json();
 
@@ -28,84 +46,256 @@ export default function AdminLoginPage() {
         router.push("/");
         router.refresh();
       } else {
-        setError(data.error || "Login failed. Please check credentials.");
+        setError(data.error || "Authentication failed. Please check master credentials.");
       }
     } catch (err) {
-      setError("Network connection error: " + err.message);
+      setError("Network connection failure: " + err.message);
     } finally {
       setLoading(false);
     }
   };
 
+  const fillDemoCredentials = () => {
+    setEmail("admin@zyphor.in");
+    setPassword("Admin@123");
+    setError("");
+  };
+
   return (
-    <div className="min-h-screen bg-black flex flex-col justify-center items-center p-4">
-      <div className="max-w-md w-full bg-gray-950 border border-gray-800 rounded-3xl p-8 shadow-2xl space-y-6">
-        <div className="text-center space-y-2">
-          <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto border border-white/20 p-2.5">
-            <Image src="/symbol-white.png" alt="ZYPHOR Logo" width={48} height={48} className="object-contain" priority />
+    <div className="min-h-screen w-full bg-[#050608] text-white flex flex-col lg:flex-row select-none">
+      
+      {/* ─── LEFT HERO / BRAND CANVAS (Desktop 58%) ─── */}
+      <div className="relative flex-1 bg-gradient-to-br from-[#090A0F] via-[#050608] to-[#040405] p-8 sm:p-12 lg:p-16 flex flex-col justify-between overflow-hidden border-b lg:border-b-0 lg:border-r border-gray-800/60">
+        
+        {/* Subtle Ambient Background Gradients & Grid */}
+        <div 
+          className="absolute inset-0 opacity-[0.03] pointer-events-none"
+          style={{
+            backgroundImage: "radial-gradient(#ffffff 1px, transparent 1px)",
+            backgroundSize: "28px 28px"
+          }}
+        />
+        <div className="absolute top-[-15%] left-[-15%] w-[500px] h-[500px] bg-white/[0.03] rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[450px] h-[450px] bg-white/[0.02] rounded-full blur-[130px] pointer-events-none" />
+
+        {/* Top Header: Official Logo + Live Atlas Indicator */}
+        <div className="relative z-10 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/10 p-1.5 flex items-center justify-center border border-white/20 shadow-inner">
+              <Image 
+                src="/symbol-white.png" 
+                alt="ZYPHOR Symbol" 
+                width={30} 
+                height={30} 
+                className="object-contain" 
+                priority 
+              />
+            </div>
+            <div>
+              <span className="font-black tracking-widest text-base text-white">ZYPHOR</span>
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Master Admin Suite</p>
+            </div>
           </div>
-          <h1 className="text-2xl font-black text-white tracking-wider">ZYPHOR ADMIN</h1>
-          <p className="text-xs text-gray-400 font-medium">Master Commerce Governance & Cloud Control</p>
+
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-[11px] font-mono text-gray-300">
+            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+            <span>Atlas Cluster0 Online</span>
+          </div>
         </div>
 
-        {error && (
-          <div className="p-3 bg-gray-900 border border-gray-700 rounded-xl text-gray-200 text-xs flex items-center gap-2 font-medium">
-            <AlertCircle size={16} className="shrink-0 text-white" />
-            <span>{error}</span>
+        {/* Center Content: Executive Architecture Narrative */}
+        <div className="relative z-10 my-12 lg:my-auto max-w-xl space-y-8">
+          <div className="space-y-3">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] font-mono uppercase tracking-widest text-gray-300">
+              <Shield size={12} className="text-white" />
+              <span>Restricted Governance Portal</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-[1.1]">
+              Unified Command.
+              <br />
+              <span className="text-gray-400">Zero Compromise.</span>
+            </h1>
+            <p className="text-sm text-gray-400 leading-relaxed font-normal pt-1">
+              Mission-critical administration for the ZYPHOR platform. Monitor multi-role marketplace sessions, inspect AI condition grading, audit repair tickets, and govern escrow finances.
+            </p>
           </div>
-        )}
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-          <div>
-            <label className="block text-gray-400 uppercase font-bold text-[10px] tracking-wider mb-1.5">
-              Admin Email
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-3 text-gray-500" size={16} />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@zyphor.in"
-                className="w-full bg-black border border-gray-800 rounded-xl pl-9 pr-3 py-2.5 text-white outline-none focus:border-white focus:ring-1 focus:ring-white font-medium"
-              />
+          {/* Module Highlight Badges */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+            <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.07] backdrop-blur-sm space-y-1.5 hover:border-white/20 transition-all">
+              <div className="flex items-center gap-2 text-white">
+                <Layers size={16} className="text-gray-300" />
+                <span className="text-xs font-bold">4-Role Matrix</span>
+              </div>
+              <p className="text-[11px] text-gray-500 leading-snug">
+                Customer, Retailer, Wholesaler &amp; Technician segregation.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.07] backdrop-blur-sm space-y-1.5 hover:border-white/20 transition-all">
+              <div className="flex items-center gap-2 text-white">
+                <Cpu size={16} className="text-gray-300" />
+                <span className="text-xs font-bold">AI Diagnostics</span>
+              </div>
+              <p className="text-[11px] text-gray-500 leading-snug">
+                Live CEIR IMEI blacklist screening &amp; fraud scoring.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.07] backdrop-blur-sm space-y-1.5 hover:border-white/20 transition-all">
+              <div className="flex items-center gap-2 text-white">
+                <Activity size={16} className="text-gray-300" />
+                <span className="text-xs font-bold">Session Guard</span>
+              </div>
+              <p className="text-[11px] text-gray-500 leading-snug">
+                Real-time IP, device, and multi-platform session revoke.
+              </p>
             </div>
           </div>
+        </div>
 
-          <div>
-            <label className="block text-gray-400 uppercase font-bold text-[10px] tracking-wider mb-1.5">
-              Security Password
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 text-gray-500" size={16} />
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full bg-black border border-gray-800 rounded-xl pl-9 pr-3 py-2.5 text-white outline-none focus:border-white focus:ring-1 focus:ring-white font-medium"
-              />
-            </div>
+        {/* Bottom Platform Metrics & Compliance */}
+        <div className="relative z-10 pt-6 border-t border-gray-800/50 flex flex-col sm:flex-row items-start sm:items-center justify-between text-[11px] text-gray-500 font-mono gap-2">
+          <div className="flex items-center gap-3">
+            <span>UPTIME: 99.98%</span>
+            <span>•</span>
+            <span>SECURITY: 256-BIT JWT</span>
           </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-white hover:bg-gray-200 text-black font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 text-xs mt-2"
-          >
-            {loading ? <Loader2 size={16} className="animate-spin text-black" /> : <ShieldCheck size={16} className="text-black" />}
-            {loading ? "Authenticating Master Key..." : "Sign In to Admin Suite"}
-          </button>
-        </form>
-
-        <div className="pt-2 border-t border-gray-900 text-center">
-          <p className="text-[11px] text-gray-500 font-medium">
-            Authorized Personnel Only • IP Address Logged & Tracked
-          </p>
+          <span>ZYPHOR ENTERPRISE SUITE v2.4.0</span>
         </div>
       </div>
+
+      {/* ─── RIGHT LOGIN PORTAL (Desktop 42%) ─── */}
+      <div className="w-full lg:w-[480px] xl:w-[540px] bg-[#0A0B10] p-8 sm:p-12 lg:p-16 flex flex-col justify-center relative shadow-2xl">
+        <div className="max-w-md w-full mx-auto space-y-8">
+          
+          {/* Header */}
+          <div className="space-y-2">
+            <span className="px-2.5 py-1 rounded-md text-[10px] font-mono uppercase font-bold tracking-wider bg-white/5 text-gray-300 border border-white/10 inline-block">
+              Master Authentication
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              Executive Sign In
+            </h2>
+            <p className="text-xs text-gray-400 font-medium">
+              Enter your master administrative key to initialize governance.
+            </p>
+          </div>
+
+          {/* Error Banner */}
+          {error && (
+            <div className="p-3.5 bg-red-950/40 border border-red-800/60 rounded-xl text-red-200 text-xs flex items-center gap-2.5 animate-fade-in font-medium">
+              <AlertCircle size={16} className="shrink-0 text-red-400" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5 text-xs">
+            
+            {/* Email Field */}
+            <div className="space-y-1.5">
+              <label className="block text-gray-300 uppercase font-bold text-[10px] tracking-wider">
+                Administrator Email
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-3.5 text-gray-500" size={16} />
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@zyphor.in"
+                  className="w-full bg-[#12131A] border border-gray-800 rounded-xl pl-10 pr-4 py-3 text-white outline-none focus:border-white focus:ring-1 focus:ring-white transition-all font-medium text-xs placeholder-gray-500"
+                />
+              </div>
+            </div>
+
+            {/* Password Field */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="block text-gray-300 uppercase font-bold text-[10px] tracking-wider">
+                  Master Security Key
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-[11px] text-gray-400 hover:text-white transition-colors flex items-center gap-1 font-medium"
+                >
+                  {showPassword ? <EyeOff size={13} /> : <Eye size={13} />}
+                  <span>{showPassword ? "Hide" : "Show"}</span>
+                </button>
+              </div>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-3.5 text-gray-500" size={16} />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="w-full bg-[#12131A] border border-gray-800 rounded-xl pl-10 pr-10 py-3 text-white outline-none focus:border-white focus:ring-1 focus:ring-white transition-all font-medium text-xs placeholder-gray-500"
+                />
+              </div>
+            </div>
+
+            {/* Remember Me & Quick Fill Helper */}
+            <div className="flex items-center justify-between pt-1">
+              <label className="flex items-center gap-2 cursor-pointer text-gray-400 hover:text-gray-300 text-xs">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded bg-gray-900 border-gray-700 text-white focus:ring-0 cursor-pointer accent-white"
+                />
+                <span className="text-[11px]">Keep active for 7 days</span>
+              </label>
+
+              <button
+                type="button"
+                onClick={fillDemoCredentials}
+                className="text-[11px] text-gray-400 hover:text-white underline transition-colors flex items-center gap-1 font-mono"
+              >
+                <KeyRound size={12} />
+                <span>Fill Demo Admin</span>
+              </button>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-white hover:bg-gray-100 text-black font-extrabold py-3.5 px-4 rounded-xl transition-all shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 text-xs active:scale-[0.99] cursor-pointer mt-2"
+            >
+              {loading ? (
+                <>
+                  <Loader2 size={16} className="animate-spin text-black" />
+                  <span>Verifying Master Credentials...</span>
+                </>
+              ) : (
+                <>
+                  <ShieldCheck size={16} className="text-black" />
+                  <span>Authenticate to Admin Suite</span>
+                  <ArrowRight size={14} className="text-black" />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Footer Notice */}
+          <div className="pt-6 border-t border-gray-800/70 text-center space-y-2">
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-400 font-medium">
+              <CheckCircle2 size={14} className="text-gray-300" />
+              <span>Encrypted Session • IP Logged to MongoDB</span>
+            </div>
+            <p className="text-[10px] text-gray-600 font-mono">
+              Unlicensed access attempts will be permanently blacklisted.
+            </p>
+          </div>
+
+        </div>
+      </div>
+
     </div>
   );
 }
