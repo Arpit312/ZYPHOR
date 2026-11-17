@@ -108,7 +108,7 @@ export default async function DashboardOverview() {
           </div>
           <h2 className="text-2xl lg:text-3xl font-black text-black tracking-tight mt-1">Master Commerce Governance</h2>
           <p className="text-xs text-gray-500 mt-0.5 font-medium">
-            Real-time management for ZYPHOR Website, Cross-Platform Mobile App & Shared MongoDB Atlas Database
+            Real-time commerce management, catalog verification, doorstep repairs, and multi-role marketplace control.
           </p>
         </div>
 

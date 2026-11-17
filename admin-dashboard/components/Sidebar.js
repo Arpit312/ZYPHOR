@@ -116,10 +116,10 @@ export default function Sidebar() {
       <div className="p-4 border-t border-gray-800/90 bg-gray-950 space-y-2">
         <div className="flex items-center justify-between text-[11px] text-gray-400">
           <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
-            <span className="font-medium text-gray-300">Atlas Live DB</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="font-medium text-gray-300">All Systems Operational</span>
           </div>
-          <span className="text-[10px] font-mono text-gray-500">v2.4.0</span>
+          <span className="text-[10px] text-gray-500 font-medium">Enterprise</span>
         </div>
 
         <button

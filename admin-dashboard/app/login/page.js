@@ -11,7 +11,6 @@ import {
   AlertCircle, 
   Eye, 
   EyeOff, 
-  KeyRound,
   Shield, 
   CheckCircle2, 
   Cpu, 
@@ -22,8 +21,8 @@ import {
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@zyphor.in");
-  const [password, setPassword] = useState("Admin@123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -46,25 +45,19 @@ export default function AdminLoginPage() {
         router.push("/");
         router.refresh();
       } else {
-        setError(data.error || "Authentication failed. Please check master credentials.");
+        setError(data.error || "Authentication failed. Please check your credentials.");
       }
     } catch (err) {
-      setError("Network connection failure: " + err.message);
+      setError("Unable to connect to the authentication service: " + err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const fillDemoCredentials = () => {
-    setEmail("admin@zyphor.in");
-    setPassword("Admin@123");
-    setError("");
-  };
-
   return (
     <div className="min-h-screen w-full bg-[#050608] text-white flex flex-col lg:flex-row select-none">
       
-      {/* ─── LEFT HERO / BRAND CANVAS (Desktop 58%) ─── */}
+      {/* ─── LEFT BRAND & GOVERNANCE CANVAS (Desktop 58%) ─── */}
       <div className="relative flex-1 bg-gradient-to-br from-[#090A0F] via-[#050608] to-[#040405] p-8 sm:p-12 lg:p-16 flex flex-col justify-between overflow-hidden border-b lg:border-b-0 lg:border-r border-gray-800/60">
         
         {/* Subtle Ambient Background Gradients & Grid */}
@@ -78,7 +71,7 @@ export default function AdminLoginPage() {
         <div className="absolute top-[-15%] left-[-15%] w-[500px] h-[500px] bg-white/[0.03] rounded-full blur-[140px] pointer-events-none" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[450px] h-[450px] bg-white/[0.02] rounded-full blur-[130px] pointer-events-none" />
 
-        {/* Top Header: Official Logo + Live Atlas Indicator */}
+        {/* Top Header: Official Logo + Security Status */}
         <div className="relative z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white/10 p-1.5 flex items-center justify-center border border-white/20 shadow-inner">
@@ -97,26 +90,26 @@ export default function AdminLoginPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-[11px] font-mono text-gray-300">
-            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-            <span>Atlas Cluster0 Online</span>
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-[11px] text-gray-300">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Secure Connection</span>
           </div>
         </div>
 
-        {/* Center Content: Executive Architecture Narrative */}
+        {/* Center Content: Executive Product Narrative */}
         <div className="relative z-10 my-12 lg:my-auto max-w-xl space-y-8">
           <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] font-mono uppercase tracking-widest text-gray-300">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] uppercase font-semibold tracking-wider text-gray-300">
               <Shield size={12} className="text-white" />
-              <span>Restricted Governance Portal</span>
+              <span>Official Admin Portal</span>
             </div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-[1.1]">
-              Unified Command.
+              Platform Command &amp;
               <br />
-              <span className="text-gray-400">Zero Compromise.</span>
+              <span className="text-gray-400">Operations Control.</span>
             </h1>
             <p className="text-sm text-gray-400 leading-relaxed font-normal pt-1">
-              Mission-critical administration for the ZYPHOR platform. Monitor multi-role marketplace sessions, inspect AI condition grading, audit repair tickets, and govern escrow finances.
+              Central administration suite for ZYPHOR. Manage multi-role user accounts, verify certified device catalogs, dispatch doorstep repairs, and oversee escrow transactions.
             </p>
           </div>
 
@@ -125,43 +118,39 @@ export default function AdminLoginPage() {
             <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.07] backdrop-blur-sm space-y-1.5 hover:border-white/20 transition-all">
               <div className="flex items-center gap-2 text-white">
                 <Layers size={16} className="text-gray-300" />
-                <span className="text-xs font-bold">4-Role Matrix</span>
+                <span className="text-xs font-bold">Role Governance</span>
               </div>
               <p className="text-[11px] text-gray-500 leading-snug">
-                Customer, Retailer, Wholesaler &amp; Technician segregation.
+                Manage Customers, Retailers, Wholesalers, and Technicians.
               </p>
             </div>
 
             <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.07] backdrop-blur-sm space-y-1.5 hover:border-white/20 transition-all">
               <div className="flex items-center gap-2 text-white">
                 <Cpu size={16} className="text-gray-300" />
-                <span className="text-xs font-bold">AI Diagnostics</span>
+                <span className="text-xs font-bold">Catalog Screening</span>
               </div>
               <p className="text-[11px] text-gray-500 leading-snug">
-                Live CEIR IMEI blacklist screening &amp; fraud scoring.
+                Automated device verification and IMEI security checks.
               </p>
             </div>
 
             <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.07] backdrop-blur-sm space-y-1.5 hover:border-white/20 transition-all">
               <div className="flex items-center gap-2 text-white">
                 <Activity size={16} className="text-gray-300" />
-                <span className="text-xs font-bold">Session Guard</span>
+                <span className="text-xs font-bold">Session Security</span>
               </div>
               <p className="text-[11px] text-gray-500 leading-snug">
-                Real-time IP, device, and multi-platform session revoke.
+                Real-time login governance with instant session management.
               </p>
             </div>
           </div>
         </div>
 
         {/* Bottom Platform Metrics & Compliance */}
-        <div className="relative z-10 pt-6 border-t border-gray-800/50 flex flex-col sm:flex-row items-start sm:items-center justify-between text-[11px] text-gray-500 font-mono gap-2">
-          <div className="flex items-center gap-3">
-            <span>UPTIME: 99.98%</span>
-            <span>•</span>
-            <span>SECURITY: 256-BIT JWT</span>
-          </div>
-          <span>ZYPHOR ENTERPRISE SUITE v2.4.0</span>
+        <div className="relative z-10 pt-6 border-t border-gray-800/50 flex flex-col sm:flex-row items-start sm:items-center justify-between text-[11px] text-gray-500 gap-2">
+          <span>&copy; {new Date().getFullYear()} ZYPHOR Inc. All rights reserved.</span>
+          <span>Enterprise Security &amp; Compliance</span>
         </div>
       </div>
 
@@ -171,14 +160,14 @@ export default function AdminLoginPage() {
           
           {/* Header */}
           <div className="space-y-2">
-            <span className="px-2.5 py-1 rounded-md text-[10px] font-mono uppercase font-bold tracking-wider bg-white/5 text-gray-300 border border-white/10 inline-block">
-              Master Authentication
+            <span className="px-2.5 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider bg-white/5 text-gray-300 border border-white/10 inline-block">
+              Administrator Access
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Executive Sign In
+              Sign In to Suite
             </h2>
             <p className="text-xs text-gray-400 font-medium">
-              Enter your master administrative key to initialize governance.
+              Enter your authorized email and password to continue.
             </p>
           </div>
 
@@ -196,7 +185,7 @@ export default function AdminLoginPage() {
             {/* Email Field */}
             <div className="space-y-1.5">
               <label className="block text-gray-300 uppercase font-bold text-[10px] tracking-wider">
-                Administrator Email
+                Admin Email
               </label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-3.5 text-gray-500" size={16} />
@@ -205,7 +194,7 @@ export default function AdminLoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@zyphor.in"
+                  placeholder="name@zyphor.in"
                   className="w-full bg-[#12131A] border border-gray-800 rounded-xl pl-10 pr-4 py-3 text-white outline-none focus:border-white focus:ring-1 focus:ring-white transition-all font-medium text-xs placeholder-gray-500"
                 />
               </div>
@@ -215,7 +204,7 @@ export default function AdminLoginPage() {
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="block text-gray-300 uppercase font-bold text-[10px] tracking-wider">
-                  Master Security Key
+                  Password
                 </label>
                 <button
                   type="button"
@@ -233,13 +222,13 @@ export default function AdminLoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
+                  placeholder="Enter your password"
                   className="w-full bg-[#12131A] border border-gray-800 rounded-xl pl-10 pr-10 py-3 text-white outline-none focus:border-white focus:ring-1 focus:ring-white transition-all font-medium text-xs placeholder-gray-500"
                 />
               </div>
             </div>
 
-            {/* Remember Me & Quick Fill Helper */}
+            {/* Remember Me Toggle */}
             <div className="flex items-center justify-between pt-1">
               <label className="flex items-center gap-2 cursor-pointer text-gray-400 hover:text-gray-300 text-xs">
                 <input
@@ -248,17 +237,8 @@ export default function AdminLoginPage() {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="w-4 h-4 rounded bg-gray-900 border-gray-700 text-white focus:ring-0 cursor-pointer accent-white"
                 />
-                <span className="text-[11px]">Keep active for 7 days</span>
+                <span className="text-[11px]">Keep me signed in</span>
               </label>
-
-              <button
-                type="button"
-                onClick={fillDemoCredentials}
-                className="text-[11px] text-gray-400 hover:text-white underline transition-colors flex items-center gap-1 font-mono"
-              >
-                <KeyRound size={12} />
-                <span>Fill Demo Admin</span>
-              </button>
             </div>
 
             {/* Submit Button */}
@@ -270,12 +250,12 @@ export default function AdminLoginPage() {
               {loading ? (
                 <>
                   <Loader2 size={16} className="animate-spin text-black" />
-                  <span>Verifying Master Credentials...</span>
+                  <span>Verifying Credentials...</span>
                 </>
               ) : (
                 <>
                   <ShieldCheck size={16} className="text-black" />
-                  <span>Authenticate to Admin Suite</span>
+                  <span>Sign In to Admin Suite</span>
                   <ArrowRight size={14} className="text-black" />
                 </>
               )}
@@ -283,13 +263,13 @@ export default function AdminLoginPage() {
           </form>
 
           {/* Footer Notice */}
-          <div className="pt-6 border-t border-gray-800/70 text-center space-y-2">
+          <div className="pt-6 border-t border-gray-800/70 text-center space-y-1.5">
             <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-400 font-medium">
               <CheckCircle2 size={14} className="text-gray-300" />
-              <span>Encrypted Session • IP Logged to MongoDB</span>
+              <span>Encrypted Administrative Connection</span>
             </div>
-            <p className="text-[10px] text-gray-600 font-mono">
-              Unlicensed access attempts will be permanently blacklisted.
+            <p className="text-[10px] text-gray-500">
+              Authorized access only. All administrator activities are logged for security.
             </p>
           </div>
 
