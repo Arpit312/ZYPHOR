@@ -50,27 +50,15 @@ const ROLES = [
     accent: "purple-400",
     glowColor: "from-purple-500/20 to-indigo-500/10",
     borderActive: "border-purple-400 text-purple-400",
-  },
-  {
-    value: "admin",
-    label: "Master Administrator",
-    badge: "Control",
-    icon: Lock,
-    desc: "Platform governance, user access & system controls",
-    accent: "signal-red",
-    glowColor: "from-signal-red/20 to-rose-500/10",
-    borderActive: "border-signal-red text-signal-red",
-    hidden: true
   }
 ];
 
-// Quick demo login helper accounts
+// Quick demo login helper accounts (4 Marketplace Roles)
 const DEMO_ACCOUNTS = [
   { role: "customer", email: "customer@zyphor.in", label: "Customer" },
   { role: "retailer", email: "retailer@zyphor.in", label: "Retailer" },
   { role: "wholesaler", email: "wholesaler@zyphor.in", label: "Wholesaler" },
   { role: "technician", email: "tech@zyphor.in", label: "Technician" },
-  { role: "admin", email: "admin@zyphor.in", label: "Admin" },
 ];
 
 function LoginFormContent() {
@@ -131,11 +119,7 @@ function LoginFormContent() {
       }).catch(() => {});
 
       const next = searchParams.get("next") || searchParams.get("redirect") || "/dashboard";
-      if (selectedRole === "admin") {
-        router.push("/admin");
-      } else {
-        router.push(next);
-      }
+      router.push(next);
       router.refresh();
     } catch (err) {
       setError(err.message || "Connection error. Please try again.");
@@ -341,6 +325,16 @@ function LoginFormContent() {
               >
                 Create New Free Account
               </Link>
+
+              {/* Direct Sell Redirect for Any Role */}
+              <div className="pt-2 text-center">
+                <Link
+                  href="/sell"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-coral hover:text-coral-dark hover:underline"
+                >
+                  <Sparkles className="h-3.5 w-3.5" /> Want to sell a phone or parts? Sell Now &rarr;
+                </Link>
+              </div>
             </form>
           </div>
 

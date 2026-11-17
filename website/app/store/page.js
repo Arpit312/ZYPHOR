@@ -14,7 +14,15 @@ export const metadata = {
 const BRANDS = ["All", "Apple", "Samsung", "OnePlus", "Xiaomi", "Google", "Realme", "Poco"];
 const CONDITIONS = ["All", "Superb", "Good", "Fair"];
 
+// In-memory 15s micro-cache to make store browsing instantaneous
+let _storeCache = { key: "", data: null, expiresAt: 0 };
+
 async function getPhones({ brand, condition, sort, q } = {}) {
+  const cacheKey = JSON.stringify({ brand, condition, sort, q });
+  const now = Date.now();
+  if (_storeCache.data && _storeCache.key === cacheKey && _storeCache.expiresAt > now) {
+    return _storeCache.data;
+  }
   try {
     await connectDB();
     const query = { status: "active", listingType: "device" };
@@ -31,7 +39,9 @@ async function getPhones({ brand, condition, sort, q } = {}) {
     if (sort === "price_low") sortOpt = { price: 1 };
     if (sort === "price_high") sortOpt = { price: -1 };
     if (sort === "trust") sortOpt = { "verification.trustScore": -1 };
-    return await Listing.find(query).sort(sortOpt).lean();
+    const res = await Listing.find(query).sort(sortOpt).lean();
+    _storeCache = { key: cacheKey, data: res, expiresAt: now + 15000 };
+    return res;
   } catch { return []; }
 }
 

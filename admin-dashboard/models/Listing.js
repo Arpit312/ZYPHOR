@@ -33,7 +33,7 @@ const ListingSchema = new mongoose.Schema({
   images:        [{ type: String }],
   tags:          [{ type: String }],
   emiEligible:   { type: Boolean, default: true },
-  status:        { type: String, enum: ["draft","active","sold","blocked"], default: "active" },
+  status:        { type: String, enum: ["draft","active","inactive","sold","blocked"], default: "active" },
   verification:  { type: VerificationSchema, default: () => ({}) },
   // Platform fee tracking
   platformFeePercent: { type: Number, default: 3 }, // 3%

@@ -20,7 +20,7 @@ const ListingSchema = new mongoose.Schema({
   storage: String, ram: String, city: String,
   images: [String], tags: [String],
   emiEligible: { type:Boolean, default:true },
-  status: { type:String, enum:["draft","active","sold","blocked"], default:"active" },
+  status: { type:String, enum:["draft","active","inactive","sold","blocked"], default:"active" },
   verification: { type:VerSchema, default:() => ({}) },
   views: { type:Number, default:0 },
 }, { timestamps:true });

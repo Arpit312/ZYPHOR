@@ -45,7 +45,7 @@ export default function AdminPortalClient({ adminUser, initialUsers, initialList
   });
 
   const partsListings = listings.filter((l) => l.listingType === "part");
-  const displayParts = partsListings.length > 0 ? partsListings : DEFAULT_PARTS;
+  const displayParts = partsListings;
 
   // Search User / Token ID via Gemini AI
   async function handleAiSearch(e) {

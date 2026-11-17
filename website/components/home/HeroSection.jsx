@@ -171,10 +171,10 @@ export default function HeroSection() {
           <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
           
           {[
-            { n: 6000, suffix: "+", label: "Verified listings", isPercentage: false },
-            { n: 91, suffix: "%", label: "Avg. AI trust score", isPercentage: true },
-            { n: 0, prefix: "₹", suffix: "", label: "IMEI check cost", isPercentage: false },
-            { n: 48, suffix: "h", label: "Avg. verification time", isPercentage: false }
+            { n: 0, prefix: "₹", suffix: "", label: "Free IMEI Screening", isPercentage: false },
+            { n: 100, suffix: "%", label: "Escrow Payment Safety", isPercentage: true },
+            { n: 7, suffix: " Days", label: "Buyer Guarantee", isPercentage: false },
+            { n: 24, suffix: "/7", label: "AI Fraud Protection", isPercentage: false }
           ].map(({ n, suffix, prefix, label }) => (
             <div key={label} className="flex flex-col">
               <p className="font-display font-700 text-3xl sm:text-4xl text-white flex items-baseline">

@@ -230,18 +230,27 @@ export default function CinematicIntro({ onComplete }) {
                   </motion.span>
 
                   {/* Main Logo */}
-                  <motion.h1
-                    className="font-display font-900 text-white tracking-[0.1em]"
-                    style={{
-                      fontSize: "2.5rem",
-                      textShadow: "0 0 30px rgba(255,90,60,0.7), 0 0 60px rgba(255,90,60,0.3)"
-                    }}
+                  <motion.div
+                    className="flex flex-col items-center"
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.2, duration: 0.5, ease: "easeOut" }}
                   >
-                    ZYPHOR
-                  </motion.h1>
+                    <img 
+                      src="/symbol-white.png" 
+                      alt="ZYPHOR Symbol" 
+                      className="w-12 h-12 object-contain mb-1 drop-shadow-[0_0_20px_rgba(255,90,60,0.8)]" 
+                    />
+                    <h1
+                      className="font-display font-900 text-white tracking-[0.1em]"
+                      style={{
+                        fontSize: "2.5rem",
+                        textShadow: "0 0 30px rgba(255,90,60,0.7), 0 0 60px rgba(255,90,60,0.3)"
+                      }}
+                    >
+                      ZYPHOR
+                    </h1>
+                  </motion.div>
 
                   {/* Badge */}
                   <motion.div

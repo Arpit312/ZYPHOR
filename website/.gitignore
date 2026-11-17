@@ -29,3 +29,6 @@ yarn-error.log*
 .vscode
 
 .vercel
+
+.cursor/hooks.json
+.cursor/hooks/after-agent-response.js

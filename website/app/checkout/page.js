@@ -24,7 +24,30 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const displayTotal = cartSubtotal > 0 ? cartSubtotal : 45000;
+  const displayTotal = cartSubtotal;
+
+  if (cart.length === 0 && !success) {
+    return (
+      <div className="py-24 bg-paper min-h-screen flex items-center justify-center">
+        <Container>
+          <div className="max-w-md mx-auto bg-white rounded-2xl p-10 border border-black/[0.06] text-center shadow-lg">
+            <h2 className="font-display font-700 text-2xl text-slate-850 mb-2">Your Cart is Empty</h2>
+            <p className="text-sm text-black/55 mb-6">
+              Please add a phone or spare part to your cart before proceeding to checkout.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/marketplace" className="bg-coral text-white font-display font-600 px-6 py-2.5 rounded-xl text-sm hover:bg-coral-dark transition-colors">
+                Browse Marketplace
+              </Link>
+              <Link href="/parts" className="border border-black/10 text-slate-850 font-display font-600 px-6 py-2.5 rounded-xl text-sm hover:bg-black/5 transition-colors">
+                Spare Parts Catalog
+              </Link>
+            </div>
+          </div>
+        </Container>
+      </div>
+    );
+  }
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

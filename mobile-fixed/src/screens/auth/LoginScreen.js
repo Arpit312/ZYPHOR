@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   View,
   Text,
+  Image,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
@@ -111,8 +112,12 @@ export default function LoginScreen({ navigation }) {
           style={styles.hero}
         >
           <View style={styles.logoRow}>
-            <View style={styles.logoBg}>
-              <Ionicons name="scan-outline" size={32} color={T.green} />
+            <View style={[styles.logoBg, { padding: 4 }]}>
+              <Image 
+                source={require("../../../assets/symbol-white.png")} 
+                style={{ width: 34, height: 34 }} 
+                resizeMode="contain" 
+              />
             </View>
             <Text style={styles.logo}>ZYPHOR</Text>
           </View>

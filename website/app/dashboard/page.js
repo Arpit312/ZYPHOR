@@ -51,23 +51,32 @@ export default async function DashboardPage() {
     const isAdmin = session.role === "admin";
     const isTechnician = session.role === "technician";
 
+    const repairQuery = isTechnician
+      ? { $or: [{ assignedTechnician: session.id }, { assignedTechnician: null }] }
+      : (isAdmin ? {} : { user: session.id });
+
     const [myListings, orders, repairTickets, messages] = await Promise.all([
       Listing.find({ seller: session.id })
-        .sort({ createdAt: -1 }).limit(10).lean()
+        .sort({ createdAt: -1 }).limit(25).lean()
         .catch(() => []),
 
       Order.find({ $or: [{ buyer: session.id }, { seller: session.id }] })
-        .sort({ createdAt: -1 }).limit(10)
-        .populate("listing", "title brand model price images")
+        .sort({ createdAt: -1 }).limit(25)
+        .populate("listing", "title brand model price images category conditionGrade")
+        .populate("buyer", "name email phone city")
+        .populate("seller", "name email phone businessName city")
         .lean()
         .catch(() => []),
 
-      RepairTicket.find(isTechnician || isAdmin ? {} : { user: session.id })
-        .sort({ createdAt: -1 }).limit(5).lean()
+      RepairTicket.find(repairQuery)
+        .sort({ createdAt: -1 }).limit(20)
+        .populate("user", "name email phone city")
+        .populate("assignedTechnician", "name email phone")
+        .lean()
         .catch(() => []),
 
       Message.find({ sender: session.id })
-        .sort({ createdAt: -1 }).limit(5).lean()
+        .sort({ createdAt: -1 }).limit(10).lean()
         .catch(() => []),
     ]);
 
@@ -76,6 +85,7 @@ export default async function DashboardPage() {
     const sanitizedOrders = orders.map(serializeDoc);
     const sanitizedTickets = repairTickets.map(serializeDoc);
     const sanitizedMessages = messages.map(serializeDoc);
+    const sanitizedUser = serializeDoc(user);
 
     return (
       <section className="py-12 bg-paper min-h-screen">
@@ -83,11 +93,16 @@ export default async function DashboardPage() {
           <RoleDashboardView
             session={{
               id: session.id,
-              name: session.name,
-              email: session.email,
-              role: session.role,
+              name: user?.name || session.name,
+              email: user?.email || session.email,
+              role: user?.role || session.role,
+              city: user?.city || "",
+              phone: user?.phone || "",
               businessName: user?.businessName || session.businessName || `${session.name || "User"}'s Store`,
+              verifiedSeller: Boolean(user?.verifiedSeller),
+              subscription: user?.subscription || null,
             }}
+            userProfile={sanitizedUser}
             userTokenId={userTokenId}
             myListings={sanitizedListings}
             orders={sanitizedOrders}

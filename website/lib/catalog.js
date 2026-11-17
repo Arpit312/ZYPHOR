@@ -17,17 +17,27 @@ export function slugify(str) {
 
 const PAGE_SIZE = 12;
 
+// In-memory micro-cache (30s TTL) for instantaneous navigation
+let _cachedCategories = { data: null, expiresAt: 0 };
+let _cachedMegaMenu = { data: null, expiresAt: 0 };
+
 /** All active categories, derived from Listing.category field */
 export async function getCategories() {
+  const now = Date.now();
+  if (_cachedCategories.data && _cachedCategories.expiresAt > now) {
+    return _cachedCategories.data;
+  }
   await connectDB();
   const rows = await Listing.aggregate([
     { $match: { status: "active" } },
     { $group: { _id: "$category", count: { $sum: 1 }, sample: { $first: "$images" } } },
     { $sort: { count: -1 } },
   ]);
-  return rows
+  const result = rows
     .filter(r => r._id)
     .map(r => ({ name: r._id, slug: slugify(r._id), count: r.count, image: r.sample?.[0] || null }));
+  _cachedCategories = { data: result, expiresAt: now + 30000 };
+  return result;
 }
 
 export async function getCategoryBySlug(slug) {
@@ -136,13 +146,18 @@ export async function getListingsForModel(categorySlug, brandSlug, modelSlug, fi
   return { category, brand, model, listings, total, page, totalPages: Math.ceil(total / PAGE_SIZE), facets };
 }
 
-/** Mega-menu data: every category with a handful of top brands */
+/** Mega-menu data: every category with a handful of top brands (Cached 30s) */
 export async function getMegaMenu() {
+  const now = Date.now();
+  if (_cachedMegaMenu.data && _cachedMegaMenu.expiresAt > now) {
+    return _cachedMegaMenu.data;
+  }
   const categories = await getCategories();
   const menu = await Promise.all(categories.map(async (c) => {
     const { brands } = await getBrands(c.slug);
     return { ...c, brands: brands.slice(0, 8) };
   }));
+  _cachedMegaMenu = { data: menu, expiresAt: now + 30000 };
   return menu;
 }
 

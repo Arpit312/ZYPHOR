@@ -7,6 +7,7 @@ import { CartProvider } from "@/context/CartContext";
 import BottomNav from "@/components/shared/BottomNav";
 import AuthProvider from "@/components/providers/AuthProvider";
 import { Toaster } from "react-hot-toast";
+import TopProgressBar from "@/components/shared/TopProgressBar";
 
 const grotesk = Space_Grotesk({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-grotesk" });
 const inter   = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-inter" });
@@ -24,6 +25,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" className={`${grotesk.variable} ${inter.variable} ${mono.variable}`}>
       <body className="font-body antialiased min-h-screen flex flex-col bg-paper">
+        <TopProgressBar />
         <AuthProvider>
           <CartProvider>
             <Navbar user={user} />

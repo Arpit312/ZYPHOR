@@ -39,6 +39,7 @@ app.use("/api/admin",        require("./routes/adminRoutes"));
 app.use("/api/ai",           require("./routes/aiRoutes"));
 app.use("/api/imei",         require("./routes/imeiRoutes"));
 app.use("/api/uploads",      require("./routes/uploadRoutes"));
+app.use("/api/repair",       require("./routes/repairRoutes"));
 
 // ─── Health ──────────────────────────────────────────────────────────────────
 app.get("/api/health", (req, res) => res.json({

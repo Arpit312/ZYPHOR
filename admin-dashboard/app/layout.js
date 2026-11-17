@@ -1,24 +1,26 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Sidebar from "@/components/Sidebar";
+import AdminLayoutWrapper from "@/components/AdminLayoutWrapper";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700", "800"]
+});
 
 export const metadata = {
-  title: "ZYPHOR Admin",
-  description: "Admin Dashboard for ZYPHOR Platform",
+  title: "ZYPHOR Master Admin Suite",
+  description: "Enterprise Executive Admin Dashboard for ZYPHOR Platform",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-gray-50 text-gray-900`}>
-        <div className="flex min-h-screen">
-          <Sidebar />
-          <main className="flex-1 ml-64 p-8">
-            {children}
-          </main>
-        </div>
+    <html lang="en" className={inter.variable}>
+      <body className={`${inter.className} text-gray-900 bg-gray-50 antialiased`}>
+        <AdminLayoutWrapper>
+          {children}
+        </AdminLayoutWrapper>
       </body>
     </html>
   );

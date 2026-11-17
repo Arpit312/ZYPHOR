@@ -2,6 +2,7 @@ const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const LoginSession = require("../models/LoginSession");
 const JWT_SECRET = process.env.JWT_SECRET || "zyphor_dev_secret_change_me_in_production";
 
 const sign = (user) => jwt.sign(
@@ -20,6 +21,24 @@ router.post("/login", async (req, res) => {
     const valid = await bcrypt.compare(password, user.passwordHash);
     if (!valid) return res.status(401).json({ error: "Invalid credentials." });
     const token = sign(user);
+    
+    // Track mobile login session in MongoDB Atlas
+    const clientIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "127.0.0.1";
+    LoginSession.create({
+      userId: user._id,
+      userName: user.name,
+      userEmail: user.email,
+      role: user.role,
+      ipAddress: clientIp,
+      device: "Zyphor Mobile App (Expo/RN)",
+      userAgent: req.headers["user-agent"] || "Zyphor App Client",
+      location: "India (Mobile)",
+      status: "ACTIVE",
+      loginAt: new Date(),
+      lastActiveAt: new Date(),
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    }).catch(e => console.warn("[Mobile LoginSession Warn]:", e.message));
+
     res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role, city: user.city, subscription: user.subscription, profileImage: user.profileImage } });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });

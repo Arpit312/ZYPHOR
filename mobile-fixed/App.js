@@ -5,28 +5,35 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthProvider, AuthContext } from "./src/context/AuthContext";
+import { CartProvider } from "./src/context/CartContext";
 import T from "./src/styles/theme";
 
-import LoginScreen       from "./src/screens/auth/LoginScreen";
-import SignupScreen      from "./src/screens/auth/SignupScreen";
+// Auth Screens
+import LoginScreen from "./src/screens/auth/LoginScreen";
+import SignupScreen from "./src/screens/auth/SignupScreen";
 import ForgotPasswordScreen from "./src/screens/auth/ForgotPasswordScreen";
-import HomeScreen        from "./src/screens/main/HomeScreen";
+
+// Main Screens
+import HomeScreen from "./src/screens/main/HomeScreen";
 import MarketplaceScreen from "./src/screens/main/MarketplaceScreen";
-import PartsScreen       from "./src/screens/main/PartsScreen";
+import PartsScreen from "./src/screens/main/PartsScreen";
 import ListingDetailScreen from "./src/screens/main/ListingDetailScreen";
-import AIAdvisorScreen   from "./src/screens/main/AIAdvisorScreen";
+import CartScreen from "./src/screens/main/CartScreen";
+import CheckoutScreen from "./src/screens/main/CheckoutScreen";
+import RepairScreen from "./src/screens/main/RepairScreen";
+import AIAdvisorScreen from "./src/screens/main/AIAdvisorScreen";
 import PricingAgentScreen from "./src/screens/main/PricingAgentScreen";
-import SellScreen        from "./src/screens/main/SellScreen";
-import IMEICheckScreen   from "./src/screens/main/IMEICheckScreen";
-import DashboardScreen   from "./src/screens/main/DashboardScreen";
-import ProfileScreen     from "./src/screens/main/ProfileScreen";
-import MyListingsScreen  from "./src/screens/main/MyListingsScreen";
-import MyOrdersScreen    from "./src/screens/main/MyOrdersScreen";
+import SellScreen from "./src/screens/main/SellScreen";
+import IMEICheckScreen from "./src/screens/main/IMEICheckScreen";
+import DashboardScreen from "./src/screens/main/DashboardScreen";
+import ProfileScreen from "./src/screens/main/ProfileScreen";
+import MyListingsScreen from "./src/screens/main/MyListingsScreen";
+import MyOrdersScreen from "./src/screens/main/MyOrdersScreen";
 import SubscriptionScreen from "./src/screens/main/SubscriptionScreen";
-import AboutScreen       from "./src/screens/main/AboutScreen";
+import AboutScreen from "./src/screens/main/AboutScreen";
 
 const Stack = createNativeStackNavigator();
-const Tab   = createBottomTabNavigator();
+const Tab = createBottomTabNavigator();
 const navigationRef = createNavigationContainerRef();
 
 const SCREEN_OPT = {
@@ -37,12 +44,17 @@ const SCREEN_OPT = {
   contentStyle: { backgroundColor: T.bg.primary },
 };
 
+// Common E-Commerce Stacks accessible everywhere
 function HomeStack() {
   return (
     <Stack.Navigator screenOptions={SCREEN_OPT}>
-      <Stack.Screen name="HomeMain"       component={HomeScreen}          options={{ headerShown: false }} />
-      <Stack.Screen name="ListingDetail"  component={ListingDetailScreen} options={{ title: "Device Details", headerShown: false }} />
-      <Stack.Screen name="IMEICheck"      component={IMEICheckScreen}     options={{ title: "IMEI Verification" }} />
+      <Stack.Screen name="HomeMain" component={HomeScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="ListingDetail" component={ListingDetailScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="IMEICheck" component={IMEICheckScreen} options={{ title: "IMEI Verification" }} />
+      <Stack.Screen name="Advisor" component={AIAdvisorScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="PricingAgent" component={PricingAgentScreen} options={{ title: "AI Price Check" }} />
     </Stack.Navigator>
   );
 }
@@ -50,19 +62,21 @@ function HomeStack() {
 function MarketStack() {
   return (
     <Stack.Navigator screenOptions={SCREEN_OPT}>
-      <Stack.Screen name="Marketplace"    component={MarketplaceScreen}   options={{ headerShown: false }} />
-      <Stack.Screen name="Parts"          component={PartsScreen}         options={{ title: "Parts Market" }} />
-      <Stack.Screen name="ListingDetail"  component={ListingDetailScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Marketplace" component={MarketplaceScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Parts" component={PartsScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="ListingDetail" component={ListingDetailScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
 
-function AIStack() {
+function RepairStack() {
   return (
     <Stack.Navigator screenOptions={SCREEN_OPT}>
-      <Stack.Screen name="Advisor"       component={AIAdvisorScreen}    options={{ headerShown: false }} />
-      <Stack.Screen name="PricingAgent"  component={PricingAgentScreen} options={{ title: "AI Price Check" }} />
-      <Stack.Screen name="IMEICheck"     component={IMEICheckScreen}    options={{ title: "IMEI Verify" }} />
+      <Stack.Screen name="RepairMain" component={RepairScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
@@ -70,10 +84,11 @@ function AIStack() {
 function SellStack() {
   return (
     <Stack.Navigator screenOptions={SCREEN_OPT}>
-      <Stack.Screen name="SellMain"      component={SellScreen}          options={{ headerShown: false }} />
-      <Stack.Screen name="Subscription"  component={SubscriptionScreen}  options={{ title: "Subscription Plans" }} />
-      <Stack.Screen name="MyListings"    component={MyListingsScreen}    options={{ title: "My Listings" }} />
+      <Stack.Screen name="SellMain" component={SellScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Subscription" component={SubscriptionScreen} options={{ title: "Subscription Plans" }} />
+      <Stack.Screen name="MyListings" component={MyListingsScreen} options={{ title: "My Listings" }} />
       <Stack.Screen name="ListingDetail" component={ListingDetailScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
@@ -81,14 +96,18 @@ function SellStack() {
 function AccountStack() {
   return (
     <Stack.Navigator screenOptions={SCREEN_OPT}>
-      <Stack.Screen name="Dashboard"     component={DashboardScreen}    options={{ headerShown: false }} />
-      <Stack.Screen name="Profile"       component={ProfileScreen}      options={{ title: "Edit Profile" }} />
-      <Stack.Screen name="MyListings"    component={MyListingsScreen}   options={{ title: "My Listings" }} />
-      <Stack.Screen name="MyOrders"      component={MyOrdersScreen}     options={{ title: "My Orders" }} />
-      <Stack.Screen name="Subscription"  component={SubscriptionScreen} options={{ title: "Subscription Plans" }} />
-      <Stack.Screen name="IMEICheck"     component={IMEICheckScreen}    options={{ title: "IMEI Check" }} />
-      <Stack.Screen name="About"         component={AboutScreen}        options={{ title: "About ZYPHOR" }} />
+      <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: "Edit Profile" }} />
+      <Stack.Screen name="MyListings" component={MyListingsScreen} options={{ title: "My Listings" }} />
+      <Stack.Screen name="MyOrders" component={MyOrdersScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Subscription" component={SubscriptionScreen} options={{ title: "Subscription Plans" }} />
+      <Stack.Screen name="Advisor" component={AIAdvisorScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="PricingAgent" component={PricingAgentScreen} options={{ title: "AI Price Check" }} />
+      <Stack.Screen name="IMEICheck" component={IMEICheckScreen} options={{ title: "IMEI Check" }} />
+      <Stack.Screen name="About" component={AboutScreen} options={{ title: "About ZYPHOR" }} />
       <Stack.Screen name="ListingDetail" component={ListingDetailScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
@@ -111,21 +130,21 @@ function TabNavigator() {
         tabBarLabelStyle: { fontSize: 10, fontWeight: "600" },
         tabBarIcon: ({ color, size, focused }) => {
           const icons = {
-            Home:        focused ? "home"        : "home-outline",
-            Browse:      focused ? "list"         : "list-outline",
-            "AI Tools":  focused ? "sparkles"     : "sparkles-outline",
-            Sell:        focused ? "add-circle"   : "add-circle-outline",
-            Account:     focused ? "person"       : "person-outline",
+            Home: focused ? "home" : "home-outline",
+            Browse: focused ? "phone-portrait" : "phone-portrait-outline",
+            Repair: focused ? "construct" : "construct-outline",
+            Sell: focused ? "add-circle" : "add-circle-outline",
+            Account: focused ? "person" : "person-outline",
           };
           return <Ionicons name={icons[route.name] || "ellipse"} size={22} color={color} />;
         },
       })}
     >
-      <Tab.Screen name="Home"      component={HomeStack} />
-      <Tab.Screen name="Browse"    component={MarketStack} />
-      <Tab.Screen name="AI Tools"  component={AIStack} />
-      <Tab.Screen name="Sell"      component={SellStack} />
-      <Tab.Screen name="Account"   component={AccountStack} />
+      <Tab.Screen name="Home" component={HomeStack} />
+      <Tab.Screen name="Browse" component={MarketStack} />
+      <Tab.Screen name="Repair" component={RepairStack} />
+      <Tab.Screen name="Sell" component={SellStack} />
+      <Tab.Screen name="Account" component={AccountStack} />
     </Tab.Navigator>
   );
 }
@@ -133,7 +152,7 @@ function TabNavigator() {
 function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Login"  component={LoginScreen} />
+      <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Signup" component={SignupScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
     </Stack.Navigator>
@@ -143,10 +162,6 @@ function AuthStack() {
 function RootNavigator() {
   const { user, loading, needsSubscription, clearNeedsSubscription } = useContext(AuthContext);
 
-  // Right after a retailer/wholesaler/technician signs up, the Tab navigator
-  // mounts fresh (AuthStack unmounts). Imperatively hop to the Subscription
-  // screen once navigation is ready, instead of relying on a stale `navigation`
-  // reference from the just-unmounted AuthStack (that used to silently fail).
   useEffect(() => {
     if (!user || !needsSubscription) return;
     let cancelled = false;
@@ -181,7 +196,9 @@ function RootNavigator() {
 export default function App() {
   return (
     <AuthProvider>
-      <RootNavigator />
+      <CartProvider>
+        <RootNavigator />
+      </CartProvider>
     </AuthProvider>
   );
 }

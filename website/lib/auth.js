@@ -25,14 +25,21 @@ export async function getSessionUser() {
     const { cookies } = await import("next/headers");
     const cookieStore = await cookies();
 
-    // 1. Check custom zyphor_session cookie
+    // 1. Check custom zyphor_session cookie (Fastest - Local JWT check)
     const customToken = cookieStore.get(COOKIE_NAME)?.value;
     if (customToken) {
       const decoded = verifyToken(customToken);
       if (decoded) return decoded;
     }
 
-    // 2. Check NextAuth Session
+    // Fast bail: If no NextAuth session token exists either, return null immediately (0ms overhead)
+    const hasNextAuth = cookieStore.get("next-auth.session-token")?.value || 
+                        cookieStore.get("__Secure-next-auth.session-token")?.value;
+    if (!hasNextAuth) {
+      return null;
+    }
+
+    // 2. Check NextAuth Session only when session cookie is actually present
     const { getServerSession } = await import("next-auth");
     const { authOptions } = await import("@/app/api/auth/[...nextauth]/route");
     const session = await getServerSession(authOptions);

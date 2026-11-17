@@ -63,4 +63,8 @@ export const subAPI = {
   get: () => api.get("/subscriptions"),
   subscribe: (d) => api.post("/subscriptions", d),
 };
+export const repairAPI = {
+  book: (d) => api.post("/repair", d),
+  getAll: () => api.get("/repair"),
+};
 export default api;

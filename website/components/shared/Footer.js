@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ScanLine } from "lucide-react";
+import Image from "next/image";
 
 const COLUMNS = [
   {
@@ -44,9 +44,11 @@ export default function Footer() {
     <footer className="bg-ink text-white/70 mt-24 border-t border-white/10">
       <div className="container-x py-14 grid grid-cols-2 md:grid-cols-6 gap-10">
         <div className="col-span-2">
-          <div className="flex items-center gap-2 text-white font-display font-700 text-lg">
-            <ScanLine className="h-5 w-5 text-signal-green" />
-            ZYPHOR
+          <div className="flex items-center gap-2.5 text-white font-display font-800 text-lg">
+            <div className="relative w-7 h-7 rounded-lg overflow-hidden bg-white/10 p-1 flex items-center justify-center border border-white/20">
+              <Image src="/symbol-white.png" alt="ZYPHOR" width={22} height={22} className="object-contain" />
+            </div>
+            <span className="font-black tracking-wider">ZYPHOR</span>
           </div>
           <p className="mt-3 text-sm leading-relaxed max-w-xs">
             Every device on ZYPHOR is AI-verified, IMEI-screened and trust-scored

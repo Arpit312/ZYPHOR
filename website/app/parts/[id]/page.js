@@ -21,11 +21,10 @@ async function getPart(id) {
     if (listing) {
       return { ...listing, _id: listing._id.toString() };
     }
-  } catch (err) {}
-
-  // Fallback to DEFAULT_PARTS
-  const fallback = DEFAULT_PARTS.find((p) => p._id === id || p.title.toLowerCase().includes(id.toLowerCase()));
-  return fallback || null;
+    return null;
+  } catch (err) {
+    return null;
+  }
 }
 
 async function getSimilarParts(brand, excludeId) {
@@ -38,12 +37,10 @@ async function getSimilarParts(brand, excludeId) {
       listingType: "part"
     }).sort({ createdAt: -1 }).limit(4).lean();
 
-    if (dbParts.length > 0) {
-      return dbParts.map(p => ({ ...p, _id: p._id.toString() }));
-    }
-  } catch (err) {}
-
-  return DEFAULT_PARTS.filter(p => p._id !== excludeId && p.brand.toLowerCase() === brand?.toLowerCase()).slice(0, 4);
+    return dbParts.map(p => ({ ...p, _id: p._id.toString() }));
+  } catch (err) {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }) {

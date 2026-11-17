@@ -39,7 +39,7 @@ export default function ComingSoonPage() {
                 Coming Back Soon
               </h2>
               <p className="text-sm text-black/60 leading-relaxed max-w-md mx-auto">
-                Hum is section ko upgrade kar rahe hain taaki aapko aur bhi behtar features aur options mil sakein.
+                We are actively upgrading this catalog section to bring you certified laptops and verified accessories with full AI quality checks.
               </p>
             </div>
 

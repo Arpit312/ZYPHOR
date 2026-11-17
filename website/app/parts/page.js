@@ -24,7 +24,15 @@ const PART_SECTIONS = [
 
 const BRANDS = ["Apple", "Samsung", "OnePlus", "Xiaomi", "Realme", "Vivo", "Oppo"];
 
+// In-memory 15s micro-cache for instantaneous spare parts navigation
+let _partsCache = { key: "", data: null, expiresAt: 0 };
+
 async function getParts(searchParams) {
+  const cacheKey = JSON.stringify(searchParams || {});
+  const now = Date.now();
+  if (_partsCache.data && _partsCache.key === cacheKey && _partsCache.expiresAt > now) {
+    return _partsCache.data;
+  }
   let dbParts = [];
   try {
     await connectDB();
@@ -52,26 +60,10 @@ async function getParts(searchParams) {
     console.error("DB Parts Error:", err);
   }
 
-  // If DB returns items, return them
-  if (dbParts && dbParts.length > 0) {
-    return dbParts.map(p => ({ ...p, _id: p._id.toString() }));
-  }
-
-  // Fallback to DEFAULT_PARTS with filtering
-  let fallback = DEFAULT_PARTS;
-
-  if (searchParams?.cat && searchParams.cat !== "all") {
-    fallback = fallback.filter(p => p.partCategory === searchParams.cat);
-  }
-  if (searchParams?.brand) {
-    fallback = fallback.filter(p => p.brand.toLowerCase().includes(searchParams.brand.toLowerCase()));
-  }
-  if (searchParams?.q) {
-    const q = searchParams.q.toLowerCase();
-    fallback = fallback.filter(p => p.title.toLowerCase().includes(q) || p.model.toLowerCase().includes(q));
-  }
-
-  return fallback;
+  // Return real database parts
+  const formatted = dbParts.map(p => ({ ...p, _id: p._id.toString() }));
+  _partsCache = { key: cacheKey, data: formatted, expiresAt: now + 15000 };
+  return formatted;
 }
 
 export default async function PartsPage({ searchParams }) {

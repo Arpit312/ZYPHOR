@@ -5,24 +5,31 @@ import { authAPI, setUnauthorizedHandler } from "../api/api";
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState({ id: 'dummy', name: 'Test User', role: 'retailer', email: 'test@example.com' });
-  const [loading, setLoading] = useState(false);
-  // Set right after signup when the new account is a seller role that must
-  // pick a plan before listing. RootNavigator consumes this once to redirect
-  // straight to the Subscription screen after the fresh Tab navigator mounts.
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [needsSubscription, setNeedsSubscription] = useState(false);
   const clearNeedsSubscription = () => setNeedsSubscription(false);
 
   useEffect(() => {
-    // If any API call comes back 401 (expired/invalid token), keep mock user
-    setUnauthorizedHandler(() => setUser({ id: 'dummy', name: 'Test User', role: 'retailer', email: 'test@example.com' }));
+    // When 401 occurs, clear session
+    setUnauthorizedHandler(() => {
+      setUser(null);
+    });
 
     (async () => {
       try {
-        const stored = await AsyncStorage.getItem("user");
-        if (stored) setUser(JSON.parse(stored));
-      } catch {}
-      finally { setLoading(false); }
+        const storedUser = await AsyncStorage.getItem("user");
+        const token = await AsyncStorage.getItem("token");
+        if (storedUser && token) {
+          setUser(JSON.parse(storedUser));
+        } else {
+          setUser(null);
+        }
+      } catch {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
     })();
   }, []);
 
@@ -54,8 +61,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    await AsyncStorage.multiRemove(["token","user"]);
-    setUser({ id: 'dummy', name: 'Test User', role: 'retailer', email: 'test@example.com' });
+    await AsyncStorage.multiRemove(["token", "user"]);
+    setUser(null);
   };
 
   const updateUser = async (updates) => {
