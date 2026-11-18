@@ -176,7 +176,8 @@ export default function ProductsClient({ initialProducts }) {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
               <th className="p-4 pl-5 font-bold text-[10px] uppercase tracking-wider text-gray-500">Product / Details</th>
@@ -267,6 +268,7 @@ export default function ProductsClient({ initialProducts }) {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* EDIT MODAL */}

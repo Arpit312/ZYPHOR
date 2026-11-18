@@ -108,7 +108,7 @@ export default function AddProductPage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 space-y-6">
+      <form onSubmit={handleSubmit} className="bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-gray-200 space-y-6">
         
         {/* IMAGE UPLOAD SECTION */}
         <div>

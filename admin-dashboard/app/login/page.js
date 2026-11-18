@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
     <div className="min-h-screen w-full bg-[#050608] text-white flex flex-col lg:flex-row select-none">
       
       {/* ─── LEFT BRAND & GOVERNANCE CANVAS (Desktop 58%) ─── */}
-      <div className="relative flex-1 bg-gradient-to-br from-[#090A0F] via-[#050608] to-[#040405] p-8 sm:p-12 lg:p-16 flex flex-col justify-between overflow-hidden border-b lg:border-b-0 lg:border-r border-gray-800/60">
+      <div className="relative flex-1 bg-gradient-to-br from-[#090A0F] via-[#050608] to-[#040405] p-6 sm:p-10 lg:p-16 flex flex-col justify-between overflow-hidden border-b lg:border-b-0 lg:border-r border-gray-800/60">
         
         {/* Subtle Ambient Background Gradients & Grid */}
         <div 
@@ -155,7 +155,7 @@ export default function AdminLoginPage() {
       </div>
 
       {/* ─── RIGHT LOGIN PORTAL (Desktop 42%) ─── */}
-      <div className="w-full lg:w-[480px] xl:w-[540px] bg-[#0A0B10] p-8 sm:p-12 lg:p-16 flex flex-col justify-center relative shadow-2xl">
+      <div className="w-full lg:w-[480px] xl:w-[540px] bg-[#0A0B10] p-6 sm:p-10 lg:p-16 flex flex-col justify-center relative shadow-2xl">
         <div className="max-w-md w-full mx-auto space-y-8">
           
           {/* Header */}

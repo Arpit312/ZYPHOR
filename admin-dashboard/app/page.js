@@ -100,37 +100,37 @@ export default async function DashboardOverview() {
   return (
     <div className="space-y-8">
       {/* HEADER WITH REALTIME STATUS */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-6 rounded-3xl border border-gray-200 shadow-sm">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-200 shadow-sm">
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-black animate-pulse"></span>
             <span className="text-xs font-bold text-gray-900 tracking-wider uppercase">Live Master Synchronized</span>
           </div>
-          <h2 className="text-2xl lg:text-3xl font-black text-black tracking-tight mt-1">Master Commerce Governance</h2>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-black tracking-tight mt-1">Master Commerce Governance</h2>
           <p className="text-xs text-gray-500 mt-0.5 font-medium">
             Real-time commerce management, catalog verification, doorstep repairs, and multi-role marketplace control.
           </p>
         </div>
 
         {/* QUICK SHORTCUTS */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 w-full lg:w-auto">
           <Link
             href="/products/upload"
-            className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-800 px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-sm transition-all"
+            className="flex-1 sm:flex-none justify-center bg-white border border-gray-300 hover:bg-gray-50 text-gray-800 px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-sm transition-all"
           >
             <UploadCloud size={16} className="text-gray-700" /> Bulk Import CSV
           </Link>
           <Link
             href="/products/add"
-            className="bg-black hover:bg-gray-800 text-white px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-sm transition-all"
+            className="flex-1 sm:flex-none justify-center bg-black hover:bg-gray-800 text-white px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-sm transition-all"
           >
-            <Package size={16} /> + Add Catalog Item
+            <Package size={16} /> + Add Product
           </Link>
           <Link
             href="/logins"
-            className="bg-gray-100 hover:bg-gray-200 text-black border border-gray-300 px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-sm transition-all"
+            className="w-full sm:w-auto justify-center bg-gray-100 hover:bg-gray-200 text-black border border-gray-300 px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-sm transition-all"
           >
-            <KeyRound size={16} className="text-gray-800" /> Login Management
+            <KeyRound size={16} className="text-gray-800" /> Login Governance
           </Link>
         </div>
       </div>
