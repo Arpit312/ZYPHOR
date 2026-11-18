@@ -8,53 +8,17 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Modal,
-  Animated,
-  FlatList
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import T from "../../styles/theme";
 import { Btn, Input } from "../../components/UI";
 import { useAuth } from "../../context/AuthContext";
 
 const ROLES = [
-  {
-    value: "customer",
-    label: "Customer",
-    icon: "person-outline",
-    desc: "Buy phones freely",
-    color: "#10B981",
-    bgColor: "#10B98120",
-    borderColor: "#10B98180"
-  },
-  {
-    value: "retailer",
-    label: "Retailer",
-    icon: "storefront-outline",
-    desc: "Sell & earn money",
-    color: "#3B82F6",
-    bgColor: "#3B82F620",
-    borderColor: "#3B82F680"
-  },
-  {
-    value: "wholesaler",
-    label: "Wholesaler",
-    icon: "cube-outline",
-    desc: "Bulk sales",
-    color: "#F59E0B",
-    bgColor: "#F59E0B20",
-    borderColor: "#F59E0B80"
-  },
-  {
-    value: "technician",
-    label: "Technician",
-    icon: "construct-outline",
-    desc: "Parts & repair",
-    color: "#8B5CF6",
-    bgColor: "#8B5CF620",
-    borderColor: "#8B5CF680"
-  }
+  { value: "customer", label: "Customer", icon: "person-outline", desc: "Buy Certified Phones" },
+  { value: "retailer", label: "Retailer", icon: "storefront-outline", desc: "Sell & Earn" },
+  { value: "wholesaler", label: "Wholesaler", icon: "cube-outline", desc: "Bulk Lots" },
+  { value: "technician", label: "Technician", icon: "construct-outline", desc: "Parts & Service" },
 ];
 
 export default function LoginScreen({ navigation }) {
@@ -64,15 +28,13 @@ export default function LoginScreen({ navigation }) {
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [showRoleModal, setShowRoleModal] = useState(false);
-  const [scaleAnim] = useState(new Animated.Value(0));
   const { login } = useAuth();
 
-  const selectedRoleObj = ROLES.find(r => r.value === selectedRole);
+  const selectedRoleObj = ROLES.find((r) => r.value === selectedRole);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      setError("Fill all fields");
+      setError("Please fill in your email and password");
       return;
     }
     setLoading(true);
@@ -82,122 +44,66 @@ export default function LoginScreen({ navigation }) {
     if (!r.success) setError(r.message);
   };
 
-  const handleSelectRole = (role) => {
-    setSelectedRole(role);
-    setShowRoleModal(false);
-  };
-
-  // Animate modal entrance
-  React.useEffect(() => {
-    if (showRoleModal) {
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        useNativeDriver: true,
-        speed: 12
-      }).start();
-    } else {
-      scaleAnim.setValue(0);
-    }
-  }, [showRoleModal]);
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.root}
     >
-      <ScrollView contentContainerStyle={styles.scroll} bounces={false}>
-        {/* Gradient Header */}
-        <LinearGradient
-          colors={["#0B1220", "#16233D", "#1F2937"]}
-          style={styles.hero}
-        >
-          <View style={styles.logoRow}>
-            <View style={[styles.logoBg, { padding: 4 }]}>
-              <Image 
-                source={require("../../../assets/symbol-white.png")} 
-                style={{ width: 34, height: 34 }} 
-                resizeMode="contain" 
-              />
-            </View>
-            <Text style={styles.logo}>ZYPHOR</Text>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        {/* Editorial Top Brand Header (Mōnolith Aesthetic) */}
+        <View style={styles.brandContainer}>
+          <View style={styles.symbolWrap}>
+            <Image
+              source={require("../../../assets/symbol-white.png")}
+              style={styles.symbolImg}
+              resizeMode="contain"
+            />
           </View>
-          <Text style={styles.tagline}>India's most trusted phone marketplace</Text>
-        </LinearGradient>
+          <Text style={styles.brandTitle}>ZYPHOR</Text>
+          <Text style={styles.brandSubtitle}>
+            Certified refurbished smartphones & precision electronics. Objects verified not just to perform, but to define intentional living.
+          </Text>
+        </View>
 
-        {/* Form Container */}
-        <View style={styles.form}>
-          <Text style={styles.heading}>Welcome back</Text>
-          <Text style={styles.subheading}>Log in with your role</Text>
+        {/* Role Selection Pills */}
+        <View style={styles.roleContainer}>
+          <Text style={styles.sectionHeading}>Account Type</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.roleScroll}>
+            {ROLES.map((r) => {
+              const active = selectedRole === r.value;
+              return (
+                <TouchableOpacity
+                  key={r.value}
+                  onPress={() => setSelectedRole(r.value)}
+                  style={[styles.rolePill, active && styles.rolePillActive]}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons
+                    name={r.icon}
+                    size={15}
+                    color={active ? "#FFFFFF" : T.text.secondary}
+                  />
+                  <Text style={[styles.rolePillText, active && styles.rolePillTextActive]}>
+                    {r.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
 
-          {/* Error Message */}
+        {/* Form Body */}
+        <View style={styles.formCard}>
           {error ? (
             <View style={styles.errorBox}>
-              <Ionicons name="alert-circle" size={16} color={T.red} />
+              <Ionicons name="alert-circle-outline" size={16} color={T.red} />
               <Text style={styles.errorText}>{error}</Text>
             </View>
           ) : null}
 
-          {/* Role Selection - TAB STYLE */}
-          <View style={styles.roleSectionLabel}>
-            <Text style={styles.roleLabelText}>Select Your Role</Text>
-            <Text style={styles.roleSubText}>Choose to continue</Text>
-          </View>
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.roleScroll}
-            scrollEventThrottle={16}
-          >
-            {ROLES.map((role) => (
-              <TouchableOpacity
-                key={role.value}
-                style={[
-                  styles.roleTab,
-                  selectedRole === role.value
-                    ? [
-                        styles.roleTabActive,
-                        { borderBottomColor: role.color, backgroundColor: role.bgColor }
-                      ]
-                    : styles.roleTabInactive
-                ]}
-                onPress={() => handleSelectRole(role.value)}
-                activeOpacity={0.7}
-              >
-                <View
-                  style={[
-                    styles.roleTabIcon,
-                    { backgroundColor: role.bgColor, borderColor: role.color }
-                  ]}
-                >
-                  <Ionicons
-                    name={role.icon}
-                    size={24}
-                    color={role.color}
-                  />
-                </View>
-                <Text
-                  style={[
-                    styles.roleTabLabel,
-                    selectedRole === role.value && { color: role.color, fontWeight: "700" }
-                  ]}
-                >
-                  {role.label}
-                </Text>
-                <Text style={styles.roleTabDesc}>{role.desc}</Text>
-
-                {/* Active Indicator */}
-                {selectedRole === role.value && (
-                  <View style={[styles.activeIndicator, { backgroundColor: role.color }]} />
-                )}
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-
-          {/* Email Input */}
           <Input
-            label="Email Address"
-            placeholder="you@example.com"
+            label="Email address"
+            placeholder="name@example.com"
             value={email}
             onChangeText={setEmail}
             icon="mail-outline"
@@ -206,30 +112,25 @@ export default function LoginScreen({ navigation }) {
             editable={!loading}
           />
 
-          {/* Password Input */}
           <Input
             label="Password"
-            placeholder="Min. 8 characters"
+            placeholder="Enter password"
             value={password}
             onChangeText={setPassword}
             icon="lock-closed-outline"
             secureTextEntry={!showPwd}
             editable={!loading}
             right={
-              <TouchableOpacity
-                onPress={() => setShowPwd((v) => !v)}
-                disabled={loading}
-              >
+              <TouchableOpacity onPress={() => setShowPwd((v) => !v)} disabled={loading}>
                 <Ionicons
                   name={showPwd ? "eye-off-outline" : "eye-outline"}
                   size={18}
-                  color={T.text.muted}
+                  color={T.text.secondary}
                 />
               </TouchableOpacity>
             }
           />
 
-          {/* Forgot Password */}
           <TouchableOpacity
             style={styles.forgotBtn}
             onPress={() => navigation.navigate("ForgotPassword")}
@@ -237,404 +138,139 @@ export default function LoginScreen({ navigation }) {
             <Text style={styles.forgotText}>Forgot password?</Text>
           </TouchableOpacity>
 
-          {/* Login Button */}
           <Btn
             title={`Sign in as ${selectedRoleObj?.label}`}
             onPress={handleLogin}
             loading={loading}
             icon="arrow-forward"
-            style={{ marginTop: 12 }}
+            style={{ marginTop: 8 }}
           />
 
           {/* Divider */}
           <View style={styles.divider}>
             <View style={styles.divLine} />
-            <Text style={styles.divText}>OR</Text>
+            <Text style={styles.divText}>or</Text>
             <View style={styles.divLine} />
           </View>
 
-          {/* Sign Up Button */}
+          {/* Create Account Link */}
           <TouchableOpacity
             style={styles.signupBtn}
             onPress={() => navigation.navigate("Signup")}
             disabled={loading}
           >
             <Text style={styles.signupText}>
-              New here?{" "}
-              <Text style={styles.signupLink}>Create account</Text>
+              New to ZYPHOR? <Text style={styles.signupLink}>Create account</Text>
             </Text>
           </TouchableOpacity>
+        </View>
 
-          {/* Cross Platform Info */}
-          <View style={styles.crossPlatformBox}>
-            <Ionicons name="globe-outline" size={14} color={T.green} />
-            <Text style={styles.crossText}>
-              Same login works on{" "}
-              <Text style={{ color: T.green, fontWeight: "700" }}>zyphor.in</Text>{" "}
-              website
-            </Text>
-          </View>
+        {/* Footer Note */}
+        <View style={styles.footerNote}>
+          <Ionicons name="shield-checkmark-outline" size={14} color={T.text.secondary} />
+          <Text style={styles.footerNoteText}>
+            Universal Account: Sign in to both Web & Mobile App
+          </Text>
         </View>
       </ScrollView>
-
-      {/* Role Selection Modal (Alternative - Optional) */}
-      <Modal
-        visible={showRoleModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowRoleModal(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowRoleModal(false)}
-        >
-          <Animated.View
-            style={[
-              styles.modalContent,
-              {
-                transform: [
-                  {
-                    scale: scaleAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0.5, 1]
-                    })
-                  }
-                ]
-              }
-            ]}
-          >
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Your Role</Text>
-              <TouchableOpacity
-                onPress={() => setShowRoleModal(false)}
-                style={styles.modalCloseBtn}
-              >
-                <Ionicons name="close" size={24} color={T.text.primary} />
-              </TouchableOpacity>
-            </View>
-
-            <FlatList
-              data={ROLES}
-              keyExtractor={(item) => item.value}
-              scrollEnabled={false}
-              renderItem={({ item: role }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.modalRoleItem,
-                    selectedRole === role.value && {
-                      backgroundColor: role.bgColor,
-                      borderLeftColor: role.color,
-                      borderLeftWidth: 4
-                    }
-                  ]}
-                  onPress={() => handleSelectRole(role.value)}
-                  activeOpacity={0.7}
-                >
-                  <View
-                    style={[
-                      styles.modalRoleIcon,
-                      { backgroundColor: role.bgColor }
-                    ]}
-                  >
-                    <Ionicons
-                      name={role.icon}
-                      size={24}
-                      color={role.color}
-                    />
-                  </View>
-                  <View style={styles.modalRoleText}>
-                    <Text style={styles.modalRoleLabel}>{role.label}</Text>
-                    <Text style={styles.modalRoleDesc}>{role.desc}</Text>
-                  </View>
-                  {selectedRole === role.value && (
-                    <View style={[styles.checkmark, { backgroundColor: role.color }]}>
-                      <Ionicons name="checkmark" size={16} color="#fff" />
-                    </View>
-                  )}
-                </TouchableOpacity>
-              )}
-            />
-          </Animated.View>
-        </TouchableOpacity>
-      </Modal>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: T.bg.primary },
-  scroll: { flexGrow: 1 },
+  root: { flex: 1, backgroundColor: "#FFFFFF" },
+  scroll: { paddingHorizontal: 24, paddingTop: 60, paddingBottom: 40 },
 
-  /* Header */
-  hero: {
-    paddingTop: 64,
-    paddingBottom: 40,
-    paddingHorizontal: 24,
-    alignItems: "center",
-    gap: 12
-  },
-  logoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10
-  },
-  logoBg: {
-    width: 48,
-    height: 48,
+  brandContainer: { marginBottom: 28 },
+  symbolWrap: {
+    width: 44,
+    height: 44,
     borderRadius: 12,
-    backgroundColor: "rgba(255,255,255,0.1)",
+    backgroundColor: T.primary,
+    alignItems: "center",
     justifyContent: "center",
-    alignItems: "center"
-  },
-  logo: {
-    fontSize: 28,
-    fontWeight: "900",
-    color: "#fff",
-    letterSpacing: 2
-  },
-  tagline: {
-    fontSize: 13,
-    color: "rgba(255,255,255,0.5)",
-    textAlign: "center"
-  },
-
-  /* Form */
-  form: {
-    flex: 1,
-    backgroundColor: T.bg.primary,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    marginTop: -16,
-    padding: 24
-  },
-  heading: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: T.text.primary,
-    marginBottom: 4
-  },
-  subheading: {
-    fontSize: 13,
-    color: T.text.muted,
     marginBottom: 16
   },
+  symbolImg: { width: 24, height: 24 },
+  brandTitle: {
+    fontSize: 42,
+    fontWeight: "900",
+    color: T.text.primary,
+    letterSpacing: -1,
+    lineHeight: 46
+  },
+  brandSubtitle: {
+    fontSize: 14,
+    color: T.text.secondary,
+    lineHeight: 22,
+    marginTop: 10,
+    fontWeight: "400"
+  },
 
-  /* Error Box */
+  roleContainer: { marginBottom: 20 },
+  sectionHeading: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: T.text.secondary,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    marginBottom: 10
+  },
+  roleScroll: { gap: 8 },
+  rolePill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 999,
+    backgroundColor: T.bg.secondary,
+    borderWidth: 1,
+    borderColor: T.border.color
+  },
+  rolePillActive: {
+    backgroundColor: T.primary,
+    borderColor: T.primary
+  },
+  rolePillText: { fontSize: 13, fontWeight: "600", color: T.text.secondary },
+  rolePillTextActive: { color: "#FFFFFF" },
+
+  formCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: T.border.color,
+    padding: 20,
+    ...T.shadow.card
+  },
   errorBox: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: T.red + "15",
+    backgroundColor: "#FEE2E2",
     borderRadius: 10,
     padding: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: T.red + "30"
+    marginBottom: 14
   },
-  errorText: {
-    fontSize: 13,
-    color: T.red,
-    flex: 1
-  },
+  errorText: { fontSize: 13, color: T.red, flex: 1, fontWeight: "500" },
 
-  /* Role Selection */
-  roleSectionLabel: {
-    marginBottom: 12,
-    marginTop: 8
-  },
-  roleLabelText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: T.text.primary
-  },
-  roleSubText: {
-    fontSize: 11,
-    color: T.text.muted,
-    marginTop: 2
-  },
-  roleScroll: {
-    paddingHorizontal: 0,
-    gap: 10,
-    marginBottom: 20
-  },
-  roleTab: {
-    width: 90,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderRadius: 14,
+  forgotBtn: { alignSelf: "flex-end", marginBottom: 12, marginTop: -4 },
+  forgotText: { fontSize: 12, color: T.text.secondary, fontWeight: "500" },
+
+  divider: { flexDirection: "row", alignItems: "center", marginVertical: 18 },
+  divLine: { flex: 1, height: 1, backgroundColor: T.border.color },
+  divText: { marginHorizontal: 12, fontSize: 12, color: T.text.secondary, textTransform: "lowercase" },
+
+  signupBtn: { alignItems: "center", paddingVertical: 6 },
+  signupText: { fontSize: 14, color: T.text.secondary },
+  signupLink: { color: T.text.primary, fontWeight: "700" },
+
+  footerNote: {
+    flexDirection: "row",
     alignItems: "center",
-    borderBottomWidth: 3,
-    borderBottomColor: "transparent",
-    backgroundColor: T.bg.card,
-    borderWidth: 1,
-    borderColor: T.border.color
-  },
-  roleTabActive: {
-    borderBottomWidth: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3
-  },
-  roleTabInactive: {
-    opacity: 0.6
-  },
-  roleTabIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
     justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 6,
-    borderWidth: 1
+    gap: 6,
+    marginTop: 24
   },
-  roleTabLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: T.text.primary,
-    marginBottom: 2,
-    textAlign: "center"
-  },
-  roleTabDesc: {
-    fontSize: 10,
-    color: T.text.muted,
-    textAlign: "center"
-  },
-  activeIndicator: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    marginTop: 6
-  },
-
-  /* Forgot Password */
-  forgotBtn: {
-    alignSelf: "flex-end",
-    marginBottom: 12
-  },
-  forgotText: {
-    fontSize: 12,
-    color: T.green,
-    fontWeight: "600"
-  },
-
-  /* Divider */
-  divider: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginVertical: 16
-  },
-  divLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: T.border.color
-  },
-  divText: {
-    fontSize: 12,
-    color: T.text.muted,
-    fontWeight: "600"
-  },
-
-  /* Sign Up Button */
-  signupBtn: {
-    alignItems: "center",
-    paddingVertical: 12
-  },
-  signupText: {
-    fontSize: 14,
-    color: T.text.secondary
-  },
-  signupLink: {
-    color: T.primary,
-    fontWeight: "700"
-  },
-
-  /* Cross Platform Info */
-  crossPlatformBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: T.green + "10",
-    borderRadius: 10,
-    padding: 12,
-    marginTop: 16,
-    borderWidth: 1,
-    borderColor: T.green + "20"
-  },
-  crossText: {
-    fontSize: 12,
-    color: T.text.muted,
-    flex: 1
-  },
-
-  /* Modal */
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "flex-end"
-  },
-  modalContent: {
-    backgroundColor: T.bg.primary,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingTop: 20,
-    paddingBottom: 32,
-    maxHeight: "80%"
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 24,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: T.border.color
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: T.text.primary
-  },
-  modalCloseBtn: {
-    padding: 4
-  },
-  modalRoleItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: T.border.color
-  },
-  modalRoleIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center"
-  },
-  modalRoleText: {
-    flex: 1
-  },
-  modalRoleLabel: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: T.text.primary
-  },
-  modalRoleDesc: {
-    fontSize: 11,
-    color: T.text.muted,
-    marginTop: 2
-  },
-  checkmark: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center"
-  }
+  footerNoteText: { fontSize: 12, color: T.text.secondary }
 });

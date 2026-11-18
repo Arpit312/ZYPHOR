@@ -37,11 +37,11 @@ const Tab = createBottomTabNavigator();
 const navigationRef = createNavigationContainerRef();
 
 const SCREEN_OPT = {
-  headerStyle: { backgroundColor: T.bg.secondary },
+  headerStyle: { backgroundColor: "#FFFFFF" },
   headerTintColor: T.primary,
-  headerTitleStyle: { fontWeight: "700", color: T.text.primary },
+  headerTitleStyle: { fontWeight: "700", color: T.text.primary, fontSize: 16 },
   headerShadowVisible: false,
-  contentStyle: { backgroundColor: T.bg.primary },
+  contentStyle: { backgroundColor: "#FFFFFF" },
 };
 
 // Common E-Commerce Stacks accessible everywhere
@@ -118,20 +118,22 @@ function TabNavigator() {
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarActiveTintColor: T.primary,
-        tabBarInactiveTintColor: T.text.muted,
+        tabBarInactiveTintColor: "#8E8E93",
         tabBarStyle: {
-          backgroundColor: T.bg.secondary,
+          backgroundColor: "#FFFFFF",
           borderTopColor: T.border.color,
           borderTopWidth: 1,
           paddingBottom: 6,
-          paddingTop: 4,
-          height: 62,
+          paddingTop: 6,
+          height: 64,
+          elevation: 0,
+          shadowOpacity: 0,
         },
-        tabBarLabelStyle: { fontSize: 10, fontWeight: "600" },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: "600", marginTop: -2 },
         tabBarIcon: ({ color, size, focused }) => {
           const icons = {
             Home: focused ? "home" : "home-outline",
-            Browse: focused ? "phone-portrait" : "phone-portrait-outline",
+            Browse: focused ? "grid" : "grid-outline",
             Repair: focused ? "construct" : "construct-outline",
             Sell: focused ? "add-circle" : "add-circle-outline",
             Account: focused ? "person" : "person-outline",
@@ -187,7 +189,7 @@ function RootNavigator() {
   }
   return (
     <NavigationContainer ref={navigationRef}>
-      <StatusBar barStyle="light-content" backgroundColor={T.bg.primary} />
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       {user ? <TabNavigator /> : <AuthStack />}
     </NavigationContainer>
   );

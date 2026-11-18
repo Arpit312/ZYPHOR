@@ -11,9 +11,7 @@ export default function CartScreen({ navigation }) {
   const { user } = useAuth();
 
   const deliveryFee = 0; // Free delivery
-  const escrowFee = 0;   // Free escrow protection
-  const totalPayable = cartSubtotal + deliveryFee + escrowFee;
-  const estimatedSavings = Math.round(cartSubtotal * 0.25);
+  const totalPayable = cartSubtotal + deliveryFee;
 
   const handleCheckout = () => {
     if (!user) {
@@ -22,7 +20,7 @@ export default function CartScreen({ navigation }) {
         "Please login to proceed with your order and unlock Escrow protection.",
         [
           { text: "Cancel", style: "cancel" },
-          { text: "Login", onPress: () => navigation.navigate("Login") }
+          { text: "Login", onPress: () => navigation.navigate("Login") },
         ]
       );
       return;
@@ -34,25 +32,18 @@ export default function CartScreen({ navigation }) {
     return (
       <View style={styles.emptyContainer}>
         <View style={styles.emptyIconCircle}>
-          <Ionicons name="cart-outline" size={48} color={T.text.muted} />
+          <Ionicons name="bag-outline" size={44} color={T.text.secondary} />
         </View>
-        <Text style={styles.emptyTitle}>Your Cart is Empty</Text>
+        <Text style={styles.emptyTitle}>Your Bag is Empty</Text>
         <Text style={styles.emptySub}>
-          Explore AI-verified phones and original spare parts with verified trust scores.
+          Explore certified refurbished smartphones and OEM spare parts with 12 months comprehensive warranty.
         </Text>
         <View style={styles.emptyActions}>
           <Btn
-            title="Browse Phones"
+            title="Browse Devices"
             onPress={() => navigation.navigate("Browse", { screen: "Marketplace" })}
             icon="phone-portrait-outline"
             style={{ width: 170 }}
-          />
-          <Btn
-            title="Spare Parts"
-            variant="secondary"
-            onPress={() => navigation.navigate("Browse", { screen: "Parts" })}
-            icon="construct-outline"
-            style={{ width: 150 }}
           />
         </View>
       </View>
@@ -61,27 +52,27 @@ export default function CartScreen({ navigation }) {
 
   return (
     <View style={styles.root}>
-      {/* Header */}
+      {/* Editorial Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={22} color={T.text.primary} />
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} activeOpacity={0.7}>
+          <Ionicons name="arrow-back" size={20} color={T.primary} />
         </TouchableOpacity>
         <View style={{ flex: 1, marginLeft: 12 }}>
-          <Text style={styles.headerTitle}>Shopping Cart</Text>
-          <Text style={styles.headerSub}>{cartCount} {cartCount === 1 ? "item" : "items"} selected</Text>
+          <Text style={styles.headerTitle}>Shopping Bag</Text>
+          <Text style={styles.headerSub}>{cartCount} {cartCount === 1 ? "device" : "devices"} selected</Text>
         </View>
-        <TouchableOpacity onPress={clearCart} style={styles.clearBtn}>
+        <TouchableOpacity onPress={clearCart} style={styles.clearBtn} activeOpacity={0.7}>
           <Text style={styles.clearText}>Clear</Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-        {/* Buyer Protection Banner */}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 110 }}>
+        {/* Buyer Protection Guarantee */}
         <View style={styles.guaranteeBanner}>
-          <Ionicons name="shield-checkmark" size={20} color={T.green} />
+          <Ionicons name="shield-checkmark-outline" size={18} color={T.primary} />
           <View style={{ flex: 1, marginLeft: 10 }}>
             <Text style={styles.guaranteeTitle}>ZYPHOR 100% Escrow Protection</Text>
-            <Text style={styles.guaranteeText}>Payment held securely until you inspect & confirm delivery.</Text>
+            <Text style={styles.guaranteeText}>Payment is held in escrow until you inspect & confirm delivery.</Text>
           </View>
         </View>
 
@@ -93,46 +84,48 @@ export default function CartScreen({ navigation }) {
               <View key={item.id} style={styles.cartCard}>
                 <View style={styles.itemImgWrap}>
                   {item.image ? (
-                    <Image source={{ uri: item.image }} style={styles.itemImg} resizeMode="cover" />
+                    <Image source={{ uri: item.image }} style={styles.itemImg} resizeMode="contain" />
                   ) : (
-                    <Ionicons name="phone-portrait-outline" size={32} color={T.text.muted} />
+                    <Ionicons name="phone-portrait-outline" size={30} color={T.text.secondary} />
                   )}
                 </View>
 
                 <View style={styles.itemDetails}>
                   <View style={styles.itemTopRow}>
-                    <Text style={styles.itemTitle} numberOfLines={1}>{item.title}</Text>
-                    <TouchableOpacity onPress={() => removeFromCart(item.id)} style={styles.trashBtn}>
-                      <Ionicons name="trash-outline" size={16} color={T.red} />
+                    <Text style={styles.itemTitle} numberOfLines={1}>
+                      {item.brand} {item.model}
+                    </Text>
+                    <TouchableOpacity onPress={() => removeFromCart(item.id)} style={styles.trashBtn} activeOpacity={0.7}>
+                      <Ionicons name="close" size={18} color={T.text.secondary} />
                     </TouchableOpacity>
                   </View>
 
-                  <Text style={styles.itemSpecs}>
-                    {item.conditionGrade || "Verified"} • {item.storage || item.listingType}
+                  <Text style={styles.itemSpecs} numberOfLines={1}>
+                    {item.storage || item.category || "Certified Pristine"}
                   </Text>
 
                   <View style={styles.itemBottomRow}>
                     <View style={styles.itemPrices}>
-                      <Text style={styles.itemPrice}>₹{item.price?.toLocaleString("en-IN")}</Text>
+                      <Text style={styles.itemPrice}>₹{Number(item.price).toLocaleString("en-IN")}</Text>
                       {orig > item.price && (
-                        <Text style={styles.itemOrig}>₹{orig?.toLocaleString("en-IN")}</Text>
+                        <Text style={styles.itemOrig}>₹{orig.toLocaleString("en-IN")}</Text>
                       )}
                     </View>
 
-                    {/* Quantity controls */}
+                    {/* Quantity Controls */}
                     <View style={styles.qtyControl}>
                       <TouchableOpacity
-                        onPress={() => updateQuantity(item.id, item.quantity - 1)}
+                        onPress={() => updateQuantity(item.id, (item.quantity || 1) - 1)}
                         style={styles.qtyBtn}
                       >
-                        <Ionicons name="remove" size={14} color={T.text.primary} />
+                        <Ionicons name="remove" size={14} color={T.primary} />
                       </TouchableOpacity>
-                      <Text style={styles.qtyVal}>{item.quantity}</Text>
+                      <Text style={styles.qtyVal}>{item.quantity || 1}</Text>
                       <TouchableOpacity
-                        onPress={() => updateQuantity(item.id, item.quantity + 1)}
+                        onPress={() => updateQuantity(item.id, (item.quantity || 1) + 1)}
                         style={styles.qtyBtn}
                       >
-                        <Ionicons name="add" size={14} color={T.text.primary} />
+                        <Ionicons name="add" size={14} color={T.primary} />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -142,51 +135,39 @@ export default function CartScreen({ navigation }) {
           })}
         </View>
 
-        {/* Bill Summary */}
+        {/* Order Summary Card */}
         <View style={styles.billCard}>
-          <Text style={styles.billHeader}>Bill Summary</Text>
-
+          <Text style={styles.billHeader}>Order Summary</Text>
           <View style={styles.billRow}>
-            <Text style={styles.billLabel}>Item Total ({cartCount} items)</Text>
-            <Text style={styles.billVal}>₹{cartSubtotal?.toLocaleString("en-IN")}</Text>
+            <Text style={styles.billLabel}>Bag Subtotal</Text>
+            <Text style={styles.billVal}>₹{cartSubtotal.toLocaleString("en-IN")}</Text>
           </View>
-
           <View style={styles.billRow}>
-            <Text style={styles.billLabel}>Delivery Fee</Text>
-            <Text style={[styles.billVal, { color: T.green }]}>FREE</Text>
+            <Text style={styles.billLabel}>Express Shipping</Text>
+            <Text style={[styles.billVal, { color: T.green }]}>Free</Text>
           </View>
-
           <View style={styles.billRow}>
-            <Text style={styles.billLabel}>Escrow Safety Guarantee</Text>
-            <Text style={[styles.billVal, { color: T.green }]}>INCLUDED</Text>
+            <Text style={styles.billLabel}>Escrow Protection Fee</Text>
+            <Text style={[styles.billVal, { color: T.green }]}>Included</Text>
           </View>
-
-          {estimatedSavings > 0 && (
-            <View style={styles.billRow}>
-              <Text style={styles.billLabel}>Total Savings on MRP</Text>
-              <Text style={[styles.billVal, { color: T.green }]}>-₹{estimatedSavings?.toLocaleString("en-IN")}</Text>
-            </View>
-          )}
-
           <View style={styles.divider} />
-
           <View style={styles.billRow}>
             <Text style={styles.totalLabel}>Total Payable</Text>
-            <Text style={styles.totalVal}>₹{totalPayable?.toLocaleString("en-IN")}</Text>
+            <Text style={styles.totalVal}>₹{totalPayable.toLocaleString("en-IN")}</Text>
           </View>
         </View>
       </ScrollView>
 
-      {/* Sticky Bottom Bar */}
+      {/* Docked Checkout Bar */}
       <View style={styles.bottomBar}>
         <View>
           <Text style={styles.bottomTotalLabel}>Total Amount</Text>
-          <Text style={styles.bottomTotalVal}>₹{totalPayable?.toLocaleString("en-IN")}</Text>
+          <Text style={styles.bottomTotalVal}>₹{totalPayable.toLocaleString("en-IN")}</Text>
         </View>
         <Btn
-          title="Checkout Now →"
+          title="Checkout →"
           onPress={handleCheckout}
-          style={{ minWidth: 180 }}
+          style={{ width: 170, borderRadius: 14 }}
         />
       </View>
     </View>
@@ -194,81 +175,115 @@ export default function CartScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: T.bg.primary },
+  root: { flex: 1, backgroundColor: "#FFFFFF" },
+
   header: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 20,
-    paddingTop: 50,
-    paddingBottom: 16,
-    backgroundColor: T.bg.secondary,
+    paddingTop: 54,
+    paddingBottom: 14,
+    backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
     borderBottomColor: T.border.color,
   },
-  backBtn: { padding: 4 },
-  headerTitle: { fontSize: 18, fontWeight: "800", color: T.text.primary },
-  headerSub: { fontSize: 11, color: T.text.muted, marginTop: 2 },
+  backBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: T.bg.secondary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerTitle: { fontSize: 20, fontWeight: "800", color: T.text.primary },
+  headerSub: { fontSize: 11, color: T.text.secondary, marginTop: 1 },
   clearBtn: { paddingHorizontal: 8, paddingVertical: 4 },
-  clearText: { color: T.red, fontSize: 12, fontWeight: "600" },
+  clearText: { color: T.text.secondary, fontSize: 12, fontWeight: "600" },
 
-  emptyContainer: { flex: 1, backgroundColor: T.bg.primary, alignItems: "center", justifyContent: "center", padding: 30 },
-  emptyIconCircle: { width: 90, height: 90, borderRadius: 45, backgroundColor: T.bg.card, alignItems: "center", justifyContent: "center", marginBottom: 20, borderWidth: 1, borderColor: T.border.color },
-  emptyTitle: { fontSize: 22, fontWeight: "800", color: T.text.primary, marginBottom: 8 },
-  emptySub: { fontSize: 13, color: T.text.muted, textAlign: "center", lineHeight: 20, marginBottom: 24 },
+  emptyContainer: { flex: 1, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center", padding: 32 },
+  emptyIconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: T.bg.secondary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: T.border.color,
+  },
+  emptyTitle: { fontSize: 22, fontWeight: "900", color: T.text.primary, marginBottom: 8 },
+  emptySub: { fontSize: 13, color: T.text.secondary, textAlign: "center", lineHeight: 20, marginBottom: 24 },
   emptyActions: { flexDirection: "row", gap: 12 },
 
   guaranteeBanner: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: T.green + "15",
+    backgroundColor: T.bg.secondary,
     borderWidth: 1,
-    borderColor: T.green + "33",
-    borderRadius: T.radius.lg,
+    borderColor: T.border.color,
+    borderRadius: 14,
     padding: 14,
-    marginHorizontal: 16,
+    marginHorizontal: 20,
     marginTop: 16,
   },
-  guaranteeTitle: { fontSize: 12, fontWeight: "700", color: T.green },
-  guaranteeText: { fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 2 },
+  guaranteeTitle: { fontSize: 12, fontWeight: "700", color: T.text.primary },
+  guaranteeText: { fontSize: 11, color: T.text.secondary, marginTop: 2 },
 
-  itemsList: { paddingHorizontal: 16, marginTop: 16, gap: 12 },
+  itemsList: { paddingHorizontal: 20, marginTop: 16, gap: 12 },
   cartCard: {
     flexDirection: "row",
-    backgroundColor: T.bg.card,
-    borderRadius: T.radius.lg,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
     padding: 12,
     borderWidth: 1,
     borderColor: T.border.color,
     alignItems: "center",
+    ...T.shadow.card,
   },
-  itemImgWrap: { width: 74, height: 74, borderRadius: T.radius.md, backgroundColor: T.bg.surface, overflow: "hidden", alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: T.border.color },
+  itemImgWrap: {
+    width: 74,
+    height: 74,
+    borderRadius: 12,
+    backgroundColor: T.bg.secondary,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 6,
+  },
   itemImg: { width: "100%", height: "100%" },
   itemDetails: { flex: 1, marginLeft: 12 },
   itemTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
   itemTitle: { fontSize: 14, fontWeight: "700", color: T.text.primary, flex: 1, marginRight: 8 },
   trashBtn: { padding: 4 },
-  itemSpecs: { fontSize: 11, color: T.text.muted, marginTop: 2, marginBottom: 8 },
+  itemSpecs: { fontSize: 11, color: T.text.secondary, marginTop: 2, marginBottom: 8 },
   itemBottomRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   itemPrices: { flexDirection: "row", alignItems: "baseline", gap: 6 },
   itemPrice: { fontSize: 15, fontWeight: "800", color: T.text.primary },
   itemOrig: { fontSize: 11, color: T.text.muted, textDecorationLine: "line-through" },
 
-  qtyControl: { flexDirection: "row", alignItems: "center", backgroundColor: T.bg.surface, borderRadius: 8, borderWidth: 1, borderColor: T.border.color },
-  qtyBtn: { width: 28, height: 28, alignItems: "center", justifyContent: "center" },
-  qtyVal: { fontSize: 13, fontWeight: "700", color: T.text.primary, paddingHorizontal: 6 },
+  qtyControl: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: T.bg.secondary,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: T.border.color,
+  },
+  qtyBtn: { width: 26, height: 26, alignItems: "center", justifyContent: "center" },
+  qtyVal: { fontSize: 12, fontWeight: "700", color: T.text.primary, paddingHorizontal: 6 },
 
   billCard: {
-    backgroundColor: T.bg.card,
-    borderRadius: T.radius.lg,
-    padding: 16,
-    marginHorizontal: 16,
+    backgroundColor: T.bg.secondary,
+    borderRadius: 18,
+    padding: 18,
+    marginHorizontal: 20,
     marginTop: 20,
     borderWidth: 1,
     borderColor: T.border.color,
   },
   billHeader: { fontSize: 15, fontWeight: "800", color: T.text.primary, marginBottom: 12 },
   billRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 8 },
-  billLabel: { fontSize: 12, color: T.text.secondary },
+  billLabel: { fontSize: 13, color: T.text.secondary },
   billVal: { fontSize: 13, fontWeight: "600", color: T.text.primary },
   divider: { height: 1, backgroundColor: T.border.color, marginVertical: 10 },
   totalLabel: { fontSize: 15, fontWeight: "800", color: T.text.primary },
@@ -282,12 +297,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: T.bg.secondary,
+    backgroundColor: "#FFFFFF",
     borderTopWidth: 1,
     borderTopColor: T.border.color,
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingVertical: 14,
+    paddingBottom: 28,
   },
-  bottomTotalLabel: { fontSize: 11, color: T.text.muted },
-  bottomTotalVal: { fontSize: 20, fontWeight: "900", color: T.text.primary, marginTop: 2 },
+  bottomTotalLabel: { fontSize: 11, color: T.text.secondary },
+  bottomTotalVal: { fontSize: 20, fontWeight: "900", color: T.text.primary, marginTop: 1 },
 });

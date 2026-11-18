@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import T from "../../styles/theme";
 import { useCart } from "../../context/CartContext";
@@ -8,17 +8,16 @@ import { ordersAPI } from "../../api/api";
 import { Input, Btn } from "../../components/UI";
 
 const PAYMENT_METHODS = [
-  { id: "upi", label: "Instant UPI (GPay, PhonePe, Paytm)", icon: "flash-outline", color: T.green },
-  { id: "card", label: "Credit / Debit Card (Visa, RuPay)", icon: "card-outline", color: T.primary },
-  { id: "netbanking", label: "Net Banking (All Indian Banks)", icon: "business-outline", color: "#3B82F6" },
-  { id: "cod", label: "Cash on Delivery (Verified Escrow)", icon: "cash-outline", color: T.amber },
+  { id: "upi", label: "Instant UPI (GPay, PhonePe, Paytm)", icon: "flash-outline" },
+  { id: "card", label: "Credit / Debit Card (Visa, Mastercard, RuPay)", icon: "card-outline" },
+  { id: "netbanking", label: "Net Banking (All Indian Banks)", icon: "business-outline" },
+  { id: "cod", label: "Cash on Delivery (Verified Escrow)", icon: "cash-outline" },
 ];
 
 export default function CheckoutScreen({ navigation, route }) {
   const { cart, cartSubtotal, clearCart } = useCart();
   const { user } = useAuth();
 
-  // Can checkout single item passed via route.params OR entire cart
   const singleItem = route.params?.item;
   const itemsToBuy = singleItem
     ? [{ id: singleItem._id, listingId: singleItem._id, title: singleItem.title, price: singleItem.price, quantity: 1 }]
@@ -59,7 +58,6 @@ export default function CheckoutScreen({ navigation, route }) {
       }
 
       const res = await ordersAPI.create(payload);
-
       const billNo = res.data.bill?.billNumber || res.data.order?.bill?.billNumber || "ZYP-" + Date.now().toString().slice(-6);
 
       if (!singleItem) {
@@ -67,7 +65,7 @@ export default function CheckoutScreen({ navigation, route }) {
       }
 
       Alert.alert(
-        "🎉 Order Placed Successfully!",
+        "🎉 Order Confirmed",
         `Invoice: ${billNo}\nAmount: ₹${totalAmount.toLocaleString("en-IN")}\n\nYour payment is held safely in ZYPHOR Escrow until you inspect & confirm delivery.`,
         [
           {
@@ -88,8 +86,8 @@ export default function CheckoutScreen({ navigation, route }) {
     <View style={styles.root}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={22} color={T.text.primary} />
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} activeOpacity={0.7}>
+          <Ionicons name="arrow-back" size={20} color={T.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Checkout & Escrow</Text>
       </View>
@@ -97,67 +95,77 @@ export default function CheckoutScreen({ navigation, route }) {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 110 }}>
         {/* Safe Escrow Notice */}
         <View style={styles.escrowNotice}>
-          <Ionicons name="shield-checkmark" size={24} color={T.green} />
-          <View style={{ flex: 1, marginLeft: 12 }}>
-            <Text style={styles.escrowTitle}>ZYPHOR Buyer Escrow Protection</Text>
-            <Text style={styles.escrowText}>
-              Your money is safe. Sellers are only paid after you receive and inspect your device.
-            </Text>
+          <Ionicons name="shield-checkmark-outline" size={20} color={T.primary} />
+          <View style={{ flex: 1, marginLeft: 10 }}>
+            <Text style={styles.escrowTitle}>ZYPHOR Certified Escrow Protection</Text>
+            <Text style={styles.escrowText}>Payment is released to the seller only after your inspection.</Text>
           </View>
         </View>
 
-        {/* Step 1: Shipping Address */}
+        {/* 1. Shipping Address */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionTitleRow}>
-            <View style={styles.stepNum}><Text style={styles.stepNumText}>1</Text></View>
-            <Text style={styles.sectionTitle}>Delivery Address</Text>
+            <View style={styles.stepNum}>
+              <Text style={styles.stepNumText}>1</Text>
+            </View>
+            <Text style={styles.sectionTitle}>Shipping Address</Text>
           </View>
 
           <Input
-            label="Full Name"
-            placeholder="e.g. Rahul Sharma"
+            label="Full Recipient Name *"
+            placeholder="Rahul Sharma"
             value={address.name}
-            onChangeText={(t) => setAddress({ ...address, name: t })}
+            onChangeText={(v) => setAddress((a) => ({ ...a, name: v }))}
+            icon="person-outline"
           />
+
           <Input
-            label="Mobile Number"
+            label="Phone Number *"
             placeholder="10-digit mobile number"
-            keyboardType="phone-pad"
             value={address.phone}
-            onChangeText={(t) => setAddress({ ...address, phone: t })}
+            onChangeText={(v) => setAddress((a) => ({ ...a, phone: v }))}
+            icon="call-outline"
+            keyboardType="phone-pad"
           />
+
           <Input
-            label="Street Address / Flat / Landmark"
-            placeholder="House/Flat No, Street, Landmark"
+            label="Flat / House / Street Address *"
+            placeholder="Flat 402, Highrise Heights, Link Road"
             value={address.street}
-            onChangeText={(t) => setAddress({ ...address, street: t })}
+            onChangeText={(v) => setAddress((a) => ({ ...a, street: v }))}
+            icon="home-outline"
           />
-          <View style={{ flexDirection: "row", gap: 12 }}>
+
+          <View style={{ flexDirection: "row", gap: 10 }}>
             <View style={{ flex: 1 }}>
               <Input
-                label="City"
+                label="City *"
                 placeholder="Mumbai"
                 value={address.city}
-                onChangeText={(t) => setAddress({ ...address, city: t })}
+                onChangeText={(v) => setAddress((a) => ({ ...a, city: v }))}
+                icon="location-outline"
               />
             </View>
             <View style={{ flex: 1 }}>
               <Input
-                label="Pincode"
+                label="PIN Code *"
                 placeholder="400001"
-                keyboardType="numeric"
                 value={address.pincode}
-                onChangeText={(t) => setAddress({ ...address, pincode: t })}
+                onChangeText={(v) => setAddress((a) => ({ ...a, pincode: v }))}
+                icon="pin-outline"
+                keyboardType="number-pad"
               />
             </View>
           </View>
         </View>
 
-        {/* Step 2: Payment Method */}
+        {/* 2. Payment Method */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionTitleRow}>
-            <View style={styles.stepNum}><Text style={styles.stepNumText}>2</Text></View>
-            <Text style={styles.sectionTitle}>Select Payment Method</Text>
+            <View style={styles.stepNum}>
+              <Text style={styles.stepNumText}>2</Text>
+            </View>
+            <Text style={styles.sectionTitle}>Payment Method</Text>
           </View>
 
           <View style={{ gap: 10 }}>
@@ -166,14 +174,14 @@ export default function CheckoutScreen({ navigation, route }) {
               return (
                 <TouchableOpacity
                   key={pm.id}
-                  onPress={() => setPaymentMethod(pm.id)}
                   style={[styles.payMethodOption, selected && styles.payMethodSelected]}
+                  onPress={() => setPaymentMethod(pm.id)}
                   activeOpacity={0.8}
                 >
-                  <View style={[styles.payIconWrap, { backgroundColor: pm.color + "22" }]}>
-                    <Ionicons name={pm.icon} size={20} color={pm.color} />
+                  <View style={styles.payIconWrap}>
+                    <Ionicons name={pm.icon} size={18} color={T.primary} />
                   </View>
-                  <Text style={[styles.payMethodLabel, selected && { color: "#fff", fontWeight: "700" }]}>
+                  <Text style={[styles.payMethodLabel, selected && { color: T.text.primary, fontWeight: "700" }]}>
                     {pm.label}
                   </Text>
                   <View style={[styles.radioCircle, selected && styles.radioCircleSelected]}>
@@ -185,17 +193,23 @@ export default function CheckoutScreen({ navigation, route }) {
           </View>
         </View>
 
-        {/* Step 3: Order Summary */}
+        {/* 3. Items & Summary */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionTitleRow}>
-            <View style={styles.stepNum}><Text style={styles.stepNumText}>3</Text></View>
-            <Text style={styles.sectionTitle}>Order Summary ({itemsToBuy.length} items)</Text>
+            <View style={styles.stepNum}>
+              <Text style={styles.stepNumText}>3</Text>
+            </View>
+            <Text style={styles.sectionTitle}>Order Summary</Text>
           </View>
 
           {itemsToBuy.map((it, idx) => (
             <View key={idx} style={styles.orderSummaryItem}>
-              <Text style={styles.summaryTitle} numberOfLines={1}>{it.title}</Text>
-              <Text style={styles.summaryPrice}>₹{Number(it.price).toLocaleString("en-IN")}</Text>
+              <Text style={styles.summaryTitle} numberOfLines={1}>
+                {it.title || `${it.brand} ${it.model}`} × {it.quantity || 1}
+              </Text>
+              <Text style={styles.summaryPrice}>
+                ₹{(Number(it.price) * (it.quantity || 1)).toLocaleString("en-IN")}
+              </Text>
             </View>
           ))}
 
@@ -207,11 +221,11 @@ export default function CheckoutScreen({ navigation, route }) {
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Doorstep Delivery</Text>
-            <Text style={[styles.summaryVal, { color: T.green }]}>FREE</Text>
+            <Text style={[styles.summaryVal, { color: T.green }]}>Free</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Platform Escrow Fee</Text>
-            <Text style={[styles.summaryVal, { color: T.green }]}>WAIVED</Text>
+            <Text style={styles.summaryLabel}>Escrow Protection Fee</Text>
+            <Text style={[styles.summaryVal, { color: T.green }]}>Waived</Text>
           </View>
 
           <View style={styles.divider} />
@@ -230,11 +244,11 @@ export default function CheckoutScreen({ navigation, route }) {
           <Text style={styles.barTotalVal}>₹{totalAmount.toLocaleString("en-IN")}</Text>
         </View>
         <Btn
-          title={loading ? "Securing Order..." : "Place Order & Pay"}
+          title={loading ? "Securing Order..." : "Confirm & Pay →"}
           loading={loading}
           onPress={handlePlaceOrder}
-          icon="lock-closed"
-          style={{ minWidth: 190 }}
+          icon="lock-closed-outline"
+          style={{ minWidth: 180, borderRadius: 14 }}
         />
       </View>
     </View>
@@ -242,61 +256,77 @@ export default function CheckoutScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: T.bg.primary },
+  root: { flex: 1, backgroundColor: "#FFFFFF" },
   header: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 20,
-    paddingTop: 50,
-    paddingBottom: 16,
-    backgroundColor: T.bg.secondary,
+    paddingTop: 54,
+    paddingBottom: 14,
+    backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
     borderBottomColor: T.border.color,
   },
-  backBtn: { padding: 4, marginRight: 12 },
-  headerTitle: { fontSize: 18, fontWeight: "800", color: T.text.primary },
+  backBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: T.bg.secondary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  headerTitle: { fontSize: 20, fontWeight: "800", color: T.text.primary },
 
   escrowNotice: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: T.green + "15",
+    backgroundColor: T.bg.secondary,
     borderWidth: 1,
-    borderColor: T.green + "33",
-    borderRadius: T.radius.lg,
+    borderColor: T.border.color,
+    borderRadius: 14,
     padding: 14,
-    marginHorizontal: 16,
+    marginHorizontal: 20,
     marginTop: 16,
   },
-  escrowTitle: { fontSize: 13, fontWeight: "700", color: T.green },
-  escrowText: { fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 2, lineHeight: 16 },
+  escrowTitle: { fontSize: 13, fontWeight: "700", color: T.text.primary },
+  escrowText: { fontSize: 11, color: T.text.secondary, marginTop: 2, lineHeight: 16 },
 
   sectionCard: {
-    backgroundColor: T.bg.card,
-    borderRadius: T.radius.lg,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
     padding: 16,
-    marginHorizontal: 16,
+    marginHorizontal: 20,
     marginTop: 16,
     borderWidth: 1,
     borderColor: T.border.color,
+    ...T.shadow.card,
   },
   sectionTitleRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 14 },
-  stepNum: { width: 22, height: 22, borderRadius: 11, backgroundColor: T.primary, alignItems: "center", justifyContent: "center" },
-  stepNumText: { color: "#fff", fontSize: 11, fontWeight: "800" },
-  sectionTitle: { fontSize: 15, fontWeight: "800", color: T.text.primary },
+  stepNum: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: T.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stepNumText: { color: "#FFFFFF", fontSize: 11, fontWeight: "800" },
+  sectionTitle: { fontSize: 16, fontWeight: "800", color: T.text.primary },
 
   payMethodOption: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: T.bg.surface,
-    padding: 12,
-    borderRadius: T.radius.md,
+    backgroundColor: T.bg.secondary,
+    padding: 14,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: T.border.color,
   },
-  payMethodSelected: { borderColor: T.primary, backgroundColor: T.primary + "12" },
-  payIconWrap: { width: 36, height: 36, borderRadius: 18, alignItems: "center", justifyContent: "center", marginRight: 12 },
-  payMethodLabel: { flex: 1, fontSize: 13, color: T.text.secondary, fontWeight: "600" },
-  radioCircle: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: T.text.muted, alignItems: "center", justifyContent: "center" },
+  payMethodSelected: { borderColor: T.primary, backgroundColor: "#FFFFFF" },
+  payIconWrap: { width: 32, height: 32, borderRadius: 16, alignItems: "center", justifyContent: "center", marginRight: 10 },
+  payMethodLabel: { flex: 1, fontSize: 13, color: T.text.secondary, fontWeight: "500" },
+  radioCircle: { width: 18, height: 18, borderRadius: 9, borderWidth: 1.5, borderColor: T.border.color, alignItems: "center", justifyContent: "center" },
   radioCircleSelected: { borderColor: T.primary },
   radioInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: T.primary },
 
@@ -305,7 +335,7 @@ const styles = StyleSheet.create({
   summaryPrice: { fontSize: 13, fontWeight: "700", color: T.text.primary },
   divider: { height: 1, backgroundColor: T.border.color, marginVertical: 10 },
   summaryRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
-  summaryLabel: { fontSize: 12, color: T.text.muted },
+  summaryLabel: { fontSize: 12, color: T.text.secondary },
   summaryVal: { fontSize: 13, fontWeight: "600", color: T.text.primary },
   totalPayableLabel: { fontSize: 15, fontWeight: "800", color: T.text.primary },
   totalPayableVal: { fontSize: 18, fontWeight: "900", color: T.primary },
@@ -318,12 +348,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: T.bg.secondary,
+    backgroundColor: "#FFFFFF",
     borderTopWidth: 1,
     borderTopColor: T.border.color,
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingVertical: 14,
+    paddingBottom: 28,
   },
-  barTotalLabel: { fontSize: 11, color: T.text.muted },
-  barTotalVal: { fontSize: 20, fontWeight: "900", color: T.text.primary, marginTop: 2 },
+  barTotalLabel: { fontSize: 11, color: T.text.secondary },
+  barTotalVal: { fontSize: 20, fontWeight: "900", color: T.text.primary, marginTop: 1 },
 });

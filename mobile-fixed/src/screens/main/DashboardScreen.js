@@ -6,10 +6,9 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
-  Alert
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import T from "../../styles/theme";
 import { StatCard, Badge } from "../../components/UI";
 import { listingsAPI, ordersAPI, subAPI } from "../../api/api";
@@ -58,20 +57,11 @@ export default function DashboardScreen({ navigation }) {
   };
 
   const handleLogout = () => {
-    Alert.alert("Logout", "Are you sure you want to sign out?", [
+    Alert.alert("Sign Out", "Are you sure you want to sign out of your account?", [
       { text: "Cancel", style: "cancel" },
-      { text: "Logout", style: "destructive", onPress: logout },
+      { text: "Sign Out", style: "destructive", onPress: logout },
     ]);
   };
-
-  const ROLE_CONFIG = {
-    customer: { title: "Customer Account", label: "CUSTOMER", color: T.green, icon: "person-outline" },
-    technician: { title: "Technician Service Portal", label: "TECHNICIAN", color: "#8B5CF6", icon: "construct-outline" },
-    retailer: { title: "Retailer Store Portal", label: "RETAILER", color: T.primary, icon: "storefront-outline" },
-    wholesaler: { title: "Wholesale B2B Hub", label: "WHOLESALER", color: T.amber, icon: "cube-outline" },
-  };
-
-  const curConfig = ROLE_CONFIG[role] || ROLE_CONFIG.customer;
 
   return (
     <ScrollView
@@ -79,312 +69,234 @@ export default function DashboardScreen({ navigation }) {
       showsVerticalScrollIndicator={false}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={T.primary} />}
     >
-      {/* ── HEADER ── */}
-      <LinearGradient colors={["#0B1220", "#16233D"]} style={styles.header}>
+      {/* ── EDITORIAL PROFILE HEADER ── */}
+      <View style={styles.header}>
         <View style={styles.avatarRow}>
-          <View style={[styles.avatar, { backgroundColor: curConfig.color }]}>
-            <Text style={styles.avatarText}>{user?.name?.[0]?.toUpperCase() || "U"}</Text>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{user?.name?.[0]?.toUpperCase() || "Z"}</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.name}>{user?.name || "User"}</Text>
+            <Text style={styles.name}>{user?.name || "Member"}</Text>
             <Text style={styles.email}>{user?.email}</Text>
-            <View style={{ flexDirection: "row", gap: 8, marginTop: 6, flexWrap: "wrap" }}>
-              <Badge label={curConfig.label} color={curConfig.color} />
-              {sub?.status === "active" && <Badge label={`${sub.plan?.toUpperCase()} PLAN`} color="#8B5CF6" icon="star" />}
+            <View style={{ flexDirection: "row", gap: 6, marginTop: 8 }}>
+              <Badge label={role.toUpperCase()} color={T.primary} />
+              {sub?.status === "active" && <Badge label={`${sub.plan?.toUpperCase()} PLAN`} color={T.green} icon="star" />}
             </View>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate("Profile")} style={styles.editBtn}>
-            <Ionicons name="pencil" size={16} color={T.text.secondary} />
+          <TouchableOpacity onPress={() => navigation.navigate("Profile")} style={styles.editBtn} activeOpacity={0.7}>
+            <Ionicons name="settings-outline" size={18} color={T.primary} />
           </TouchableOpacity>
         </View>
 
-        {/* UNIVERSAL SELL BUTTON (DIRECT TO SELL SCREEN) */}
+        {/* Universal Action Banner */}
         <TouchableOpacity
           onPress={() => navigation.navigate("Sell")}
           style={styles.universalSellBtn}
-          activeOpacity={0.85}
+          activeOpacity={0.88}
         >
-          <Ionicons name="sparkles" size={18} color="#fff" />
-          <Text style={styles.universalSellText}>
-            {isCustomer ? "Sell Your Old Phone (+ Cash In)" : "+ List & Sell Item"}
-          </Text>
-          <Ionicons name="arrow-forward" size={16} color="#fff" />
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+            <Ionicons name="add-circle" size={20} color="#FFFFFF" />
+            <Text style={styles.universalSellText}>
+              {isCustomer ? "Sell Your Smartphone (Instant Quote)" : "Add New Listing to Store"}
+            </Text>
+          </View>
+          <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
         </TouchableOpacity>
-      </LinearGradient>
+      </View>
 
       <View style={styles.body}>
-        {/* ── ROLE-SPECIFIC VIEWS ── */}
+        {/* Statistics Row */}
+        <View style={styles.statsRow}>
+          <StatCard icon="cube-outline" value={stats.listings} label="Listed Products" color={T.primary} />
+          <StatCard icon="receipt-outline" value={stats.orders} label="Orders" color={T.primary} />
+          {!isCustomer && (
+            <StatCard icon="wallet-outline" value={`₹${stats.earnings > 999 ? Math.round(stats.earnings / 1000) + "K" : stats.earnings}`} label="Earnings" color={T.green} />
+          )}
+        </View>
 
-        {/* 1. CUSTOMER VIEW: Buyer by default, unlocks Seller hub if listings > 0 */}
-        {isCustomer && (
-          <View style={styles.sectionContainer}>
-            {stats.listings === 0 ? (
-              /* Pure Buyer Welcome Card */
-              <View style={styles.buyerCard}>
-                <View style={styles.buyerHeader}>
-                  <Ionicons name="shield-checkmark" size={24} color={T.green} />
-                  <Text style={styles.buyerTitle}>Verified Buyer Account</Text>
-                </View>
-                <Text style={styles.buyerDesc}>
-                  You are registered to buy AI-verified phones and spare parts with 24-hr IMEI blacklist protection.
-                </Text>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate("Sell")}
-                  style={styles.sellNowBanner}
-                >
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.sellBannerTitle}>Want to cash in?</Text>
-                    <Text style={styles.sellBannerSub}>Sell your used phone in 60s with AI valuation &rarr;</Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={18} color="#FF6F61" />
-                </TouchableOpacity>
-              </View>
-            ) : (
-              /* Seller Hub Unlocked for Customer */
-              <View style={styles.statsRow}>
-                <StatCard icon="list" value={stats.listings} label="My Listed Devices" color={T.primary} />
-                <StatCard icon="receipt" value={stats.orders} label="My Orders" color={T.green} />
-              </View>
-            )}
-          </View>
-        )}
-
-        {/* 2. TECHNICIAN VIEW */}
-        {isTechnician && (
-          <View style={styles.sectionContainer}>
-            <View style={styles.statsRow}>
-              <StatCard icon="construct" value={stats.orders} label="Repair Jobs" color="#8B5CF6" />
-              <StatCard icon="list" value={stats.listings} label="Parts Listed" color={T.primary} />
-              <StatCard icon="cash" value={`₹${stats.earnings > 999 ? Math.round(stats.earnings / 1000) + "K" : stats.earnings}`} label="Earnings" color={T.green} />
-            </View>
-
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Repair")}
-              style={[styles.roleActionBanner, { borderColor: "#8B5CF640", backgroundColor: "#8B5CF615" }]}
-            >
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.roleBannerTitle, { color: "#8B5CF6" }]}>Doorstep Repairs Workbench</Text>
-                <Text style={styles.roleBannerSub}>View assigned customer device repair tickets &amp; updates</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color="#8B5CF6" />
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* 3. RETAILER VIEW */}
-        {isRetailer && (
-          <View style={styles.sectionContainer}>
-            <View style={styles.statsRow}>
-              <StatCard icon="list" value={stats.listings} label="Store Stock" color={T.primary} />
-              <StatCard icon="receipt" value={stats.orders} label="Orders" color={T.amber} />
-              <StatCard icon="cash" value={`₹${stats.earnings > 999 ? Math.round(stats.earnings / 1000) + "K" : stats.earnings}`} label="Revenue" color={T.green} />
-            </View>
-          </View>
-        )}
-
-        {/* 4. WHOLESALER VIEW */}
-        {isWholesaler && (
-          <View style={styles.sectionContainer}>
-            <View style={styles.statsRow}>
-              <StatCard icon="cube" value={stats.listings} label="Bulk Lots" color={T.amber} />
-              <StatCard icon="receipt" value={stats.orders} label="B2B Orders" color={T.green} />
-              <StatCard icon="cash" value={`₹${stats.earnings > 999 ? Math.round(stats.earnings / 1000) + "K" : stats.earnings}`} label="Volume" color={T.primary} />
-            </View>
-          </View>
-        )}
-
-        {/* Subscription banner for businesses */}
+        {/* Subscription banner for merchants */}
         {!isCustomer && sub?.status !== "active" && (
-          <TouchableOpacity onPress={() => navigation.navigate("Subscription")} style={styles.subBanner}>
+          <TouchableOpacity onPress={() => navigation.navigate("Subscription")} style={styles.subBanner} activeOpacity={0.8}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.subBannerTitle}>Activate Subscription</Text>
-              <Text style={styles.subBannerSub}>Start listing your products · Plans from ₹299/mo</Text>
+              <Text style={styles.subBannerTitle}>Activate Merchant Plan</Text>
+              <Text style={styles.subBannerSub}>List unlimited phones & spare parts on ZYPHOR</Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color={T.amber} />
+            <Ionicons name="arrow-forward" size={16} color={T.primary} />
           </TouchableOpacity>
         )}
 
-        {/* Dynamic Navigation Menu */}
+        {/* Navigation Menu Card */}
         <View style={styles.menuCard}>
-          {/* My Listings: for sellers or customers with listings */}
           {(!isCustomer || stats.listings > 0) && (
             <TouchableOpacity onPress={() => navigation.navigate("MyListings")} style={[styles.menuItem, styles.menuItemBorder]}>
-              <View style={[styles.menuIcon, { backgroundColor: T.primary + "15" }]}>
-                <Ionicons name="list-outline" size={18} color={T.primary} />
+              <View style={styles.menuIcon}>
+                <Ionicons name="grid-outline" size={18} color={T.primary} />
               </View>
               <Text style={styles.menuLabel}>
-                {isCustomer ? "My Listed Devices (Seller Hub)" : "Manage Inventory"}
+                {isCustomer ? "My Listed Devices" : "Store Inventory"}
               </Text>
-              <Ionicons name="chevron-forward" size={16} color={T.text.muted} />
+              <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
             </TouchableOpacity>
           )}
 
-          {/* Orders */}
           <TouchableOpacity onPress={() => navigation.navigate("MyOrders")} style={[styles.menuItem, styles.menuItemBorder]}>
-            <View style={[styles.menuIcon, { backgroundColor: T.amber + "15" }]}>
-              <Ionicons name="receipt-outline" size={18} color={T.amber} />
+            <View style={styles.menuIcon}>
+              <Ionicons name="bag-check-outline" size={18} color={T.primary} />
             </View>
-            <Text style={styles.menuLabel}>{isCustomer ? "My Purchases & Orders" : "Orders Received"}</Text>
-            <Ionicons name="chevron-forward" size={16} color={T.text.muted} />
+            <Text style={styles.menuLabel}>{isCustomer ? "My Purchases & Invoices" : "Orders Received"}</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
           </TouchableOpacity>
 
-          {/* Repair Screen for Technician */}
           {isTechnician && (
             <TouchableOpacity onPress={() => navigation.navigate("Repair")} style={[styles.menuItem, styles.menuItemBorder]}>
-              <View style={[styles.menuIcon, { backgroundColor: "#8B5CF615" }]}>
-                <Ionicons name="construct-outline" size={18} color="#8B5CF6" />
+              <View style={styles.menuIcon}>
+                <Ionicons name="construct-outline" size={18} color={T.primary} />
               </View>
               <Text style={styles.menuLabel}>Repair Workbench</Text>
-              <Ionicons name="chevron-forward" size={16} color={T.text.muted} />
+              <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
             </TouchableOpacity>
           )}
 
-          {/* Edit Profile */}
           <TouchableOpacity onPress={() => navigation.navigate("Profile")} style={[styles.menuItem, styles.menuItemBorder]}>
-            <View style={[styles.menuIcon, { backgroundColor: T.green + "15" }]}>
-              <Ionicons name="person-outline" size={18} color={T.green} />
+            <View style={styles.menuIcon}>
+              <Ionicons name="person-outline" size={18} color={T.primary} />
             </View>
-            <Text style={styles.menuLabel}>Profile &amp; Settings</Text>
-            <Ionicons name="chevron-forward" size={16} color={T.text.muted} />
+            <Text style={styles.menuLabel}>Account & Address Settings</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
           </TouchableOpacity>
 
-          {/* Subscription for Sellers */}
           {!isCustomer && (
             <TouchableOpacity onPress={() => navigation.navigate("Subscription")} style={[styles.menuItem, styles.menuItemBorder]}>
-              <View style={[styles.menuIcon, { backgroundColor: "#8B5CF615" }]}>
-                <Ionicons name="star-outline" size={18} color="#8B5CF6" />
+              <View style={styles.menuIcon}>
+                <Ionicons name="card-outline" size={18} color={T.primary} />
               </View>
-              <Text style={styles.menuLabel}>Seller Subscription</Text>
-              <Ionicons name="chevron-forward" size={16} color={T.text.muted} />
+              <Text style={styles.menuLabel}>Subscription & Billing</Text>
+              <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
             </TouchableOpacity>
           )}
 
-          {/* IMEI Check */}
           <TouchableOpacity onPress={() => navigation.navigate("IMEICheck")} style={[styles.menuItem, styles.menuItemBorder]}>
-            <View style={[styles.menuIcon, { backgroundColor: "#06B6D415" }]}>
-              <Ionicons name="scan-outline" size={18} color="#06B6D4" />
+            <View style={styles.menuIcon}>
+              <Ionicons name="scan-outline" size={18} color={T.primary} />
             </View>
-            <Text style={styles.menuLabel}>IMEI Verification Tool</Text>
-            <Ionicons name="chevron-forward" size={16} color={T.text.muted} />
+            <Text style={styles.menuLabel}>IMEI & Hardware Diagnostic Tool</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
           </TouchableOpacity>
 
-          {/* About */}
           <TouchableOpacity onPress={() => navigation.navigate("About")} style={styles.menuItem}>
-            <View style={[styles.menuIcon, { backgroundColor: T.text.muted + "15" }]}>
-              <Ionicons name="information-circle-outline" size={18} color={T.text.muted} />
+            <View style={styles.menuIcon}>
+              <Ionicons name="information-circle-outline" size={18} color={T.primary} />
             </View>
-            <Text style={styles.menuLabel}>About ZYPHOR</Text>
-            <Ionicons name="chevron-forward" size={16} color={T.text.muted} />
+            <Text style={styles.menuLabel}>About ZYPHOR & Escrow Protocol</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
           </TouchableOpacity>
         </View>
 
-        {/* Log Out */}
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
-          <Ionicons name="log-out-outline" size={18} color={T.red} />
-          <Text style={styles.logoutText}>Log Out</Text>
+        {/* Sign Out Button */}
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn} activeOpacity={0.7}>
+          <Ionicons name="log-out-outline" size={18} color={T.primary} />
+          <Text style={styles.logoutText}>Sign Out Account</Text>
         </TouchableOpacity>
 
-        <Text style={styles.version}>ZYPHOR v2.0 • Made in India 🇮🇳</Text>
+        <Text style={styles.version}>ZYPHOR Certified Suite • Edition 2.0</Text>
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: T.bg.primary },
-  header: { paddingTop: 52, paddingBottom: 20, paddingHorizontal: 20 },
+  root: { flex: 1, backgroundColor: "#FFFFFF" },
+  header: {
+    paddingTop: 54,
+    paddingBottom: 22,
+    paddingHorizontal: 22,
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: T.border.color,
+  },
   avatarRow: { flexDirection: "row", alignItems: "flex-start", gap: 14 },
-  avatar: { width: 56, height: 56, borderRadius: 28, justifyContent: "center", alignItems: "center" },
-  avatarText: { fontSize: 24, fontWeight: "800", color: "#fff" },
-  name: { fontSize: 17, fontWeight: "800", color: "#fff" },
-  email: { fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 2 },
-  editBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: "rgba(255,255,255,0.1)", justifyContent: "center", alignItems: "center" },
+  avatar: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: T.primary,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatarText: { fontSize: 24, fontWeight: "900", color: "#FFFFFF" },
+  name: { fontSize: 20, fontWeight: "900", color: T.text.primary, letterSpacing: -0.3 },
+  email: { fontSize: 13, color: T.text.secondary, marginTop: 2 },
+  editBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: T.bg.secondary,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: T.border.color,
+  },
   universalSellBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#FF6F61",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    backgroundColor: T.primary,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
     borderRadius: 14,
-    marginTop: 18,
-    shadowColor: "#FF6F61",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4
+    marginTop: 20,
   },
-  universalSellText: { fontSize: 13, fontWeight: "800", color: "#fff", flex: 1, marginLeft: 8 },
-  body: { padding: 16 },
-  sectionContainer: { marginBottom: 16 },
-  buyerCard: {
-    backgroundColor: T.bg.card,
-    borderRadius: T.radius.xl,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: T.border.color
-  },
-  buyerHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 8 },
-  buyerTitle: { fontSize: 15, fontWeight: "800", color: T.text.primary },
-  buyerDesc: { fontSize: 12, color: T.text.muted, lineHeight: 18, marginBottom: 14 },
-  sellNowBanner: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FF6F6115",
-    borderWidth: 1,
-    borderColor: "#FF6F6130",
-    padding: 12,
-    borderRadius: 12
-  },
-  sellBannerTitle: { fontSize: 13, fontWeight: "800", color: "#FF6F61" },
-  sellBannerSub: { fontSize: 11, color: T.text.muted, marginTop: 2 },
-  roleActionBanner: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 14,
-    borderRadius: T.radius.lg,
-    borderWidth: 1,
-    marginTop: 10
-  },
-  roleBannerTitle: { fontSize: 13, fontWeight: "800" },
-  roleBannerSub: { fontSize: 11, color: T.text.muted, marginTop: 2 },
-  statsRow: { flexDirection: "row", gap: 10 },
+  universalSellText: { fontSize: 13, fontWeight: "700", color: "#FFFFFF" },
+
+  body: { padding: 20, paddingBottom: 60 },
+  statsRow: { flexDirection: "row", gap: 10, marginBottom: 18 },
+
   subBanner: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: T.amber + "15",
-    borderRadius: T.radius.lg,
-    padding: 14,
-    marginBottom: 16,
+    backgroundColor: T.bg.secondary,
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 18,
     borderWidth: 1,
-    borderColor: T.amber + "30"
+    borderColor: T.border.color,
   },
-  subBannerTitle: { fontSize: 13, fontWeight: "700", color: T.amber },
-  subBannerSub: { fontSize: 11, color: T.text.muted, marginTop: 2 },
+  subBannerTitle: { fontSize: 14, fontWeight: "700", color: T.text.primary },
+  subBannerSub: { fontSize: 12, color: T.text.secondary, marginTop: 2 },
+
   menuCard: {
-    backgroundColor: T.bg.card,
-    borderRadius: T.radius.xl,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
     overflow: "hidden",
     borderWidth: 1,
     borderColor: T.border.color,
-    marginBottom: 16
+    marginBottom: 20,
+    ...T.shadow.card,
   },
-  menuItem: { flexDirection: "row", alignItems: "center", gap: 12, padding: 15 },
+  menuItem: { flexDirection: "row", alignItems: "center", gap: 14, padding: 16 },
   menuItemBorder: { borderBottomWidth: 1, borderBottomColor: T.border.color },
-  menuIcon: { width: 34, height: 34, borderRadius: 10, justifyContent: "center", alignItems: "center" },
-  menuLabel: { flex: 1, fontSize: 13, fontWeight: "600", color: T.text.primary },
+  menuIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: T.bg.secondary,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  menuLabel: { flex: 1, fontSize: 14, fontWeight: "600", color: T.text.primary },
+
   logoutBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: T.red + "10",
-    borderRadius: T.radius.lg,
+    backgroundColor: T.bg.secondary,
+    borderRadius: 14,
     padding: 14,
     borderWidth: 1,
-    borderColor: T.red + "25",
-    marginBottom: 16
+    borderColor: T.border.color,
+    marginBottom: 20,
   },
-  logoutText: { fontSize: 13, fontWeight: "700", color: T.red },
-  version: { textAlign: "center", fontSize: 11, color: T.text.muted }
+  logoutText: { fontSize: 13, fontWeight: "700", color: T.text.primary },
+  version: { textAlign: "center", fontSize: 11, color: T.text.secondary },
 });

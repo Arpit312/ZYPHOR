@@ -18,12 +18,11 @@ import { useCart } from "../../context/CartContext";
 
 const CATS = [
   { id: "All", label: "All Parts" },
-  { id: "display", label: "Display / Screen" },
-  { id: "battery", label: "Battery" },
-  { id: "camera", label: "Camera Module" },
-  { id: "speaker", label: "Speaker / Ringer" },
-  { id: "motor", label: "Vibration Motor" },
-  { id: "tempered_glass", label: "Tempered Glass" },
+  { id: "display", label: "OLED / Screens" },
+  { id: "battery", label: "Batteries" },
+  { id: "camera", label: "Cameras" },
+  { id: "speaker", label: "Speakers" },
+  { id: "motherboard", label: "Motherboards" },
 ];
 
 export default function PartsScreen({ navigation }) {
@@ -63,68 +62,71 @@ export default function PartsScreen({ navigation }) {
 
   return (
     <View style={styles.root}>
+      {/* Header */}
       <View style={styles.header}>
         <View style={styles.titleRow}>
           <View style={{ flex: 1 }}>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-              <Text style={styles.title}>Spare Parts</Text>
-              <View style={styles.badge}>
-                <Ionicons name="construct" size={11} color={T.amber} />
-                <Text style={styles.badgeText}>OEM GENUINE</Text>
-              </View>
-            </View>
-            <Text style={styles.subTitle}>Original tested mobile spare parts</Text>
+            <Text style={styles.title}>OEM Spare Parts</Text>
+            <Text style={styles.subTitle}>Factory verified modules & components</Text>
           </View>
           <CartHeaderBtn onPress={() => navigation.navigate("Cart")} />
         </View>
 
         <View style={styles.searchBar}>
-          <Ionicons name="search-outline" size={18} color={T.amber} />
+          <Ionicons name="search-outline" size={17} color={T.text.secondary} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search parts by phone model, brand, display…"
-            placeholderTextColor={T.text.muted}
+            placeholder="Search screens, batteries, cameras…"
+            placeholderTextColor="#9CA3AF"
             value={q}
             onChangeText={setQ}
           />
           {q ? (
             <TouchableOpacity onPress={() => setQ("")}>
-              <Ionicons name="close-circle" size={18} color={T.text.muted} />
+              <Ionicons name="close-circle" size={18} color={T.text.secondary} />
             </TouchableOpacity>
           ) : null}
         </View>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 12 }}>
-          {CATS.map((c) => (
-            <TouchableOpacity
-              key={c.id}
-              onPress={() => setCat(c.id)}
-              style={[styles.chip, cat === c.id && styles.chipActive]}
-            >
-              <Text style={[styles.chipText, cat === c.id && styles.chipTextActive]}>{c.label}</Text>
-            </TouchableOpacity>
-          ))}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.catRow}>
+          {CATS.map((c) => {
+            const active = cat === c.id;
+            return (
+              <TouchableOpacity
+                key={c.id}
+                onPress={() => setCat(c.id)}
+                style={[styles.chip, active && styles.chipActive]}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.chipText, active && styles.chipTextActive]}>{c.label}</Text>
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
       </View>
 
+      {/* Grid */}
       {loading ? (
-        <View style={{ flex: 1, justifyContent: "center" }}>
-          <ActivityIndicator color={T.amber} size="large" />
+        <View style={styles.center}>
+          <ActivityIndicator color={T.primary} size="large" />
         </View>
       ) : parts.length === 0 ? (
         <Empty
           icon="construct-outline"
-          title="No parts found"
-          sub="No matching spare parts for this filter. Try clearing filters."
-          action={() => { setCat("All"); setQ(""); }}
-          actionLabel="Clear Filter"
+          title="No spare parts found"
+          sub="Try searching for another phone model or component."
+          action={() => {
+            setCat("All");
+            setQ("");
+          }}
+          actionLabel="View All Parts"
         />
       ) : (
         <FlatList
           data={parts}
           keyExtractor={(i) => i._id}
           numColumns={2}
-          contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
+          contentContainerStyle={styles.gridContainer}
           columnWrapperStyle={{ justifyContent: "space-between" }}
           renderItem={({ item }) => (
             <ListingCard
@@ -140,41 +142,46 @@ export default function PartsScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: T.bg.primary },
+  root: { flex: 1, backgroundColor: "#FFFFFF" },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+
   header: {
-    padding: 16,
-    paddingTop: 48,
-    backgroundColor: T.bg.secondary,
+    paddingHorizontal: 20,
+    paddingTop: 54,
+    paddingBottom: 14,
+    backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
     borderBottomColor: T.border.color,
   },
-  titleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
-  title: { fontSize: 24, fontWeight: "900", color: T.text.primary },
-  subTitle: { fontSize: 11, color: T.text.muted, marginTop: 2 },
-  badge: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: T.amber + "20", paddingHorizontal: 7, paddingVertical: 2, borderRadius: 10 },
-  badgeText: { fontSize: 9, color: T.amber, fontWeight: "800" },
+  titleRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
+  title: { fontSize: 28, fontWeight: "900", color: T.text.primary, letterSpacing: -0.5 },
+  subTitle: { fontSize: 13, color: T.text.secondary, marginTop: 2 },
+
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
     backgroundColor: T.bg.input,
-    borderRadius: T.radius.md,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: T.border.color,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    gap: 8,
   },
   searchInput: { flex: 1, fontSize: 13, color: T.text.primary },
+
+  catRow: { gap: 8, paddingTop: 12 },
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 7,
-    borderRadius: T.radius.full,
-    backgroundColor: T.bg.card,
-    marginRight: 8,
+    borderRadius: 999,
+    backgroundColor: T.bg.secondary,
     borderWidth: 1,
     borderColor: T.border.color,
   },
-  chipActive: { backgroundColor: T.amber, borderColor: T.amber },
-  chipText: { fontSize: 12, color: T.text.secondary, fontWeight: "600" },
-  chipTextActive: { color: "#000", fontWeight: "700" },
+  chipActive: { backgroundColor: T.primary, borderColor: T.primary },
+  chipText: { fontSize: 12, fontWeight: "600", color: T.text.secondary },
+  chipTextActive: { color: "#FFFFFF" },
+
+  gridContainer: { padding: 18, paddingBottom: 90 },
 });
