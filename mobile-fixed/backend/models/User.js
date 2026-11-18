@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const UserSchema = new mongoose.Schema({
   name: { type:String, required:true, trim:true },
-  email: { type:String, required:true, unique:true, lowercase:true, trim:true },
+  email: { type:String, required:true, lowercase:true, trim:true },
   phone: { type:String, trim:true },
   passwordHash: { type:String, required:true },
   role: { type:String, enum:["customer","retailer","wholesaler","technician","admin"], default:"customer" },
@@ -22,4 +22,6 @@ const UserSchema = new mongoose.Schema({
     startDate: Date, endDate: Date, billingCycle: String,
   },
 }, { timestamps:true });
+// Compound unique: same email can have different roles (customer, retailer, etc.)
+UserSchema.index({ email: 1, role: 1 }, { unique: true });
 module.exports = mongoose.models.User || mongoose.model("User", UserSchema);

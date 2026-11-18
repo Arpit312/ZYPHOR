@@ -12,7 +12,7 @@ const SubscriptionSchema = new mongoose.Schema({
 
 const UserSchema = new mongoose.Schema({
   name:          { type: String, required: true, trim: true },
-  email:         { type: String, required: true, unique: true, lowercase: true, trim: true },
+  email:         { type: String, required: true, lowercase: true, trim: true },
   phone:         { type: String, trim: true },
   passwordHash:  { type: String, required: true },
   role: {
@@ -35,6 +35,9 @@ const UserSchema = new mongoose.Schema({
   totalSales:    { type: Number, default: 0 },
   totalEarnings: { type: Number, default: 0 },
 }, { timestamps: true });
+
+// Compound unique: same email can register with different roles
+UserSchema.index({ email: 1, role: 1 }, { unique: true });
 
 // Subscription plan limits
 UserSchema.statics.PLANS = {

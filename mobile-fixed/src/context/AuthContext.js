@@ -39,9 +39,9 @@ export const AuthProvider = ({ children }) => {
     setUser(userObj);
   };
 
-  const login = async (email, password) => {
+  const login = async (email, password, role) => {
     try {
-      const res = await authAPI.login({ email: email.trim().toLowerCase(), password });
+      const res = await authAPI.login({ email: email.trim().toLowerCase(), password, role });
       await save(res.data.token, res.data.user);
       return { success: true };
     } catch (err) {

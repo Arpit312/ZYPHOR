@@ -13,9 +13,14 @@ const sign = (user) => jwt.sign(
 // POST /api/auth/login
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
     if (!email || !password) return res.status(400).json({ error: "Email and password required." });
-    const user = await User.findOne({ email: email.toLowerCase() });
+    // If role is provided, find user with that specific role; otherwise find any user with that email
+    const query = { email: email.toLowerCase() };
+    if (role && ["customer","retailer","wholesaler","technician","admin"].includes(role)) {
+      query.role = role;
+    }
+    const user = await User.findOne(query);
     if (!user) return res.status(401).json({ error: "Invalid credentials." });
     if (!user.isActive) return res.status(403).json({ error: "Account deactivated." });
     const valid = await bcrypt.compare(password, user.passwordHash);
@@ -49,9 +54,9 @@ router.post("/signup", async (req, res) => {
     const { name, email, password, role, city, phone, businessName, gstNumber } = req.body;
     if (!name || !email || !password) return res.status(400).json({ error: "Name, email, password required." });
     if (password.length < 8) return res.status(400).json({ error: "Password must be 8+ characters." });
-    const existing = await User.findOne({ email: email.toLowerCase() });
-    if (existing) return res.status(409).json({ error: "Email already registered." });
     const safeRole = ["customer","retailer","wholesaler","technician"].includes(role) ? role : "customer";
+    const existing = await User.findOne({ email: email.toLowerCase(), role: safeRole });
+    if (existing) return res.status(409).json({ error: "Email already registered for this role." });
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await User.create({ name, email: email.toLowerCase(), passwordHash, role: safeRole, city, phone, businessName, gstNumber, subscription: { plan:"free", status:"inactive" } });
     const token = sign(user);

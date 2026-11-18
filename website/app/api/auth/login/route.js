@@ -21,7 +21,12 @@ export async function POST(req) {
     try {
       const db = await connectDB();
       if (db) {
-        user = await User.findOne({ email: emailLower }).catch(() => null);
+        // Build query — if role is specified, match email + role combo
+        const loginQuery = { email: emailLower };
+        if (role && ["customer","retailer","wholesaler","technician","admin"].includes(role)) {
+          loginQuery.role = role;
+        }
+        user = await User.findOne(loginQuery).catch(() => null);
 
         // Auto-create user on the fly if not found
         if (!user) {
@@ -40,10 +45,7 @@ export async function POST(req) {
             subscription: { plan: "pro", status: "active" }
           }).catch(() => null);
         } else {
-          if (role && user.role !== role && role !== "customer") {
-            user.role = role;
-            await user.save().catch(() => {});
-          }
+          // User found — no need to change role since each role has its own user record
         }
       }
     } catch (dbErr) {

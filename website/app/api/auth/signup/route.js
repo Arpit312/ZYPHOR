@@ -15,9 +15,9 @@ export async function POST(req) {
     const safeRole = ROLES.includes(role) ? role : "customer";
     await connectDB();
 
-    const existing = await User.findOne({ email: email.toLowerCase() });
+    const existing = await User.findOne({ email: email.toLowerCase(), role: safeRole });
     if (existing)
-      return NextResponse.json({ error: "Email already registered." }, { status: 409 });
+      return NextResponse.json({ error: "Email already registered for this role." }, { status: 409 });
 
     const passwordHash = await hashPassword(password);
     const user = await User.create({
