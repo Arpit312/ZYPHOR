@@ -78,7 +78,10 @@ export default function MarketplaceScreen({ navigation, route }) {
       {/* ─── MŌNOLITH EDITORIAL HEADER (Middle Screen in Reference) ─── */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          <Text style={styles.title}>All products</Text>
+          <View>
+            <Text style={styles.title}>All products</Text>
+            <Text style={styles.subTitleStamp}>GALLERY EXHIBIT // 45-PT VERIFIED</Text>
+          </View>
           <CartHeaderBtn onPress={() => navigation.navigate("Cart")} />
         </View>
 
@@ -235,6 +238,13 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     color: T.text.primary,
     letterSpacing: -0.6,
+  },
+  subTitleStamp: {
+    fontSize: 9.5,
+    fontWeight: "800",
+    color: "#C5A880",
+    letterSpacing: 1.2,
+    marginTop: 2,
   },
 
   controlRow: {

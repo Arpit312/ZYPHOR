@@ -11,6 +11,17 @@ export const T = {
   red: "#DC2626",           // Alert / Discount Red
   blue: "#2563EB",
 
+  // Luxury Booth / Exhibition Atelier Palette
+  booth: {
+    plinth: "#FAF9F7",        // Sculpted museum plinth surface
+    plinthBorder: "#EAE8E4",  // Delicate stone hairline border
+    gold: "#C5A880",          // Champagne / Architectural Metallic Accent
+    goldMuted: "rgba(197, 168, 128, 0.15)",
+    stone: "#F6F5F3",         // Soft stone neutral
+    stamp: "#787878",         // Technical stamp text
+    surfaceDark: "#1F1F1F",
+  },
+
   // Backgrounds & Surfaces (Clean warm gallery palette)
   bg: {
     primary: "#FFFFFF",     // Crisp White Canvas
@@ -85,10 +96,17 @@ export const T = {
     },
     card: {
       shadowColor: "#181818",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.03,
-      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.04,
+      shadowRadius: 10,
       elevation: 2
+    },
+    booth: {
+      shadowColor: "#181818",
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.06,
+      shadowRadius: 16,
+      elevation: 4
     }
   }
 };

@@ -18,6 +18,7 @@ import {
   Empty,
   CategoryBubble,
   CartHeaderBtn,
+  BoothBadge,
 } from "../../components/UI";
 import { listingsAPI } from "../../api/api";
 import { useAuth } from "../../context/AuthContext";
@@ -26,12 +27,12 @@ import { useCart } from "../../context/CartContext";
 const { width: W } = Dimensions.get("window");
 
 const CATEGORIES = [
-  { id: "phones", label: "Certified Phones", icon: "phone-portrait-outline", tab: "Browse", screen: "Marketplace" },
-  { id: "repair", label: "Doorstep Repair", icon: "construct-outline", tab: "Repair", screen: "RepairMain", badge: "6M WRTY" },
-  { id: "parts", label: "OEM Parts", icon: "hardware-chip-outline", tab: "Browse", screen: "Parts" },
+  { id: "phones", label: "Flagships", icon: "phone-portrait-outline", tab: "Browse", screen: "Marketplace" },
+  { id: "repair", label: "Doorstep Lab", icon: "construct-outline", tab: "Repair", screen: "RepairMain", badge: "6M WRTY" },
+  { id: "parts", label: "OEM Vault", icon: "hardware-chip-outline", tab: "Browse", screen: "Parts" },
   { id: "sell", label: "Sell Device", icon: "cash-outline", tab: "Sell", screen: "SellMain" },
   { id: "advisor", label: "AI Advisor", icon: "sparkles-outline", tab: "Advisor" },
-  { id: "imei", label: "IMEI Check", icon: "scan-outline", tab: "IMEICheck" },
+  { id: "imei", label: "IMEI Scan", icon: "scan-outline", tab: "IMEICheck" },
 ];
 
 export default function HomeScreen({ navigation }) {
@@ -73,7 +74,7 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <View style={styles.root}>
-      {/* ─── EDITORIAL TOP BAR ─── */}
+      {/* ─── BOUTIQUE PAVILION TOP BAR ─── */}
       <View style={styles.topBar}>
         <View style={styles.brandRow}>
           <View>
@@ -81,11 +82,12 @@ export default function HomeScreen({ navigation }) {
               <View style={styles.brandLogoBox}>
                 <Image
                   source={require("../../../assets/symbol-white.png")}
-                  style={{ width: 16, height: 16 }}
+                  style={{ width: 15, height: 15 }}
                   resizeMode="contain"
                 />
               </View>
               <Text style={styles.brandTitle}>ZYPHOR</Text>
+              <BoothBadge label="LIVE ATELIER" />
             </View>
 
             <TouchableOpacity
@@ -93,9 +95,9 @@ export default function HomeScreen({ navigation }) {
               onPress={() => navigation.navigate("Account", { screen: "Profile" })}
               activeOpacity={0.7}
             >
-              <Ionicons name="location-outline" size={12} color={T.text.secondary} />
+              <Ionicons name="location-outline" size={11} color={T.text.secondary} />
               <Text style={styles.locationText} numberOfLines={1}>
-                {user?.city ? `Deliver to: ${user.city}` : "Pan-India Express Delivery"}
+                {user?.city ? `Exhibition Delivery: ${user.city}` : "Pan-India Express Delivery"}
               </Text>
               <Ionicons name="chevron-down" size={10} color={T.text.secondary} />
             </TouchableOpacity>
@@ -113,15 +115,19 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
 
-        {/* Minimal Search Bar */}
+        {/* Gallery Search Console */}
         <TouchableOpacity
           style={styles.searchBar}
-          onPress={() => navigation.navigate("Browse", { screen: "Marketplace", params: { focus: true } })}
+          onPress={() =>
+            navigation.navigate("Browse", { screen: "Marketplace", params: { focus: true } })
+          }
           activeOpacity={0.85}
         >
-          <Ionicons name="search-outline" size={17} color={T.text.secondary} />
-          <Text style={styles.searchText}>Search iPhone 15, AMOLED screens, repairs…</Text>
-          <Ionicons name="arrow-forward" size={14} color={T.primary} />
+          <Ionicons name="search-outline" size={16} color={T.text.secondary} />
+          <Text style={styles.searchText}>Search iPhone 15 Pro, AMOLED displays, repairs…</Text>
+          <View style={styles.searchArrow}>
+            <Ionicons name="arrow-forward" size={12} color="#FFFFFF" />
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -130,12 +136,18 @@ export default function HomeScreen({ navigation }) {
         contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={T.primary} />}
       >
-        {/* ─── EDITORIAL HERO BANNER (Left Phone in Reference Image) ─── */}
+        {/* ─── BOUTIQUE SHOWROOM HERO BANNER ─── */}
         <View style={styles.heroCard}>
-          <Text style={styles.heroPretitle}>THE CERTIFIED COLLECTION</Text>
-          <Text style={styles.heroTitle}>Precision Engineered Refurbished Tech</Text>
+          <View style={styles.heroMetaRow}>
+            <Text style={styles.heroPretitle}>PAVILION COLLECTION // VOL. 01</Text>
+            <View style={styles.heroSerialTag}>
+              <Text style={styles.heroSerialText}>GRADE A+ AUDIT</Text>
+            </View>
+          </View>
+
+          <Text style={styles.heroTitle}>Sculpted Electronics & Certified Flagships</Text>
           <Text style={styles.heroSubtitle}>
-            Devices inspected across 45 hardware checkpoints. Clean OEM batteries, pristine screens, and 12-month comprehensive warranty.
+            Every device inspected across 45 hardware checkpoints. Clean OEM batteries, pristine displays, and 12-month comprehensive boutique warranty.
           </Text>
 
           <TouchableOpacity
@@ -143,11 +155,11 @@ export default function HomeScreen({ navigation }) {
             onPress={() => navigation.navigate("Browse", { screen: "Marketplace" })}
             activeOpacity={0.88}
           >
-            <Text style={styles.heroBtnText}>Explore All Devices →</Text>
+            <Text style={styles.heroBtnText}>Explore Showroom Devices →</Text>
           </TouchableOpacity>
         </View>
 
-        {/* ─── CLEAN HORIZONTAL CATEGORIES BUBBLE ROW ─── */}
+        {/* ─── CATEGORY PEDESTAL BUBBLES ─── */}
         <View style={styles.catSection}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.catScroll}>
             {CATEGORIES.map((cat) => (
@@ -162,27 +174,30 @@ export default function HomeScreen({ navigation }) {
           </ScrollView>
         </View>
 
-        {/* ─── TRUST STATS ROW ─── */}
+        {/* ─── ARCHITECTURAL TRUST PLINTH ROW ─── */}
         <View style={styles.trustGrid}>
           {[
-            { n: "100%", l: "Escrow Safe", icon: "shield-checkmark-outline" },
-            { n: "7-Day", l: "Money Back", icon: "repeat-outline" },
+            { n: "45-PT", l: "Diagnostics", icon: "shield-checkmark-outline" },
+            { n: "100%", l: "Escrow Vault", icon: "lock-closed-outline" },
             { n: "GSMA", l: "IMEI Clean", icon: "finger-print-outline" },
-            { n: "Free", l: "Express Ship", icon: "cube-outline" },
+            { n: "7-Day", l: "Atelier Return", icon: "repeat-outline" },
           ].map((item, idx) => (
             <View key={idx} style={styles.trustItem}>
-              <Ionicons name={item.icon} size={15} color={T.text.primary} />
+              <View style={styles.trustIconCircle}>
+                <Ionicons name={item.icon} size={14} color={T.text.primary} />
+              </View>
               <Text style={styles.trustNum}>{item.n}</Text>
               <Text style={styles.trustLabel}>{item.l}</Text>
             </View>
           ))}
         </View>
 
-        {/* ─── SECTION 1: VERIFIED PHONES (2-Column Grid) ─── */}
+        {/* ─── SECTION 1: CURATED SHOWROOM DEVICES ─── */}
         <View style={styles.section}>
           <SecHeader
+            index="01"
             title="Curated Devices"
-            sub="Inspected, graded, and warranty-backed"
+            sub="Inspected, graded, and warranty-backed flagships"
             action={() => navigation.navigate("Browse", { screen: "Marketplace" })}
             actionLabel="View all"
           />
@@ -203,16 +218,22 @@ export default function HomeScreen({ navigation }) {
           )}
         </View>
 
-        {/* ─── SERVICE PROMOTIONS ─── */}
+        {/* ─── SECTION 2: ATELIER SERVICES ─── */}
         <View style={styles.promoSection}>
+          <SecHeader
+            index="02"
+            title="Atelier Services"
+            sub="Instant fair valuation and doorstep diagnostics"
+          />
+
           {/* Sell Phone Card */}
           <View style={styles.serviceCard}>
             <View style={styles.serviceTag}>
-              <Text style={styles.serviceTagText}>INSTANT BUYBACK</Text>
+              <Text style={styles.serviceTagText}>INSTANT BUYBACK // 60 SECONDS</Text>
             </View>
-            <Text style={styles.serviceTitle}>Sell Your Old Phone in 60s</Text>
+            <Text style={styles.serviceTitle}>Sell Your Old Phone Instantly</Text>
             <Text style={styles.serviceSub}>
-              Instant valuation backed by AI resale data. Free doorstep device pickup with instant payment.
+              Instant valuation backed by AI resale data. Free doorstep device pickup with immediate escrow payout.
             </Text>
             <TouchableOpacity
               style={styles.serviceBtn}
@@ -226,11 +247,11 @@ export default function HomeScreen({ navigation }) {
           {/* Doorstep Repair Card */}
           <View style={[styles.serviceCard, { marginTop: 14 }]}>
             <View style={styles.serviceTag}>
-              <Text style={styles.serviceTagText}>DOORSTEP SERVICE</Text>
+              <Text style={styles.serviceTagText}>DOORSTEP SERVICE // CERTIFIED LAB</Text>
             </View>
             <Text style={styles.serviceTitle}>Certified Screen & Battery Repair</Text>
             <Text style={styles.serviceSub}>
-              Expert technician arrives at your home or office. 6-month warranty on original spare parts.
+              Expert technician arrives at your doorstep. 6-month warranty on 100% original OEM spare parts.
             </Text>
             <TouchableOpacity
               style={styles.serviceBtn}
@@ -242,18 +263,23 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
 
-        {/* ─── SECTION 2: GENUINE SPARE PARTS ─── */}
+        {/* ─── SECTION 3: GENUINE SPARE VAULT ─── */}
         {partListings.length > 0 && (
           <View style={styles.section}>
             <SecHeader
+              index="03"
               title="OEM Spare Parts"
               sub="Original screens, batteries & camera modules"
               action={() => navigation.navigate("Browse", { screen: "Parts" })}
               actionLabel="All parts"
             />
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingHorizontal: 2 }}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ gap: 14, paddingHorizontal: 2 }}
+            >
               {partListings.map((part) => (
-                <View key={part._id} style={{ width: 170 }}>
+                <View key={part._id} style={{ width: 172 }}>
                   <ListingCard
                     item={part}
                     onPress={() => navigation.navigate("ListingDetail", { id: part._id })}
@@ -278,20 +304,25 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
-    borderBottomColor: T.border.color,
+    borderBottomColor: "#EAE8E4",
   },
-  brandRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
+  brandRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
   brandLogoBox: {
-    width: 24,
-    height: 24,
-    borderRadius: 7,
+    width: 26,
+    height: 26,
+    borderRadius: 8,
     backgroundColor: T.primary,
     alignItems: "center",
     justifyContent: "center",
   },
-  brandTitle: { fontSize: 20, fontWeight: "900", color: T.text.primary, letterSpacing: 0.5 },
+  brandTitle: { fontSize: 21, fontWeight: "900", color: T.text.primary, letterSpacing: 0.8 },
   locationPill: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 4 },
-  locationText: { fontSize: 11, color: T.text.secondary, maxWidth: 200 },
+  locationText: { fontSize: 11, color: T.text.secondary, maxWidth: 210, fontWeight: "500" },
 
   topRightActions: { flexDirection: "row", alignItems: "center", gap: 12 },
   iconBtn: { padding: 4 },
@@ -300,68 +331,112 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: T.bg.input,
+    backgroundColor: "#FAF9F7",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: T.border.color,
+    borderColor: "#EAE8E4",
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
-  searchText: { fontSize: 13, color: T.text.secondary, flex: 1, marginHorizontal: 8 },
+  searchText: { fontSize: 13, color: T.text.secondary, flex: 1, marginHorizontal: 8, fontWeight: "400" },
+  searchArrow: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: "#181818",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
-  // Hero Card
+  // ─── Boutique Hero Plinth ───
   heroCard: {
     marginHorizontal: 18,
     marginTop: 18,
-    backgroundColor: T.bg.secondary,
-    borderRadius: 20,
+    backgroundColor: "#FAF9F7",
+    borderRadius: 22,
     padding: 24,
     borderWidth: 1,
-    borderColor: T.border.color,
+    borderColor: "#EAE8E4",
+    shadowColor: "#181818",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 2,
   },
-  heroPretitle: { fontSize: 11, fontWeight: "800", color: T.text.secondary, letterSpacing: 1.2, marginBottom: 6 },
-  heroTitle: { fontSize: 28, fontWeight: "900", color: T.text.primary, letterSpacing: -0.5, lineHeight: 32 },
+  heroMetaRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  heroPretitle: { fontSize: 10.5, fontWeight: "800", color: "#C5A880", letterSpacing: 1.2 },
+  heroSerialTag: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 6,
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderWidth: 1,
+    borderColor: "#EAE8E4",
+  },
+  heroSerialText: { fontSize: 8.5, fontWeight: "900", color: "#181818", letterSpacing: 0.6 },
+  heroTitle: { fontSize: 28, fontWeight: "900", color: T.text.primary, letterSpacing: -0.5, lineHeight: 33 },
   heroSubtitle: { fontSize: 13, color: T.text.secondary, marginTop: 10, lineHeight: 20 },
   heroBtn: {
     backgroundColor: T.primary,
-    borderRadius: 14,
+    borderRadius: 13,
     paddingVertical: 14,
     paddingHorizontal: 20,
     alignItems: "center",
     marginTop: 18,
     alignSelf: "flex-start",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  heroBtnText: { color: "#FFFFFF", fontSize: 14, fontWeight: "700" },
+  heroBtnText: { color: "#FFFFFF", fontSize: 13.5, fontWeight: "700" },
 
   catSection: { marginTop: 22 },
   catScroll: { paddingHorizontal: 16, gap: 4 },
 
+  // ─── Trust Plinth Grid ───
   trustGrid: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginHorizontal: 18,
     marginTop: 22,
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: T.border.color,
+    borderColor: "#EAE8E4",
     padding: 14,
     ...T.shadow.card,
   },
-  trustItem: { alignItems: "center", flex: 1, gap: 2 },
-  trustNum: { fontSize: 13, fontWeight: "800", color: T.text.primary, marginTop: 2 },
-  trustLabel: { fontSize: 10, color: T.text.secondary, fontWeight: "500" },
+  trustItem: { alignItems: "center", flex: 1, gap: 3 },
+  trustIconCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#FAF9F7",
+    borderWidth: 1,
+    borderColor: "#EAE8E4",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  trustNum: { fontSize: 13, fontWeight: "900", color: T.text.primary, marginTop: 1 },
+  trustLabel: { fontSize: 9.5, color: T.text.secondary, fontWeight: "600" },
 
   section: { marginHorizontal: 18, marginTop: 28 },
   grid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" },
 
-  promoSection: { marginHorizontal: 18, marginTop: 24 },
+  promoSection: { marginHorizontal: 18, marginTop: 28 },
   serviceCard: {
-    backgroundColor: T.bg.secondary,
-    borderRadius: 18,
-    padding: 20,
+    backgroundColor: "#FAF9F7",
+    borderRadius: 20,
+    padding: 22,
     borderWidth: 1,
-    borderColor: T.border.color,
+    borderColor: "#EAE8E4",
   },
   serviceTag: {
     backgroundColor: "#FFFFFF",
@@ -371,16 +446,16 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: T.border.color,
+    borderColor: "#EAE8E4",
   },
-  serviceTagText: { fontSize: 9, fontWeight: "800", color: T.text.secondary, letterSpacing: 0.5 },
-  serviceTitle: { fontSize: 18, fontWeight: "800", color: T.text.primary },
-  serviceSub: { fontSize: 12, color: T.text.secondary, lineHeight: 18, marginTop: 6, marginBottom: 14 },
+  serviceTagText: { fontSize: 9, fontWeight: "800", color: "#181818", letterSpacing: 0.6 },
+  serviceTitle: { fontSize: 19, fontWeight: "900", color: T.text.primary, letterSpacing: -0.2 },
+  serviceSub: { fontSize: 12.5, color: T.text.secondary, lineHeight: 19, marginTop: 6, marginBottom: 14 },
   serviceBtn: {
     backgroundColor: T.primary,
     borderRadius: 12,
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 18,
     alignItems: "center",
     alignSelf: "flex-start",
   },
