@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, ActivityIndicator, StatusBar } from "react-native";
 import { NavigationContainer, createNavigationContainerRef } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -6,7 +6,10 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthProvider, AuthContext } from "./src/context/AuthContext";
 import { CartProvider } from "./src/context/CartContext";
+import { WishlistProvider } from "./src/context/WishlistContext";
+import { CompareProvider } from "./src/context/CompareContext";
 import T from "./src/styles/theme";
+import AppSplashScreen from "./src/components/AppSplashScreen";
 
 // Auth Screens
 import LoginScreen from "./src/screens/auth/LoginScreen";
@@ -31,6 +34,14 @@ import MyListingsScreen from "./src/screens/main/MyListingsScreen";
 import MyOrdersScreen from "./src/screens/main/MyOrdersScreen";
 import SubscriptionScreen from "./src/screens/main/SubscriptionScreen";
 import AboutScreen from "./src/screens/main/AboutScreen";
+import WishlistScreen from "./src/screens/main/WishlistScreen";
+import NotificationsScreen from "./src/screens/main/NotificationsScreen";
+import OrderDetailScreen from "./src/screens/main/OrderDetailScreen";
+import AddressesScreen from "./src/screens/main/AddressesScreen";
+import SupportScreen from "./src/screens/main/SupportScreen";
+import CompareScreen from "./src/screens/main/CompareScreen";
+import SellerScreen from "./src/screens/main/SellerScreen";
+import RepairTicketsScreen from "./src/screens/main/RepairTicketsScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -105,6 +116,14 @@ function AccountStack() {
       <Stack.Screen name="PricingAgent" component={PricingAgentScreen} options={{ title: "AI Price Check" }} />
       <Stack.Screen name="IMEICheck" component={IMEICheckScreen} options={{ title: "IMEI Check" }} />
       <Stack.Screen name="About" component={AboutScreen} options={{ title: "About ZYPHOR" }} />
+      <Stack.Screen name="Wishlist" component={WishlistScreen} options={{ title: "Wishlist" }} />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="OrderDetail" component={OrderDetailScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Addresses" component={AddressesScreen} options={{ title: "My Addresses" }} />
+      <Stack.Screen name="Support" component={SupportScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Compare" component={CompareScreen} options={{ title: "Compare Devices" }} />
+      <Stack.Screen name="Seller" component={SellerScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="RepairTickets" component={RepairTicketsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="ListingDetail" component={ListingDetailScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ headerShown: false }} />
@@ -180,12 +199,10 @@ function RootNavigator() {
     return () => { cancelled = true; };
   }, [user, needsSubscription]);
 
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: T.bg.primary }}>
-        <ActivityIndicator size="large" color={T.primary} />
-      </View>
-    );
+  const [showSplash, setShowSplash] = useState(true);
+
+  if (loading || showSplash) {
+    return <AppSplashScreen onFinish={() => setShowSplash(false)} />;
   }
   return (
     <NavigationContainer ref={navigationRef}>
@@ -198,9 +215,13 @@ function RootNavigator() {
 export default function App() {
   return (
     <AuthProvider>
-      <CartProvider>
-        <RootNavigator />
-      </CartProvider>
+      <WishlistProvider>
+        <CartProvider>
+          <CompareProvider>
+            <RootNavigator />
+          </CompareProvider>
+        </CartProvider>
+      </WishlistProvider>
     </AuthProvider>
   );
 }

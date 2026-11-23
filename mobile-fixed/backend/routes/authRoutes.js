@@ -5,10 +5,32 @@ const User = require("../models/User");
 const LoginSession = require("../models/LoginSession");
 const JWT_SECRET = process.env.JWT_SECRET || "zyphor_dev_secret_change_me_in_production";
 
+const ROLES = ["customer", "retailer", "wholesaler", "technician", "admin"];
+const ROLES_NEEDING_SUB = ["retailer", "wholesaler", "technician"];
+
 const sign = (user) => jwt.sign(
   { id: user._id.toString(), role: user.role, name: user.name, email: user.email },
   JWT_SECRET, { expiresIn: "7d" }
 );
+
+// Public shape of the user (same fields for login / signup / me / profile)
+const publicUser = (u) => ({
+  id: u._id.toString(),
+  name: u.name,
+  email: u.email,
+  role: u.role,
+  city: u.city,
+  phone: u.phone,
+  businessName: u.businessName,
+  gstNumber: u.gstNumber,
+  verifiedSeller: u.verifiedSeller,
+  trustRating: u.trustRating,
+  isActive: u.isActive,
+  profileImage: u.profileImage,
+  addresses: u.addresses || [],
+  subscription: u.subscription,
+  needsSubscription: ROLES_NEEDING_SUB.includes(u.role) && u.subscription?.status !== "active",
+});
 
 // POST /api/auth/login
 router.post("/login", async (req, res) => {
@@ -17,16 +39,14 @@ router.post("/login", async (req, res) => {
     if (!email || !password) return res.status(400).json({ error: "Email and password required." });
     // If role is provided, find user with that specific role; otherwise find any user with that email
     const query = { email: email.toLowerCase() };
-    if (role && ["customer","retailer","wholesaler","technician","admin"].includes(role)) {
-      query.role = role;
-    }
+    if (role && ROLES.includes(role)) query.role = role;
     const user = await User.findOne(query);
     if (!user) return res.status(401).json({ error: "Invalid credentials." });
     if (!user.isActive) return res.status(403).json({ error: "Account deactivated." });
     const valid = await bcrypt.compare(password, user.passwordHash);
     if (!valid) return res.status(401).json({ error: "Invalid credentials." });
     const token = sign(user);
-    
+
     // Track mobile login session in MongoDB Atlas
     const clientIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "127.0.0.1";
     LoginSession.create({
@@ -44,7 +64,7 @@ router.post("/login", async (req, res) => {
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
     }).catch(e => console.warn("[Mobile LoginSession Warn]:", e.message));
 
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role, city: user.city, subscription: user.subscription, profileImage: user.profileImage } });
+    res.json({ token, user: publicUser(user) });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -54,81 +74,169 @@ router.post("/signup", async (req, res) => {
     const { name, email, password, role, city, phone, businessName, gstNumber } = req.body;
     if (!name || !email || !password) return res.status(400).json({ error: "Name, email, password required." });
     if (password.length < 8) return res.status(400).json({ error: "Password must be 8+ characters." });
-    const safeRole = ["customer","retailer","wholesaler","technician"].includes(role) ? role : "customer";
+    const safeRole = ["customer", "retailer", "wholesaler", "technician"].includes(role) ? role : "customer";
     const existing = await User.findOne({ email: email.toLowerCase(), role: safeRole });
     if (existing) return res.status(409).json({ error: "Email already registered for this role." });
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email: email.toLowerCase(), passwordHash, role: safeRole, city, phone, businessName, gstNumber, subscription: { plan:"free", status:"inactive" } });
+    const user = await User.create({
+      name, email: email.toLowerCase(), passwordHash, role: safeRole, city, phone, businessName, gstNumber,
+      subscription: { plan: "free", status: "inactive" },
+    });
     const token = sign(user);
-    const needsSub = ["retailer","wholesaler","technician"].includes(safeRole);
-    res.status(201).json({ token, user: { id: user._id, name, email: user.email, role: safeRole }, needsSubscription: needsSub });
+    res.status(201).json({ token, user: publicUser(user) });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// GET /api/auth/me
+// GET /api/auth/me — normalize _id → id so the app always reads user.id
 router.get("/me", require("../middleware/auth"), async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-passwordHash").lean();
-    if (!user) return res.status(404).json({ error: "User not found." });
-    res.json({ user });
+    const u = await User.findById(req.user.id).select("-passwordHash").lean();
+    if (!u) return res.status(404).json({ error: "User not found." });
+    const { _id, ...rest } = u;
+    res.json({ user: { id: _id.toString(), ...rest } });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// PATCH /api/auth/profile
+// PATCH /api/auth/profile — whitelist: only provided, allowed fields are written ($set, never strips other fields)
+const PROFILE_FIELDS = ["name", "city", "phone", "businessName", "gstNumber", "profileImage"];
 router.patch("/profile", require("../middleware/auth"), async (req, res) => {
   try {
-    const { name, city, phone, businessName, gstNumber } = req.body;
-    const user = await User.findByIdAndUpdate(req.user.id, { name, city, phone, businessName, gstNumber }, { new: true }).select("-passwordHash").lean();
-    res.json({ user });
+    const update = {};
+    for (const k of PROFILE_FIELDS) if (req.body[k] !== undefined) update[k] = req.body[k];
+    if (Object.keys(update).length === 0) return res.status(400).json({ error: "No valid fields to update." });
+    const u = await User.findByIdAndUpdate(req.user.id, { $set: update }, { new: true, runValidators: true })
+      .select("-passwordHash").lean();
+    const { _id, ...rest } = u;
+    res.json({ user: { id: _id.toString(), ...rest } });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ---- Saved addresses (mobile convenience; stored on the user document) ----
+// GET /api/auth/addresses
+router.get("/addresses", require("../middleware/auth"), async (req, res) => {
+  try {
+    const u = await User.findById(req.user.id).select("addresses").lean();
+    res.json({ addresses: u?.addresses || [] });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/auth/addresses — add (first address becomes default)
+router.post("/addresses", require("../middleware/auth"), async (req, res) => {
+  try {
+    const { label, name, phone, street, city, state, pincode, isDefault } = req.body || {};
+    if (!name || !phone || !street || !city || !pincode)
+      return res.status(400).json({ error: "name, phone, street, city and pincode are required." });
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: "User not found." });
+    if (isDefault) user.addresses.forEach((a) => { a.isDefault = false; });
+    user.addresses.push({ label: label || "Home", name, phone, street, city, state: state || "", pincode, isDefault: !!isDefault || user.addresses.length === 0 });
+    await user.save();
+    res.status(201).json({ addresses: user.addresses });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// PATCH /api/auth/addresses/:addrId
+router.patch("/addresses/:addrId", require("../middleware/auth"), async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: "User not found." });
+    const addr = user.addresses.id(req.params.addrId);
+    if (!addr) return res.status(404).json({ error: "Address not found." });
+    const FIELDS = ["label", "name", "phone", "street", "city", "state", "pincode", "isDefault"];
+    for (const k of FIELDS) if (req.body[k] !== undefined) addr[k] = req.body[k];
+    if (addr.isDefault) user.addresses.forEach((a) => { if (a._id.toString() !== addr._id.toString()) a.isDefault = false; });
+    await user.save();
+    res.json({ addresses: user.addresses });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// DELETE /api/auth/addresses/:addrId
+router.delete("/addresses/:addrId", require("../middleware/auth"), async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: "User not found." });
+    user.addresses = user.addresses.filter((a) => a._id.toString() !== req.params.addrId);
+    await user.save();
+    res.json({ addresses: user.addresses });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // POST /api/auth/forgot-password
+// Website-parity fields: resetOtp (Number) + resetOtpExpiry, so a code requested on the
+// website works in the app and vice versa. Role is optional and scopes the lookup.
 // NOTE: Actual email/SMS delivery is NOT wired up yet — see MANUAL_WORK notes.
-// This generates and stores a real 6-digit code with 15-min expiry in the DB.
-// In development it's echoed back in the response so you can test end-to-end
-// without an email provider. In production, remove the devCode field and wire
-// a real provider (e.g. Resend, SendGrid, Twilio) to actually deliver the code.
+// In development the code is echoed back (devCode) so you can test end-to-end without
+// an email provider. In production, remove devCode and wire a real provider.
 router.post("/forgot-password", async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, role } = req.body;
     if (!email) return res.status(400).json({ error: "Email is required." });
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const query = { email: email.toLowerCase() };
+    if (role && ROLES.includes(role)) query.role = role;
+    const user = await User.findOne(query);
 
     // Always respond with a generic message (don't reveal whether email exists)
     const genericMsg = "If this email is registered, a reset code has been sent.";
     if (!user) return res.json({ message: genericMsg });
 
-    const code = String(Math.floor(100000 + Math.random() * 900000));
-    user.resetPasswordCode = code;
-    user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 min
+    const otp = Math.floor(100000 + Math.random() * 900000); // 6-digit Number (website parity)
+    user.resetOtp = otp;
+    user.resetOtpExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 min
+    // clear legacy fields if present
+    user.resetPasswordCode = undefined;
+    user.resetPasswordExpires = undefined;
     await user.save();
 
-    // TODO(manual work): send `code` via real email/SMS provider here.
-    console.log(`[ZYPHOR] Password reset code for ${user.email}: ${code}`);
+    // TODO(manual work): send `otp` via real email/SMS provider here.
+    console.log(`[ZYPHOR] Password reset OTP generated (email: ${user.email}, role: ${user.role})`);
+
+    // Auto-deliver via Resend API if RESEND_API_KEY is configured
+    if (process.env.RESEND_API_KEY) {
+      try {
+        await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: process.env.EMAIL_FROM || "onboarding@resend.dev",
+            to: [user.email],
+            subject: "ZYPHOR - Password Reset Code",
+            html: `<h3>ZYPHOR Security</h3><p>Your password reset code is: <strong style="font-size:18px;letter-spacing:2px;">${otp}</strong></p><p>Valid for 15 minutes.</p>`,
+          }),
+        });
+      } catch (emailErr) {
+        console.error("[ZYPHOR] Email send error:", emailErr?.message);
+      }
+    }
 
     const payload = { message: genericMsg };
-    if (process.env.NODE_ENV !== "production") payload.devCode = code; // dev/testing convenience only
+    if (process.env.NODE_ENV !== "production") payload.devCode = String(otp); // dev/testing convenience only
     res.json(payload);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// POST /api/auth/reset-password
+// POST /api/auth/reset-password — verifies resetOtp (Number) + resetOtpExpiry
 router.post("/reset-password", async (req, res) => {
   try {
-    const { email, code, newPassword } = req.body;
+    const { email, code, newPassword, role } = req.body;
     if (!email || !code || !newPassword) return res.status(400).json({ error: "Email, code and new password required." });
     if (newPassword.length < 8) return res.status(400).json({ error: "Password must be 8+ characters." });
 
-    const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user || !user.resetPasswordCode || !user.resetPasswordExpires)
+    const query = { email: email.toLowerCase() };
+    if (role && ROLES.includes(role)) query.role = role;
+    const user = await User.findOne(query);
+    if (!user || !user.resetOtp || !user.resetOtpExpiry)
       return res.status(400).json({ error: "Invalid or expired code. Please request a new one." });
-    if (user.resetPasswordExpires < new Date())
+    if (user.resetOtpExpiry < new Date())
       return res.status(400).json({ error: "Code expired. Please request a new one." });
-    if (user.resetPasswordCode !== String(code))
+    if (Number(user.resetOtp) !== Number(code))
       return res.status(400).json({ error: "Incorrect code." });
 
     user.passwordHash = await bcrypt.hash(newPassword, 10);
+    user.resetOtp = undefined;
+    user.resetOtpExpiry = undefined;
     user.resetPasswordCode = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();

@@ -147,6 +147,54 @@ export default function DashboardScreen({ navigation }) {
             <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
           </TouchableOpacity>
 
+          <TouchableOpacity onPress={() => navigation.navigate("Wishlist")} style={[styles.menuItem, styles.menuItemBorder]}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="heart-outline" size={18} color={T.primary} />
+            </View>
+            <Text style={styles.menuLabel}>My Wishlist</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate("Notifications")} style={[styles.menuItem, styles.menuItemBorder]}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="notifications-outline" size={18} color={T.primary} />
+            </View>
+            <Text style={styles.menuLabel}>Notifications</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate("Compare")} style={[styles.menuItem, styles.menuItemBorder]}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="git-compare-outline" size={18} color={T.primary} />
+            </View>
+            <Text style={styles.menuLabel}>Compare Devices</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate("RepairTickets")} style={[styles.menuItem, styles.menuItemBorder]}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="construct-outline" size={18} color={T.primary} />
+            </View>
+            <Text style={styles.menuLabel}>My Repair Tickets</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate("Addresses")} style={[styles.menuItem, styles.menuItemBorder]}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="location-outline" size={18} color={T.primary} />
+            </View>
+            <Text style={styles.menuLabel}>Saved Addresses</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate("Support")} style={[styles.menuItem, styles.menuItemBorder]}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="help-circle-outline" size={18} color={T.primary} />
+            </View>
+            <Text style={styles.menuLabel}>Help & Support</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
+          </TouchableOpacity>
+
           {isTechnician && (
             <TouchableOpacity onPress={() => navigation.navigate("Repair")} style={[styles.menuItem, styles.menuItemBorder]}>
               <View style={styles.menuIcon}>

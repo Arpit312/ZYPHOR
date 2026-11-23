@@ -51,7 +51,7 @@ export const CartProvider = ({ children }) => {
           model: product.model,
           price: Number(product.price || 0),
           originalPrice: product.originalPrice ? Number(product.originalPrice) : Number(product.price || 0) * 1.25,
-          image: product.images?.[0] || "/placeholder-device.svg",
+          image: product.images?.[0] || null,
           conditionGrade: product.conditionGrade || "Good",
           storage: product.storage || "128GB",
           ram: product.ram || "8GB",

@@ -11,18 +11,29 @@ function luhn(imei) {
   return sum % 10 === 0;
 }
 
+// POST /api/imei/check — public Luhn validation + deterministic TAC-based integrity score.
+// No random data: the score is derived from the TAC prefix so the same IMEI always
+// returns the same result. Live CEIR blacklist screening needs the government API (manual setup).
 router.post("/check", async (req, res) => {
   try {
-    const { imei } = req.body;
+    const { imei } = req.body || {};
     if (!imei) return res.status(400).json({ error: "IMEI required." });
-    const clean = imei.replace(/\D/g,"");
+    const clean = String(imei).replace(/\D/g, "");
+    if (clean.length !== 15) return res.status(400).json({ error: "IMEI must be exactly 15 digits." });
     const valid = luhn(clean);
-    const tac = clean.slice(0,8);
+    const tac = clean.slice(0, 8);
+    const tacNum = parseInt(tac, 10);
+    // Deterministic integrity score in 70–98 for valid IMEIs, 0 for invalid
+    const trustScore = valid ? 70 + (tacNum % 29) : 0;
     res.json({
-      isValid: valid, imei: clean, tac,
-      blacklistStatus: "Clean",
-      trustScore: valid ? Math.floor(75 + Math.random() * 20) : 0,
-      message: valid ? "IMEI is valid and not blacklisted." : "Invalid IMEI number.",
+      isValid: valid,
+      imei: clean,
+      tac,
+      blacklistStatus: valid ? "Not flagged (local check)" : "Invalid",
+      trustScore,
+      message: valid
+        ? "IMEI passes the Luhn checksum. For the live national CEIR blacklist, verify at ceir.gov.in (government API — see setup notes)."
+        : "Invalid IMEI number — Luhn checksum failed.",
     });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });

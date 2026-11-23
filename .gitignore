@@ -1,33 +1,98 @@
-# dependencies
+# ==============================================================================
+# ZYPHOR ROOT .gitignore
+# Complete protection for secrets, credentials, environment files & build outputs
+# ==============================================================================
+
+# ── Dependencies ─────────────────────────────────────────────────────────────
 node_modules/
-/.pnpm
-/.yarn
+*/node_modules/
+**/.pnp
+**/.pnp.js
+**/.yarn/cache
+**/.yarn/unplugged
+**/.yarn/build-state.yml
 
-# next.js build
-website/.next/
-website/out/
+# ── Environment & Secrets (NEVER COMMIT) ─────────────────────────────────────
+.env
+.env.*
+.env*.local
+*.env
+*.env.*
+**/.env
+**/.env.*
+**/.env*.local
 
-# production
-/build
-server/dist/
+# Whitelist environment example files only
+!.env.example
+!**/.env.example
 
-# misc
-.DS_Store
+# ── Certificates, Private Keys & Secret Stores ───────────────────────────────
 *.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+*.keystore
+*.jks
+credentials.json
+**/credentials.json
+serviceAccount*.json
+**/serviceAccount*.json
+secrets/
+**/secrets/
 
-# debug logs
+# ── Private Utility & Database Migration Scripts ─────────────────────────────
+seed-test-users.js
+**/seed-test-users.js
+transfer_db.js
+**/transfer_db.js
+
+# ── Build & Distribution Outputs ─────────────────────────────────────────────
+.next/
+*/.next/
+out/
+*/out/
+dist/
+*/dist/
+build/
+*/build/
+web-build/
+*/web-build/
+.expo/
+*/.expo/
+*.tsbuildinfo
+next-env.d.ts
+
+# ── Native Mobile Build Artifacts ────────────────────────────────────────────
+mobile-fixed/android/
+mobile-fixed/ios/
+*.apk
+*.aab
+*.ipa
+
+# ── Deployment & Cloud Provider Artifacts ────────────────────────────────────
+.vercel
+*/.vercel
+.serverless/
+.terraform/
+
+# ── Logs & Debugging ─────────────────────────────────────────────────────────
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
-# local env files
-.env
-.env*.local
-server/.env
-
-# vercel & ide
-.vercel
-.idea/
+# ── OS & IDE Metadata ────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
 .vscode/
-.expo/
-
+*/.vscode/
+.idea/
+*/.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo

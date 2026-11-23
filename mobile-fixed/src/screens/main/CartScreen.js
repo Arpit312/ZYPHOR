@@ -3,28 +3,17 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } fr
 import { Ionicons } from "@expo/vector-icons";
 import T from "../../styles/theme";
 import { useCart } from "../../context/CartContext";
-import { useAuth } from "../../context/AuthContext";
 import { Btn } from "../../components/UI";
 
 export default function CartScreen({ navigation }) {
   const { cart, removeFromCart, updateQuantity, clearCart, cartCount, cartSubtotal } = useCart();
-  const { user } = useAuth();
 
   const deliveryFee = 0; // Free delivery
   const totalPayable = cartSubtotal + deliveryFee;
 
+  // Cart only renders inside the authenticated tab navigator, so the user
+  // is always present here — go straight to checkout.
   const handleCheckout = () => {
-    if (!user) {
-      Alert.alert(
-        "Login Required",
-        "Please login to proceed with your order and unlock Escrow protection.",
-        [
-          { text: "Cancel", style: "cancel" },
-          { text: "Login", onPress: () => navigation.navigate("Login") },
-        ]
-      );
-      return;
-    }
     navigation.navigate("Checkout");
   };
 

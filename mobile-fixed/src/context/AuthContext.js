@@ -21,7 +21,25 @@ export const AuthProvider = ({ children }) => {
         const storedUser = await AsyncStorage.getItem("user");
         const token = await AsyncStorage.getItem("token");
         if (storedUser && token) {
-          setUser(JSON.parse(storedUser));
+          const cached = JSON.parse(storedUser);
+          setUser(cached);
+          // Validate the stored token against the server so a stale/revoked
+          // token doesn't keep a dead session alive. 401 is handled by the
+          // api interceptor (clears storage + user); network errors keep the
+          // cached session so the app still opens offline.
+          try {
+            const res = await authAPI.me();
+            const fresh = res.data.user;
+            setUser(fresh);
+            await AsyncStorage.setItem("user", JSON.stringify(fresh));
+            if (fresh.needsSubscription !== undefined) setNeedsSubscription(fresh.needsSubscription);
+          } catch (meErr) {
+            if (meErr.response?.status === 401) {
+              await AsyncStorage.multiRemove(["token", "user"]);
+              setUser(null);
+            }
+            // otherwise: offline or server down — keep cached session
+          }
         } else {
           setUser(null);
         }

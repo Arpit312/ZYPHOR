@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import T from "../../styles/theme";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
-import { ordersAPI } from "../../api/api";
+import { ordersAPI, authAPI } from "../../api/api";
 import { Input, Btn } from "../../components/UI";
 
 const PAYMENT_METHODS = [
@@ -35,10 +35,41 @@ export default function CheckoutScreen({ navigation, route }) {
 
   const [paymentMethod, setPaymentMethod] = useState("upi");
   const [loading, setLoading] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [saveAddress, setSaveAddress] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const r = await authAPI.addresses.getAll();
+        setSavedAddresses(r.data.addresses || []);
+      } catch {}
+    })();
+  }, [user?.id]);
+
+  const applySavedAddress = (a) => {
+    setAddress((prev) => ({
+      ...prev,
+      name: a.name || prev.name,
+      phone: a.phone || prev.phone,
+      street: a.street || "",
+      city: a.city || prev.city,
+      pincode: a.pincode || "",
+    }));
+  };
 
   const handlePlaceOrder = async () => {
     if (!address.name.trim() || !address.phone.trim() || !address.street.trim() || !address.pincode.trim()) {
       Alert.alert("Missing Details", "Please fill in all shipping address fields.");
+      return;
+    }
+    if (!/^\d{6}$/.test(address.pincode.trim())) {
+      Alert.alert("Invalid PIN Code", "Please enter a valid 6-digit PIN code.");
+      return;
+    }
+    const phoneDigits = address.phone.replace(/\D/g, "").slice(-10);
+    if (!/^\d{10}$/.test(phoneDigits)) {
+      Alert.alert("Invalid Phone", "Please enter a valid 10-digit mobile number.");
       return;
     }
 
@@ -62,6 +93,21 @@ export default function CheckoutScreen({ navigation, route }) {
 
       if (!singleItem) {
         await clearCart();
+      }
+
+      if (saveAddress) {
+        try {
+          await authAPI.addresses.add({
+            label: savedAddresses.length === 0 ? "Home" : "Address",
+            name: address.name.trim(),
+            phone: address.phone.trim(),
+            street: address.street.trim(),
+            city: address.city.trim(),
+            state: "",
+            pincode: address.pincode.trim(),
+            isDefault: savedAddresses.length === 0,
+          });
+        } catch {}
       }
 
       Alert.alert(
@@ -111,6 +157,35 @@ export default function CheckoutScreen({ navigation, route }) {
             <Text style={styles.sectionTitle}>Shipping Address</Text>
           </View>
 
+          {(savedAddresses || []).length > 0 && (
+            <View style={{ marginBottom: 12 }}>
+              <Text style={{ fontSize: 11, fontWeight: "700", color: T.text.secondary, marginBottom: 8 }}>SAVED ADDRESSES</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+                {savedAddresses.map((a) => (
+                  <TouchableOpacity
+                    key={a._id}
+                    onPress={() => applySavedAddress(a)}
+                    style={styles.savedAddrChip}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="location" size={12} color={T.primary} />
+                    <Text style={styles.savedAddrText} numberOfLines={1}>
+                      {a.label || "Address"} · {a.city} {a.pincode}{a.isDefault ? " · Default" : ""}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("Account", { screen: "Addresses" })}
+                  style={[styles.savedAddrChip, { borderStyle: "dashed" }]}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="add" size={12} color={T.text.secondary} />
+                  <Text style={[styles.savedAddrText, { color: T.text.secondary }]}>Manage</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            </View>
+          )}
+
           <Input
             label="Full Recipient Name *"
             placeholder="Rahul Sharma"
@@ -157,6 +232,17 @@ export default function CheckoutScreen({ navigation, route }) {
               />
             </View>
           </View>
+
+          <TouchableOpacity
+            onPress={() => setSaveAddress((s) => !s)}
+            style={styles.saveAddrRow}
+            activeOpacity={0.7}
+          >
+            <View style={[styles.checkbox, saveAddress && styles.checkboxOn]}>
+              {saveAddress && <Ionicons name="checkmark" size={12} color="#FFFFFF" />}
+            </View>
+            <Text style={styles.saveAddrText}>Save this address for future orders</Text>
+          </TouchableOpacity>
         </View>
 
         {/* 2. Payment Method */}
@@ -357,4 +443,27 @@ const styles = StyleSheet.create({
   },
   barTotalLabel: { fontSize: 11, color: T.text.secondary },
   barTotalVal: { fontSize: 20, fontWeight: "900", color: T.text.primary, marginTop: 1 },
+
+  savedAddrChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: T.bg.secondary,
+    borderWidth: 1,
+    borderColor: T.border.color,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  savedAddrText: { fontSize: 11, fontWeight: "600", color: T.text.primary, maxWidth: 150 },
+
+  saveAddrRow: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 4 },
+  checkbox: {
+    width: 20, height: 20, borderRadius: 6,
+    borderWidth: 1.5, borderColor: T.border.color,
+    alignItems: "center", justifyContent: "center",
+    backgroundColor: "#FFFFFF",
+  },
+  checkboxOn: { backgroundColor: T.primary, borderColor: T.primary },
+  saveAddrText: { fontSize: 12, color: T.text.secondary, fontWeight: "500" },
 });

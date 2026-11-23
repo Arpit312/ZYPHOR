@@ -20,25 +20,20 @@ export default function PricingAgentScreen() {
   });
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const set = (k) => (v) => setForm((f) => ({ ...f, [k]: v }));
 
   const getPrice = async () => {
     setLoading(true);
     setResult(null);
+    setError(null);
     try {
       const r = await aiAPI.pricing(form);
       setResult(r.data);
-    } catch {
-      setResult({
-        minPrice: 32000,
-        maxPrice: 48000,
-        recommendedPrice: 42000,
-        quickSalePrice: 38000,
-        marketTrend: "stable",
-        demandLevel: "high",
-        factors: ["High buyer demand for this model", "Certified battery health preserves 92% value", "Authentic display adds premium margin"],
-        tip: "List at the recommended benchmark for optimal speed and maximum value retention.",
-      });
+    } catch (err) {
+      // No fake fallback — show the real error (quota reached / AI not configured / network).
+      const msg = err.response?.data?.error || "AI pricing is unavailable right now. Check your connection and try again.";
+      setError(err.response?.data?.limitReached ? `${msg}` : msg);
     } finally {
       setLoading(false);
     }
@@ -121,6 +116,16 @@ export default function PricingAgentScreen() {
             loading={loading}
             style={{ marginVertical: 14 }}
           />
+
+          {error && !result && (
+            <View style={styles.errorCard}>
+              <Ionicons name="alert-circle-outline" size={22} color={T.red} />
+              <Text style={styles.errorText}>{error}</Text>
+              <TouchableOpacity onPress={getPrice} style={styles.errorRetry} activeOpacity={0.8}>
+                <Text style={styles.errorRetryText}>Retry</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
           {result && (
             <View style={styles.resultCard}>
@@ -273,4 +278,18 @@ const styles = StyleSheet.create({
 
   factorRow: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 6 },
   factorText: { fontSize: 12, color: T.text.secondary },
+
+  errorCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: T.red,
+    marginTop: 10,
+    alignItems: "center",
+    gap: 10,
+  },
+  errorText: { fontSize: 13, color: T.text.secondary, textAlign: "center", lineHeight: 18 },
+  errorRetry: { backgroundColor: T.primary, borderRadius: 10, paddingVertical: 10, paddingHorizontal: 22 },
+  errorRetryText: { color: "#FFFFFF", fontSize: 13, fontWeight: "700" },
 });

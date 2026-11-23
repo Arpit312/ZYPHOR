@@ -75,7 +75,8 @@ router.post("/", auth, upload.single("file"), async (req, res) => {
 
     return res.json({
       success: true,
-      url: `/uploads/${safeName}`,
+      // Absolute URL — a relative path is unusable from the mobile app.
+      url: `${req.protocol}://${req.get("host")}/uploads/${safeName}`,
       source: "local"
     });
   } catch (err) {

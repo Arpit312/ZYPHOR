@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, TextInput,
 import { Ionicons } from "@expo/vector-icons";
 import T from "../styles/theme";
 import { useCart } from "../context/CartContext";
+import { useWishlist } from "../context/WishlistContext";
 
 const W = Dimensions.get("window").width;
 
@@ -117,7 +118,9 @@ export const Badge = ({ label, color = T.primary, icon }) => (
 );
 
 export const ListingCard = ({ item, onPress, wide, onAddToCart }) => {
-  const [wishlist, setWishlist] = React.useState(false);
+  const { isWishlisted, toggle } = useWishlist();
+  const cardId = String(item?._id || item?.id || "");
+  const wishlist = isWishlisted(cardId);
   const trust = item?.verification?.trustScore || 0;
   const price = Number(item?.price || 0);
   const origPrice = item?.originalPrice ? Number(item.originalPrice) : Math.round(price * 1.3);
@@ -141,7 +144,7 @@ export const ListingCard = ({ item, onPress, wide, onAddToCart }) => {
 
         {/* Top Right Heart Wishlist Button (Mōnolith Style) */}
         <TouchableOpacity
-          onPress={() => setWishlist((w) => !w)}
+          onPress={() => toggle(cardId)}
           style={styles.wishlistBtn}
           activeOpacity={0.7}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -149,7 +152,7 @@ export const ListingCard = ({ item, onPress, wide, onAddToCart }) => {
           <Ionicons
             name={wishlist ? "heart" : "heart-outline"}
             size={18}
-            color={wishlist ? T.primary : T.primary}
+            color={wishlist ? T.red : T.primary}
           />
         </TouchableOpacity>
 

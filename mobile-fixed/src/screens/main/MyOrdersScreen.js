@@ -78,7 +78,7 @@ export default function MyOrdersScreen({ navigation }) {
       ) : (
         <FlatList
           data={orders}
-          keyExtractor={(i) => i._id}
+          keyExtractor={(i, idx) => i._id || String(idx)}
           contentContainerStyle={{ padding: 20, paddingBottom: 60 }}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={T.primary} />}
           renderItem={({ item }) => {
@@ -87,7 +87,11 @@ export default function MyOrdersScreen({ navigation }) {
             const currentStepIdx = STEPS.indexOf(currentStatus);
 
             return (
-              <View style={styles.orderCard}>
+              <TouchableOpacity
+                style={styles.orderCard}
+                activeOpacity={0.85}
+                onPress={() => navigation.navigate("OrderDetail", { id: item._id })}
+              >
                 {/* Header Row */}
                 <View style={styles.orderHeader}>
                   <View style={styles.orderTypeBadge}>
@@ -121,7 +125,7 @@ export default function MyOrdersScreen({ navigation }) {
                 </View>
 
                 {/* Stepper */}
-                {currentStatus !== "cancelled" && (
+                {currentStepIdx >= 0 && (
                   <View style={styles.stepperWrap}>
                     {STEPS.map((step, idx) => {
                       const completed = currentStepIdx >= idx;
@@ -170,9 +174,9 @@ export default function MyOrdersScreen({ navigation }) {
                   <Text style={styles.dateText}>
                     Date: {new Date(item.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                   </Text>
-                  <Text style={styles.statusHelper}>Verified Order ✓</Text>
+                  <Text style={styles.statusHelper}>View Details →</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             );
           }}
         />

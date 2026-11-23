@@ -176,3 +176,110 @@ fake data, in rough order of business value:
 
 Tell me which one and I'll build it the same way — audited, wired end-to-end,
 no dummy data.
+
+---
+
+# 🔁 ROUND 2 — Full-stack production audit (2026-11-23)
+
+## What was done
+
+### Backend (`mobile-fixed/backend/`) — rewritten/hardened
+- `routes/authRoutes.js` rewritten: full `publicUser()` shape (incl.
+  `needsSubscription`), LoginSession insert, `/me` normalizes `{id, ...rest}`,
+  profile PATCH whitelist via `$set`, **addresses CRUD**
+  (GET/POST `/addresses`, PATCH/DELETE `/addresses/:addrId` with default-address
+  handling), forgot/reset password on **website-parity fields**
+  `resetOtp` (Number) + `resetOtpExpiry`; `devCode` only when
+  `NODE_ENV !== "production"`.
+- `routes/listingRoutes.js` rewritten: regex-escaped search, seller storefront
+  `/seller/:id` before `/:id`, create whitelist (seller forced from JWT),
+  subscription per-plan active-listing cap, image URL validation (http(s) only,
+  max 10), owner-only PATCH whitelist, reviews (one per user, 409 on dup).
+- `routes/orderRoutes.js` rewritten: role-validated status transitions
+  (TRANSITIONS map), escrow release on `delivered`, refund + listing restore on
+  `cancelled`, bill/invoice (`generateInvoiceNumber("ZYP")`), participant-only
+  GET `/:id`, notifications with deep links.
+- `routes/subscriptionRoutes.js`: Razorpay HMAC-SHA256 signature verification
+  (timingSafeEqual), **no activation without verified payment in production**,
+  dev-only direct activation flagged `devActivated: true`.
+- `routes/aiRoutes.js`: real Gemini calls (advisor grounded on live listings,
+  pricing, verify-imei) with **monthly quota enforcement** (atomic updateOne,
+  429 limitReached) and **no fake fallbacks** — 503/502 with honest errors.
+- `routes/imeiRoutes.js`: deterministic Luhn + TAC trust score (no
+  Math.random), honest CEIR messaging.
+- `routes/repairRoutes.js`: ticket CRUD with tech status transitions
+  (pending→assigned→in_repair→completed / cancelled).
+- **NEW** `routes/wishlistRoutes.js`, `routes/notificationRoutes.js`,
+  `routes/supportRoutes.js` + `services/notify.js` (fire-and-forget).
+- `routes/adminRoutes.js` rewritten: escaped regex, field whitelist, role
+  validation, dotted `$set` for `subscription.status`.
+- `server.js`: function-based CORS (allowlist + no-origin mobile), in-memory
+  rate limit on `/api/auth` (30 req / 15 min / ip+path), `trust proxy`,
+  MONGODB_URI guard (logs + keeps serving instead of crashing), all 11 API
+  mounts verified.
+- Models: User (addresses[], resetOtp/resetOtpExpiry, aiCalls quota fields,
+  compound unique `{email, role}`), Listing (partCategory, fees, reviews[],
+  conditionGrade enum), Order (bill, statusHistory, razorpayOrderId),
+  NEW Wishlist / Notification / SupportTicket.
+
+### Frontend (`mobile-fixed/`) — 8 new screens + 2 new contexts
+- **NEW screens** (all registered in `App.js`): `WishlistScreen`,
+  `NotificationsScreen`, `OrderDetailScreen`, `AddressesScreen`,
+  `SupportScreen`, `CompareScreen`, `SellerScreen`, `RepairTicketsScreen`.
+- **NEW contexts**: `WishlistContext` (real `/api/wishlist`), `CompareContext`
+  (AsyncStorage, max 3). Providers wired in `App.js`.
+- `api.js`: added addresses API, wishlist/notifications/support APIs,
+  `listingsAPI.getSeller/addReview`, `ordersAPI.getById`, repair getById/updateStatus.
+- Crash fixes: HomeScreen `navigate("AI Tools")` → real `Advisor`/`IMEICheck`
+  tabs; `"/placeholder-device.svg"` remote-uri crash → Ionicons placeholder;
+  dead `navigate("Login")` branches removed; PricingAgent fake fallback removed
+  (honest error + Retry); ListingDetail full rewrite (wishlist heart, compare,
+  Buy Now → Checkout, reviews, seller storefront link); Cart/Checkout saved
+  addresses with PIN/phone validation; MyOrders → OrderDetail; UI.js hearts
+  now real wishlist toggles; `app.json` userInterfaceStyle → light;
+  AuthContext validates cached token via `/me` on boot (offline-tolerant);
+  AppSplashScreen 1-sec motion wired in `App.js`.
+- Zero `onPress={() => {}}` handlers, zero TODO/placeholder strings in `src/`
+  (grep-verified).
+
+### Security hardening
+- `.gitignore` added at repo root + `backend/.gitignore` (`.env`,
+  node_modules, `public/uploads` excluded).
+- `.env.example` added for backend and app (documents every required var,
+  no secrets).
+- ⚠️ `backend/.env` contains REAL secrets (Atlas URI, GEMINI_API_KEY,
+  JWT_SECRET, Cloudinary) and `backend/seed-test-users.js` contains a personal
+  login — **rotate all of them and keep both files out of git** (now gitignored).
+
+## ✅ Final verification (2026-11-23)
+- `node --check`: **26/26 backend files pass**.
+- Babel JSX parse (`@babel/core`, plugins: jsx): **37/37 frontend files pass**
+  (App.js + all of `src/`).
+- Navigation audit: every `navigate("X")` and nested `{ screen: "X" }` in
+  `src/` resolves to a screen registered in `App.js` — **0 dangling targets**.
+- Boot smoke test (dummy `MONGODB_URI`/`JWT_SECRET`, real `.env` untouched):
+  server boots and stays up with DB down; `GET /api/health` → 200
+  `{"status":"OK","db":"disconnected"}`; `GET /api/orders` w/o token → 401 JSON;
+  `POST /api/auth/login` empty body → 400 JSON; `POST /api/imei/check` → 200
+  honest local Luhn result; DB-down `GET /api/listings` → JSON 500, **no crash**;
+  unknown route → 404.
+
+## 🔧 Manual work still required before Play Store release
+1. **Rotate every secret** currently in `backend/.env` (Atlas password,
+   GEMINI_API_KEY, JWT_SECRET, Cloudinary keys) — assume they were exposed while
+   committed; then `git init` (repo root is NOT a git repo yet) and never commit
+   `.env` / `seed-test-users.js`.
+2. `JWT_SECRET` + `MONGODB_URI` must match the website backend exactly for
+   one-login-everywhere.
+3. Real Cloudinary creds in `.env` (else uploads use local `/public/uploads`,
+   which is fine only for dev).
+4. Wire a real email/SMS provider for the password-reset OTP, then remove
+   `devCode` from the response (already gated on NODE_ENV).
+5. Verify the Gemini key format (`AIza...`) at aistudio.google.com.
+6. `RAZORPAY_KEY_ID`/`RAZORPAY_KEY_SECRET` for production subscription payments
+   (dev auto-activation only happens while unconfigured).
+7. EXPO_PUBLIC_API_URL (app `.env`) → your deployed backend URL for EAS builds;
+   Atlas IP allowlist (0.0.0.0/0 or your server IPs).
+8. Optional live CEIR/government API key for real IMEI blacklist checks.
+9. Play Store assets: app icon (1024px), feature graphic, screenshots, privacy
+   policy URL, content rating, EAS build (`eas build --platform android`).

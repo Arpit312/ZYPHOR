@@ -30,8 +30,8 @@ const CATEGORIES = [
   { id: "repair", label: "Doorstep Repair", icon: "construct-outline", tab: "Repair", screen: "RepairMain", badge: "6M WRTY" },
   { id: "parts", label: "OEM Parts", icon: "hardware-chip-outline", tab: "Browse", screen: "Parts" },
   { id: "sell", label: "Sell Device", icon: "cash-outline", tab: "Sell", screen: "SellMain" },
-  { id: "advisor", label: "AI Advisor", icon: "sparkles-outline", tab: "AI Tools", screen: "Advisor" },
-  { id: "imei", label: "IMEI Check", icon: "scan-outline", tab: "AI Tools", screen: "IMEICheck" },
+  { id: "advisor", label: "AI Advisor", icon: "sparkles-outline", tab: "Advisor" },
+  { id: "imei", label: "IMEI Check", icon: "scan-outline", tab: "IMEICheck" },
 ];
 
 export default function HomeScreen({ navigation }) {
@@ -104,7 +104,7 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.topRightActions}>
             <TouchableOpacity
               style={styles.iconBtn}
-              onPress={() => navigation.navigate("AI Tools", { screen: "IMEICheck" })}
+              onPress={() => navigation.navigate("IMEICheck")}
               activeOpacity={0.7}
             >
               <Ionicons name="scan-outline" size={20} color={T.text.primary} />
@@ -156,7 +156,7 @@ export default function HomeScreen({ navigation }) {
                 icon={cat.icon}
                 label={cat.label}
                 badge={cat.badge}
-                onPress={() => navigation.navigate(cat.tab, { screen: cat.screen })}
+                onPress={() => navigation.navigate(cat.tab, cat.screen ? { screen: cat.screen } : undefined)}
               />
             ))}
           </ScrollView>

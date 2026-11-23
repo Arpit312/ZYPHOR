@@ -4,7 +4,7 @@
     "slug": "zyphor",
     "version": "2.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "icon": "./assets/icon.png",
     "android": {
       "package": "com.zyphor.app",

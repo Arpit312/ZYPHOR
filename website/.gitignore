@@ -16,18 +16,23 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.local
 .env
+.env.*
+.env*.local
+!.env.example
 
 # vercel
 .vercel
 
+# private scripts
+transfer_db.js
+
 # IDE / OS
 .DS_Store
+Thumbs.db
 *.pem
 .idea
 .vscode
-
 .vercel
 
 .cursor/hooks.json
