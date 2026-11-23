@@ -11,8 +11,15 @@
       "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0A0A0F"
-      }
+        "backgroundColor": "#FFFFFF"
+      },
+      "permissions": [
+        "INTERNET",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES"
+      ]
     },
     "ios": {
       "bundleIdentifier": "com.zyphor.app",
@@ -32,7 +39,7 @@
         {
           "image": "./assets/splash.png",
           "resizeMode": "contain",
-          "backgroundColor": "#0A0A0F"
+          "backgroundColor": "#FFFFFF"
         }
       ],
       "expo-status-bar"
