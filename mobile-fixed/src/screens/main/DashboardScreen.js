@@ -139,6 +139,22 @@ export default function DashboardScreen({ navigation }) {
             </TouchableOpacity>
           )}
 
+          <TouchableOpacity onPress={() => navigation.navigate("PaymentMethods")} style={[styles.menuItem, styles.menuItemBorder]}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="card-outline" size={18} color={T.primary} />
+            </View>
+            <Text style={styles.menuLabel}>Payment Methods & Escrow Nodal</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate("DevicePassport")} style={[styles.menuItem, styles.menuItemBorder]}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="shield-checkmark-outline" size={18} color={T.primary} />
+            </View>
+            <Text style={styles.menuLabel}>Digital Device Passport (45-Pt Sample)</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
+          </TouchableOpacity>
+
           <TouchableOpacity onPress={() => navigation.navigate("OrderTracking")} style={[styles.menuItem, styles.menuItemBorder]}>
             <View style={styles.menuIcon}>
               <Ionicons name="time-outline" size={18} color={T.primary} />

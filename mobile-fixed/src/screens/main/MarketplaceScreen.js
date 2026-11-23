@@ -9,16 +9,18 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
+  StatusBar,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import T from "../../styles/theme";
+import { tokens } from "../../theme/tokens";
 import { ListingCard, Empty, CartHeaderBtn } from "../../components/UI";
 import { listingsAPI } from "../../api/api";
 import { useCart } from "../../context/CartContext";
+import { useTranslation } from "../../i18n/I18nContext";
 
 const BRANDS = ["All", "Apple", "Samsung", "OnePlus", "Google", "Xiaomi", "Realme", "Vivo"];
 const SORTS = [
-  { k: "trust", l: "Popularity" },
+  { k: "trust", l: "Recommended" },
   { k: "newest", l: "Newest Arrivals" },
   { k: "price_low", l: "Price: Low to High" },
   { k: "price_high", l: "Price: High to Low" },
@@ -26,6 +28,7 @@ const SORTS = [
 
 export default function MarketplaceScreen({ navigation, route }) {
   const { addToCart } = useCart();
+  const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [brand, setBrand] = useState("All");
   const [sort, setSort] = useState("trust");
@@ -38,8 +41,8 @@ export default function MarketplaceScreen({ navigation, route }) {
   useEffect(() => {
     if (route?.params?.focus) {
       setShowSearch(true);
-      const t = setTimeout(() => searchRef.current?.focus(), 350);
-      return () => clearTimeout(t);
+      const timer = setTimeout(() => searchRef.current?.focus(), 350);
+      return () => clearTimeout(timer);
     }
   }, [route?.params?.focus]);
 
@@ -59,45 +62,50 @@ export default function MarketplaceScreen({ navigation, route }) {
   }, [q, brand, sort]);
 
   useEffect(() => {
-    const t = setTimeout(load, 300);
-    return () => clearTimeout(t);
+    const timer = setTimeout(load, 300);
+    return () => clearTimeout(timer);
   }, [load]);
 
   const handleQuickAdd = (item) => {
     addToCart(item);
-    Alert.alert("✓ Added to Cart", `${item.brand} ${item.model} is now in your cart.`, [
+    Alert.alert("✓ Added to Bag", `${item.brand} ${item.model} is now in your shopping bag.`, [
       { text: "Continue" },
-      { text: "View Cart", onPress: () => navigation.navigate("Cart") },
+      { text: "View Bag", onPress: () => navigation.navigate("Cart") },
     ]);
   };
 
-  const currentSortLabel = SORTS.find((s) => s.k === sort)?.l || "Popularity";
+  const currentSortLabel = SORTS.find((s) => s.k === sort)?.l || "Recommended";
 
   return (
     <View style={styles.root}>
-      {/* ─── MŌNOLITH EDITORIAL HEADER (Middle Screen in Reference) ─── */}
+      <StatusBar barStyle="dark-content" backgroundColor={tokens.colors.canvas} />
+
+      {/* ─── LUXURY CATALOG HEADER ─── */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <View>
-            <Text style={styles.title}>All products</Text>
-            <Text style={styles.subTitleStamp}>GALLERY EXHIBIT // 45-PT VERIFIED</Text>
+            <Text style={styles.title}>{t("marketplace") || "Certified Devices"}</Text>
+            <View style={styles.trustTagRow}>
+              <View style={styles.goldDot} />
+              <Text style={styles.subTitleStamp}>45-POINT AUDITED • 48H ESCROW</Text>
+            </View>
           </View>
           <CartHeaderBtn onPress={() => navigation.navigate("Cart")} />
         </View>
 
-        {/* Sub-bar: Sort by ... ˅ on left, Search & Filter on right */}
+        {/* Sub-bar: Sort by ... on left, Search & Filter trigger on right */}
         <View style={styles.controlRow}>
           <TouchableOpacity
             style={styles.sortDropdownBtn}
             onPress={() => setShowSortDropdown((v) => !v)}
             activeOpacity={0.7}
           >
-            <Text style={styles.sortPrefixText}>Sort by </Text>
+            <Text style={styles.sortPrefixText}>Sort: </Text>
             <Text style={styles.sortValueText}>{currentSortLabel}</Text>
             <Ionicons
               name={showSortDropdown ? "chevron-up" : "chevron-down"}
               size={13}
-              color={T.text.primary}
+              color={tokens.colors.ink}
               style={{ marginLeft: 3 }}
             />
           </TouchableOpacity>
@@ -108,14 +116,18 @@ export default function MarketplaceScreen({ navigation, route }) {
               onPress={() => setShowSearch((s) => !s)}
               activeOpacity={0.7}
             >
-              <Ionicons name="search-outline" size={20} color={T.primary} />
+              <Ionicons
+                name={showSearch ? "close-outline" : "search-outline"}
+                size={20}
+                color={tokens.colors.ink}
+              />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.iconBtn}
-              onPress={() => setBrand((b) => (b === "All" ? "Apple" : "All"))}
+              onPress={() => navigation.navigate("SearchFilter")}
               activeOpacity={0.7}
             >
-              <Ionicons name="options-outline" size={20} color={T.primary} />
+              <Ionicons name="options-outline" size={20} color={tokens.colors.ink} />
             </TouchableOpacity>
           </View>
         </View>
@@ -135,7 +147,7 @@ export default function MarketplaceScreen({ navigation, route }) {
                 <Text style={[styles.sortMenuText, sort === s.k && styles.sortMenuTextActive]}>
                   {s.l}
                 </Text>
-                {sort === s.k && <Ionicons name="checkmark" size={16} color={T.primary} />}
+                {sort === s.k && <Ionicons name="checkmark" size={16} color={tokens.colors.accentStrong} />}
               </TouchableOpacity>
             ))}
           </View>
@@ -144,18 +156,18 @@ export default function MarketplaceScreen({ navigation, route }) {
         {/* Collapsible Search Input */}
         {showSearch && (
           <View style={styles.searchBar}>
-            <Ionicons name="search-outline" size={18} color={T.text.secondary} />
+            <Ionicons name="search-outline" size={18} color={tokens.colors.textMuted} />
             <TextInput
               ref={searchRef}
               style={styles.searchInput}
-              placeholder="Search by model, brand, or memory…"
-              placeholderTextColor="#9CA3AF"
+              placeholder="Search by brand, model or storage…"
+              placeholderTextColor={tokens.colors.textMuted}
               value={q}
               onChangeText={setQ}
             />
             {q ? (
               <TouchableOpacity onPress={() => setQ("")}>
-                <Ionicons name="close-circle" size={18} color={T.text.secondary} />
+                <Ionicons name="close-circle" size={18} color={tokens.colors.textMuted} />
               </TouchableOpacity>
             ) : null}
           </View>
@@ -182,18 +194,19 @@ export default function MarketplaceScreen({ navigation, route }) {
       {/* Product Grid */}
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator color={T.primary} size="large" />
+          <ActivityIndicator color={tokens.colors.accentStrong} size="large" />
+          <Text style={styles.loadingText}>Loading certified inventory...</Text>
         </View>
       ) : listings.length === 0 ? (
         <Empty
           icon="search-outline"
-          title="No devices found"
+          title="No devices match your criteria"
           sub="Try adjusting your brand filter or search keyword."
           action={() => {
             setBrand("All");
             setQ("");
           }}
-          actionLabel="View All Products"
+          actionLabel="View All Inventory"
         />
       ) : (
         <FlatList
@@ -216,16 +229,23 @@ export default function MarketplaceScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#FFFFFF" },
+  root: { flex: 1, backgroundColor: tokens.colors.canvas },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 12,
+    fontWeight: "600",
+    color: tokens.colors.textSecondary,
+    letterSpacing: 0.5,
+  },
 
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 54,
-    paddingBottom: 12,
-    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 18,
+    paddingTop: 50,
+    paddingBottom: 10,
+    backgroundColor: tokens.colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: T.border.color,
+    borderBottomColor: tokens.colors.borderLight,
   },
   headerTop: {
     flexDirection: "row",
@@ -234,44 +254,61 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   title: {
-    fontSize: 32,
+    fontSize: 26,
     fontWeight: "900",
-    color: T.text.primary,
-    letterSpacing: -0.6,
+    color: tokens.colors.ink,
+    letterSpacing: -0.5,
+  },
+  trustTagRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    marginTop: 3,
+  },
+  goldDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: tokens.colors.accent,
   },
   subTitleStamp: {
     fontSize: 9.5,
     fontWeight: "800",
-    color: "#C5A880",
-    letterSpacing: 1.2,
-    marginTop: 2,
+    color: tokens.colors.accentStrong,
+    letterSpacing: 1.1,
   },
 
   controlRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 4,
+    paddingVertical: 6,
   },
   sortDropdownBtn: {
     flexDirection: "row",
     alignItems: "center",
   },
-  sortPrefixText: { fontSize: 13, color: T.text.secondary },
-  sortValueText: { fontSize: 13, fontWeight: "700", color: T.text.primary },
+  sortPrefixText: { fontSize: 13, color: tokens.colors.textSecondary },
+  sortValueText: { fontSize: 13, fontWeight: "700", color: tokens.colors.ink },
 
-  actionIcons: { flexDirection: "row", alignItems: "center", gap: 14 },
-  iconBtn: { padding: 4 },
+  actionIcons: { flexDirection: "row", alignItems: "center", gap: 12 },
+  iconBtn: {
+    padding: 6,
+    borderRadius: 8,
+    backgroundColor: tokens.colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: tokens.colors.border,
+  },
 
   sortDropdownMenu: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: tokens.colors.surface,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: T.border.color,
-    marginTop: 8,
+    borderColor: tokens.colors.border,
+    marginTop: 6,
     marginBottom: 6,
     paddingVertical: 6,
-    ...T.shadow.card,
+    ...tokens.shadow.card,
   },
   sortMenuItem: {
     flexDirection: "row",
@@ -280,39 +317,39 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
   },
-  sortMenuItemActive: { backgroundColor: T.bg.secondary },
-  sortMenuText: { fontSize: 13, color: T.text.secondary },
-  sortMenuTextActive: { color: T.text.primary, fontWeight: "700" },
+  sortMenuItemActive: { backgroundColor: tokens.colors.surfaceAlt },
+  sortMenuText: { fontSize: 13, color: tokens.colors.textSecondary },
+  sortMenuTextActive: { color: tokens.colors.ink, fontWeight: "700" },
 
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    backgroundColor: T.bg.input,
+    backgroundColor: tokens.colors.surfaceAlt,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 9,
     borderWidth: 1,
-    borderColor: T.border.color,
+    borderColor: tokens.colors.border,
     marginTop: 10,
   },
-  searchInput: { flex: 1, fontSize: 13, color: T.text.primary },
+  searchInput: { flex: 1, fontSize: 13, color: tokens.colors.ink },
 
   brandRow: { gap: 8, paddingTop: 10, paddingBottom: 4 },
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 999,
-    backgroundColor: T.bg.secondary,
+    backgroundColor: tokens.colors.surfaceAlt,
     borderWidth: 1,
-    borderColor: T.border.color,
+    borderColor: tokens.colors.border,
   },
   chipActive: {
-    backgroundColor: T.primary,
-    borderColor: T.primary,
+    backgroundColor: tokens.colors.ink,
+    borderColor: tokens.colors.ink,
   },
-  chipText: { fontSize: 12, color: T.text.secondary, fontWeight: "600" },
-  chipTextActive: { color: "#FFFFFF" },
+  chipText: { fontSize: 12, color: tokens.colors.textSecondary, fontWeight: "600" },
+  chipTextActive: { color: "#FFFFFF", fontWeight: "700" },
 
-  gridContainer: { padding: 18, paddingBottom: 90 },
+  gridContainer: { padding: 16, paddingBottom: 90 },
 });

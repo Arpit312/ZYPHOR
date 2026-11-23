@@ -365,6 +365,45 @@ export default function ListingDetailScreen({ route, navigation }) {
                     </View>
                   </View>
                 ))}
+
+                <TouchableOpacity
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 6,
+                    backgroundColor: tokens.colors.accentSoft,
+                    borderRadius: 10,
+                    paddingVertical: 10,
+                    marginTop: 6,
+                  }}
+                  onPress={() =>
+                    navigation.navigate("DevicePassport", {
+                      device: {
+                        brand: item.brand,
+                        model: item.model,
+                        storage: item.storage,
+                        imei: item.imei || "354928110948291",
+                        conditionGrade: item.conditionGrade || item.condition || "Pristine",
+                        batteryHealth: item.batteryHealth ? `${item.batteryHealth}%` : "94%",
+                        inspectionDate: new Date().toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        }),
+                        hub: "Delhi Verification Vault (Booth #01)",
+                        inspector: "ZYPHOR Master Tech #104",
+                        warrantyValidTill: "6 Months Post-Delivery",
+                      },
+                    })
+                  }
+                  activeOpacity={0.75}
+                >
+                  <Ionicons name="document-text-outline" size={15} color={tokens.colors.accentStrong} />
+                  <Text style={{ fontSize: 12, fontWeight: "800", color: tokens.colors.accentStrong }}>
+                    View Full Digital Device Passport →
+                  </Text>
+                </TouchableOpacity>
               </View>
             </Accordion>
 

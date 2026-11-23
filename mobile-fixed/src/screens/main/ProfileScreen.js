@@ -1,13 +1,25 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, Alert, KeyboardAvoidingView, Platform, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableOpacity,
+  StatusBar,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import T from "../../styles/theme";
+import { tokens } from "../../theme/tokens";
 import { Btn, Input } from "../../components/UI";
 import { authAPI } from "../../api/api";
 import { useAuth } from "../../context/AuthContext";
+import { useTranslation } from "../../i18n/I18nContext";
 
 export default function ProfileScreen({ navigation }) {
   const { user, updateUser } = useAuth();
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     name: user?.name || "",
     city: user?.city || "",
@@ -21,52 +33,132 @@ export default function ProfileScreen({ navigation }) {
 
   const save = async () => {
     if (!form.name.trim()) {
-      Alert.alert("Error", "Name is required");
+      Alert.alert("Required", "Full Name is required.");
       return;
     }
     setLoading(true);
     try {
       const r = await authAPI.updateProfile(form);
       updateUser(r.data.user);
-      Alert.alert("✓ Profile Saved", "Your account settings have been updated.", [{ text: "OK", onPress: () => navigation.goBack() }]);
+      Alert.alert("✓ Profile Updated", "Your account information has been saved successfully.", [
+        { text: "OK", onPress: () => navigation.goBack() },
+      ]);
     } catch (e) {
-      Alert.alert("Error", e.response?.data?.error || "Update failed");
+      Alert.alert("Update Failed", e.response?.data?.error || "Could not save profile.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.root}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.root}
+    >
+      <StatusBar barStyle="dark-content" backgroundColor={tokens.colors.surface} />
+
       {/* Top Bar */}
       <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} activeOpacity={0.7}>
-          <Ionicons name="arrow-back" size={20} color={T.primary} />
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backBtn}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="arrow-back" size={20} color={tokens.colors.ink} />
         </TouchableOpacity>
         <Text style={styles.topBarTitle}>Account Profile</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-        <View style={styles.avatarCard}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{user?.name?.[0]?.toUpperCase() || "Z"}</Text>
+        {/* Luxury Member Card Plinth */}
+        <View style={styles.memberCard}>
+          <View style={styles.avatarWrap}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>{user?.name?.[0]?.toUpperCase() || "Z"}</Text>
+            </View>
+            <View style={styles.verifiedBadge}>
+              <Ionicons name="checkmark-circle" size={20} color={tokens.colors.accent} />
+            </View>
           </View>
-          <Text style={styles.email}>{user?.email}</Text>
-          <View style={styles.roleBadge}>
-            <Text style={styles.roleText}>{user?.role?.toUpperCase() || "CUSTOMER"}</Text>
+
+          <Text style={styles.userName}>{user?.name || "Zyphor Member"}</Text>
+          <Text style={styles.userEmail}>{user?.email}</Text>
+
+          <View style={styles.memberPillsRow}>
+            <View style={styles.rolePill}>
+              <Ionicons name="shield-outline" size={12} color={tokens.colors.accentStrong} />
+              <Text style={styles.rolePillText}>
+                {user?.role?.toUpperCase() || "CUSTOMER"}
+              </Text>
+            </View>
+            <View style={styles.trustPill}>
+              <Ionicons name="star" size={11} color="#EAB308" />
+              <Text style={styles.trustPillText}>
+                {user?.trustRating ? `${user.trustRating}.0 TRUST SCORE` : "5.0 VERIFIED"}
+              </Text>
+            </View>
           </View>
         </View>
 
+        {/* Profile Information Form */}
         <View style={styles.formCard}>
-          <Input label="Full Name *" placeholder="Rahul Sharma" value={form.name} onChangeText={set("name")} icon="person-outline" />
-          <Input label="City" placeholder="Mumbai" value={form.city} onChangeText={set("city")} icon="location-outline" />
-          <Input label="Phone Number" placeholder="9876543210" value={form.phone} onChangeText={set("phone")} keyboardType="phone-pad" icon="call-outline" />
-          {isSeller && <Input label="Business Name" placeholder="Your Store / Brand Name" value={form.businessName} onChangeText={set("businessName")} icon="storefront-outline" />}
-          {(user?.role === "retailer" || user?.role === "wholesaler") && (
-            <Input label="GST Number" placeholder="22AAAAA0000A1Z5" value={form.gstNumber} onChangeText={set("gstNumber")} icon="document-text-outline" />
+          <Text style={styles.sectionHeader}>Personal & Contact Details</Text>
+
+          <Input
+            label="Full Name *"
+            placeholder="Rahul Sharma"
+            value={form.name}
+            onChangeText={set("name")}
+            icon="person-outline"
+          />
+          <Input
+            label="City"
+            placeholder="Mumbai"
+            value={form.city}
+            onChangeText={set("city")}
+            icon="location-outline"
+          />
+          <Input
+            label="Phone Number"
+            placeholder="98765 43210"
+            value={form.phone}
+            onChangeText={set("phone")}
+            keyboardType="phone-pad"
+            icon="call-outline"
+          />
+
+          {isSeller && (
+            <>
+              <View style={styles.divider} />
+              <Text style={styles.sectionHeader}>Business Credentials</Text>
+              <Input
+                label="Registered Business / Store Name"
+                placeholder="Apex Mobile Store"
+                value={form.businessName}
+                onChangeText={set("businessName")}
+                icon="storefront-outline"
+              />
+            </>
           )}
 
-          <Btn title={loading ? "Saving Profile..." : "Save Profile Changes →"} onPress={save} loading={loading} style={{ marginTop: 10 }} />
+          {(user?.role === "retailer" || user?.role === "wholesaler") && (
+            <Input
+              label="GST Identification Number (GSTIN)"
+              placeholder="27AAAAA0000A1Z5"
+              autoCapitalize="characters"
+              value={form.gstNumber}
+              onChangeText={set("gstNumber")}
+              icon="document-text-outline"
+            />
+          )}
+
+          <Btn
+            title={loading ? "Saving Profile..." : "Save Profile Changes"}
+            onPress={save}
+            loading={loading}
+            variant="primary"
+            style={{ marginTop: 14 }}
+          />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -74,65 +166,132 @@ export default function ProfileScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#FFFFFF" },
+  root: { flex: 1, backgroundColor: tokens.colors.canvas },
   topBar: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 54,
+    paddingHorizontal: 18,
+    paddingTop: 52,
     paddingBottom: 14,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: tokens.colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: T.border.color,
+    borderBottomColor: tokens.colors.borderLight,
   },
   backBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: T.bg.secondary,
+    backgroundColor: tokens.colors.surfaceAlt,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 1,
+    borderColor: tokens.colors.border,
     marginRight: 12,
   },
-  topBarTitle: { fontSize: 20, fontWeight: "800", color: T.text.primary },
+  topBarTitle: { fontSize: 18, fontWeight: "900", color: tokens.colors.ink },
 
-  scroll: { padding: 20, paddingBottom: 60 },
-  avatarCard: {
+  scroll: { padding: 18, paddingBottom: 60 },
+
+  memberCard: {
     alignItems: "center",
-    paddingVertical: 24,
-    backgroundColor: T.bg.secondary,
+    paddingVertical: 26,
+    paddingHorizontal: 20,
+    backgroundColor: tokens.colors.surface,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: T.border.color,
-    marginBottom: 20,
+    borderColor: tokens.colors.border,
+    marginBottom: 16,
+    ...tokens.shadow.card,
+  },
+  avatarWrap: {
+    position: "relative",
+    marginBottom: 12,
   },
   avatar: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    backgroundColor: T.primary,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: tokens.colors.ink,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: tokens.colors.accent,
   },
-  avatarText: { fontSize: 28, fontWeight: "900", color: "#FFFFFF" },
-  email: { fontSize: 13, color: T.text.secondary, marginBottom: 8 },
-  roleBadge: {
-    backgroundColor: "#FFFFFF",
+  avatarText: { fontSize: 30, fontWeight: "900", color: "#FFFFFF" },
+  verifiedBadge: {
+    position: "absolute",
+    bottom: -2,
+    right: -2,
+    backgroundColor: tokens.colors.surface,
+    borderRadius: 12,
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: "900",
+    color: tokens.colors.ink,
+    marginBottom: 3,
+  },
+  userEmail: {
+    fontSize: 12.5,
+    color: tokens.colors.textSecondary,
+    marginBottom: 14,
+  },
+  memberPillsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  rolePill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: tokens.colors.accentSoft,
     paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingVertical: 5,
+    borderRadius: 999,
+  },
+  rolePillText: {
+    fontSize: 10.5,
+    fontWeight: "800",
+    color: tokens.colors.accentStrong,
+    letterSpacing: 0.5,
+  },
+  trustPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: tokens.colors.surfaceAlt,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: T.border.color,
+    borderColor: tokens.colors.border,
   },
-  roleText: { fontSize: 11, fontWeight: "700", color: T.text.primary, letterSpacing: 0.5 },
+  trustPillText: {
+    fontSize: 10,
+    fontWeight: "800",
+    color: tokens.colors.ink,
+  },
 
   formCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: tokens.colors.surface,
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: T.border.color,
-    ...T.shadow.card,
+    borderColor: tokens.colors.border,
+    ...tokens.shadow.card,
+  },
+  sectionHeader: {
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 1,
+    color: tokens.colors.textSecondary,
+    textTransform: "uppercase",
+    marginBottom: 14,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: tokens.colors.borderLight,
+    marginVertical: 14,
   },
 });

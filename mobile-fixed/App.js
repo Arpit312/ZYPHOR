@@ -35,6 +35,9 @@ import CartScreen from "./src/screens/main/CartScreen";
 import CheckoutScreen from "./src/screens/main/CheckoutScreen";
 import OrderTrackingScreen from "./src/screens/main/OrderTrackingScreen";
 import ReturnDisputeScreen from "./src/screens/main/ReturnDisputeScreen";
+import OrderSuccessScreen from "./src/screens/main/OrderSuccessScreen";
+import PaymentMethodsScreen from "./src/screens/main/PaymentMethodsScreen";
+import DevicePassportScreen from "./src/screens/main/DevicePassportScreen";
 import SettingsScreen from "./src/screens/main/SettingsScreen";
 import HelpLegalScreen from "./src/screens/main/HelpLegalScreen";
 import RepairScreen from "./src/screens/main/RepairScreen";
@@ -80,6 +83,9 @@ function HomeStack() {
       <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ headerShown: false }} />
       <Stack.Screen name="OrderTracking" component={OrderTrackingScreen} options={{ headerShown: false }} />
       <Stack.Screen name="ReturnDispute" component={ReturnDisputeScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="OrderSuccess" component={OrderSuccessScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="PaymentMethods" component={PaymentMethodsScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="DevicePassport" component={DevicePassportScreen} options={{ headerShown: false }} />
       <Stack.Screen name="IMEICheck" component={IMEICheckScreen} options={{ title: "IMEI Verification" }} />
       <Stack.Screen name="Advisor" component={AIAdvisorScreen} options={{ headerShown: false }} />
       <Stack.Screen name="PricingAgent" component={PricingAgentScreen} options={{ title: "AI Price Check" }} />
@@ -131,6 +137,9 @@ function AccountStack() {
       <Stack.Screen name="HelpLegal" component={HelpLegalScreen} options={{ headerShown: false }} />
       <Stack.Screen name="OrderTracking" component={OrderTrackingScreen} options={{ headerShown: false }} />
       <Stack.Screen name="ReturnDispute" component={ReturnDisputeScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="OrderSuccess" component={OrderSuccessScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="PaymentMethods" component={PaymentMethodsScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="DevicePassport" component={DevicePassportScreen} options={{ headerShown: false }} />
       <Stack.Screen name="MyListings" component={MyListingsScreen} options={{ title: "My Listings" }} />
       <Stack.Screen name="MyOrders" component={MyOrdersScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Subscription" component={SubscriptionScreen} options={{ title: "Subscription Plans" }} />

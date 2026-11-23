@@ -9,15 +9,15 @@ import {
   RefreshControl,
   Image,
   Alert,
+  StatusBar,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import T from "../../styles/theme";
-import { Badge } from "../../components/UI";
+import { tokens } from "../../theme/tokens";
 import { ordersAPI } from "../../api/api";
 import { useAuth } from "../../context/AuthContext";
+import { Btn } from "../../components/UI";
 
 const STEPS = ["placed", "confirmed", "shipped", "delivered"];
-// Mirrors backend TRANSITIONS in orderRoutes.js
 const ACTIONS = {
   seller: {
     placed: ["confirmed", "cancelled"],
@@ -35,18 +35,10 @@ const ACTION_LABEL = {
   shipped: "Mark as Shipped",
   delivered: "Mark as Delivered",
   cancelled: "Cancel Order",
-  disputed: "Raise Dispute",
+  disputed: "Raise Escrow Dispute",
 };
 
 const inr = (n) => "₹" + Number(n || 0).toLocaleString("en-IN");
-const fmtDate = (d) => {
-  try {
-    return new Date(d).toLocaleString("en-IN", {
-      day: "numeric", month: "short", year: "numeric",
-      hour: "2-digit", minute: "2-digit",
-    });
-  } catch { return ""; }
-};
 
 export default function OrderDetailScreen({ route, navigation }) {
   const { user } = useAuth();
@@ -74,12 +66,17 @@ export default function OrderDetailScreen({ route, navigation }) {
   const onRefresh = () => { setRefreshing(true); load(); };
 
   const runAction = (next) => {
+    if (next === "disputed") {
+      navigation.navigate("ReturnDispute", { orderId });
+      return;
+    }
+
     const label = ACTION_LABEL[next] || next;
-    Alert.alert(label, `Move this order to '${next}'?`, [
+    Alert.alert(label, `Are you sure you want to ${label.toLowerCase()}?`, [
       { text: "No", style: "cancel" },
       {
         text: "Yes",
-        style: next === "cancelled" || next === "disputed" ? "destructive" : "default",
+        style: next === "cancelled" ? "destructive" : "default",
         onPress: async () => {
           setBusy(next);
           try {
@@ -98,7 +95,7 @@ export default function OrderDetailScreen({ route, navigation }) {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color={T.primary} size="large" />
+        <ActivityIndicator color={tokens.colors.accentStrong} size="large" />
       </View>
     );
   }
@@ -106,10 +103,10 @@ export default function OrderDetailScreen({ route, navigation }) {
   if (!order) {
     return (
       <View style={styles.center}>
-        <Ionicons name="receipt-outline" size={44} color={T.text.muted} />
-        <Text style={{ color: T.text.secondary, marginTop: 10 }}>Order not found</Text>
+        <Ionicons name="receipt-outline" size={44} color={tokens.colors.textMuted} />
+        <Text style={{ color: tokens.colors.textSecondary, marginTop: 10 }}>Order not found</Text>
         <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginTop: 14 }}>
-          <Text style={{ color: T.primary, fontWeight: "700" }}>Go back</Text>
+          <Text style={{ color: tokens.colors.accentStrong, fontWeight: "700" }}>Go back</Text>
         </TouchableOpacity>
       </View>
     );
@@ -118,177 +115,122 @@ export default function OrderDetailScreen({ route, navigation }) {
   const isBuyer = String(order.buyer?._id || order.buyer) === String(user?.id);
   const role = isBuyer ? "buyer" : "seller";
   const status = order.orderStatus || "placed";
-  const stepIdx = STEPS.indexOf(status);
   const nextActions = ACTIONS[role]?.[status] || [];
   const bill = order.bill || {};
 
   return (
     <View style={styles.root}>
+      <StatusBar barStyle="dark-content" backgroundColor={tokens.colors.surface} />
+
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} activeOpacity={0.7}>
-          <Ionicons name="arrow-back" size={22} color={T.primary} />
+          <Ionicons name="arrow-back" size={20} color={tokens.colors.ink} />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
-          <Text style={styles.title}>Order Detail</Text>
+          <Text style={styles.title}>Order Invoice</Text>
           <Text style={styles.sub}>{bill.billNumber || order._id?.slice(-8)}</Text>
         </View>
-        <Badge
-          label={status.toUpperCase()}
-          color={status === "cancelled" ? T.red : status === "delivered" ? T.green : T.primary}
-        />
+        <View style={styles.statusPill}>
+          <Text style={styles.statusPillText}>{status.toUpperCase()}</Text>
+        </View>
       </View>
 
       <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ padding: 20, paddingBottom: 50 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={T.primary} />}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scroll}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={tokens.colors.accentStrong} />}
       >
-        {/* Device */}
+        {/* Safe Escrow Strip */}
+        <View style={styles.escrowBanner}>
+          <Ionicons name="shield-checkmark" size={20} color={tokens.colors.accentStrong} />
+          <View style={{ flex: 1, marginLeft: 10 }}>
+            <Text style={styles.escrowTitle}>ZYPHOR Protected Escrow</Text>
+            <Text style={styles.escrowText}>
+              Payment is held securely in escrow. Released to seller only after 48-hour inspection.
+            </Text>
+          </View>
+        </View>
+
+        {/* Live Tracking Card CTA */}
         <TouchableOpacity
-          style={styles.deviceCard}
-          activeOpacity={0.85}
-          onPress={() => order.listing?._id && navigation.navigate("ListingDetail", { id: order.listing._id })}
+          style={styles.trackingCardCTA}
+          onPress={() => navigation.navigate("OrderTracking", { orderId: order._id })}
+          activeOpacity={0.8}
         >
-          <View style={styles.thumbWrap}>
-            {order.listing?.images?.[0] ? (
-              <Image source={{ uri: order.listing.images[0] }} style={styles.thumb} resizeMode="contain" />
-            ) : (
-              <Ionicons name="phone-portrait-outline" size={26} color={T.text.secondary} />
-            )}
+          <View style={styles.radarIconWrap}>
+            <Ionicons name="locate" size={20} color="#FFFFFF" />
           </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.deviceName} numberOfLines={1}>
-              {order.listing?.brand} {order.listing?.model || order.listing?.title || "Device"}
-            </Text>
-            <Text style={styles.deviceSpec}>
-              {[order.listing?.storage, order.listing?.ram, order.listing?.conditionGrade].filter(Boolean).join(" • ")}
-            </Text>
-            <Text style={styles.priceText}>{inr(order.amount || bill.listingPrice)}</Text>
+          <View style={{ flex: 1, marginLeft: 12 }}>
+            <Text style={styles.radarTitle}>Live Courier Tracking</Text>
+            <Text style={styles.radarSub}>View real-time delivery checkpoints & inspection timer</Text>
           </View>
-          <Ionicons name="chevron-forward" size={16} color={T.text.muted} />
+          <Ionicons name="chevron-forward" size={18} color={tokens.colors.textMuted} />
         </TouchableOpacity>
 
-        {/* Stepper */}
-        {status !== "cancelled" && status !== "disputed" && (
-          <View style={styles.stepperWrap}>
-            {STEPS.map((step, idx) => {
-              const completed = stepIdx >= idx;
-              return (
-                <View key={step} style={styles.stepItem}>
-                  <View style={[styles.stepDot, completed && { backgroundColor: T.primary, borderColor: T.primary }]}>
-                    {completed && <Ionicons name="checkmark" size={10} color="#FFFFFF" />}
-                  </View>
-                  <Text style={[styles.stepLabel, completed && { color: T.text.primary, fontWeight: "700" }]}>
-                    {step.charAt(0).toUpperCase() + step.slice(1)}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-        )}
-
-        {/* Parties */}
-        <View style={styles.box}>
-          <Text style={styles.boxTitle}>Parties</Text>
-          <View style={styles.line}>
-            <Text style={styles.label}>{isBuyer ? "Seller" : "Buyer"}</Text>
-            <Text style={styles.value} numberOfLines={1}>
-              {isBuyer
-                ? order.seller?.businessName || order.seller?.name || "Seller"
-                : order.buyer?.name || "Buyer"}
-            </Text>
-          </View>
-          <View style={styles.line}>
-            <Text style={styles.label}>Payment</Text>
-            <Text style={styles.value}>{(order.paymentMethod || "upi").toUpperCase()}</Text>
-          </View>
-          <View style={styles.line}>
-            <Text style={styles.label}>Escrow</Text>
-            <Text style={[styles.value, { color: order.escrowStatus === "released" ? T.green : order.escrowStatus === "refunded" ? T.red : T.amber }]}>
-              {order.escrowStatus === "released" ? "Released to seller" : order.escrowStatus === "refunded" ? "Refunded to buyer" : "Held safely"}
-            </Text>
-          </View>
-          {!!order.deliveryAddress && (
-            <View style={styles.line}>
-              <Text style={styles.label}>Deliver to</Text>
-              <Text style={[styles.value, { flex: 1, textAlign: "right" }]} numberOfLines={2}>
-                {order.deliveryAddress}
+        {/* Device Item Card */}
+        <View style={styles.card}>
+          <Text style={styles.cardHeading}>Purchased Device</Text>
+          <View style={styles.deviceRow}>
+            <View style={styles.imgWrap}>
+              {order.listing?.images?.[0] ? (
+                <Image source={{ uri: order.listing.images[0] }} style={styles.img} resizeMode="contain" />
+              ) : (
+                <Ionicons name="phone-portrait-outline" size={30} color={tokens.colors.textMuted} />
+              )}
+            </View>
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={styles.deviceName}>
+                {order.listing?.brand} {order.listing?.model || "Certified Device"}
               </Text>
+              <Text style={styles.deviceDetail}>
+                Grade: {order.listing?.conditionGrade || "Pristine"} • Storage: {order.listing?.storage || "128GB"}
+              </Text>
+              <Text style={styles.devicePrice}>{inr(order.amount || bill.listingPrice)}</Text>
             </View>
-          )}
-        </View>
-
-        {/* Bill */}
-        <View style={styles.box}>
-          <Text style={styles.boxTitle}>Invoice {bill.billNumber || ""}</Text>
-          <View style={styles.line}>
-            <Text style={styles.label}>Listing price</Text>
-            <Text style={styles.value}>{inr(bill.listingPrice || order.amount)}</Text>
-          </View>
-          <View style={styles.line}>
-            <Text style={styles.label}>Platform fee</Text>
-            <Text style={styles.value}>{inr(bill.platformFee)}</Text>
-          </View>
-          <View style={styles.line}>
-            <Text style={styles.label}>GST on fee</Text>
-            <Text style={styles.value}>{inr(bill.gstOnFee)}</Text>
-          </View>
-          <View style={[styles.line, { borderTopWidth: 1, borderTopColor: T.border.color, paddingTop: 8, marginTop: 4 }]}>
-            <Text style={[styles.label, { fontWeight: "800", color: T.text.primary }]}>Buyer pays</Text>
-            <Text style={[styles.value, { fontWeight: "900", fontSize: 15 }]}>{inr(bill.buyerPays || order.amount)}</Text>
-          </View>
-          <View style={styles.line}>
-            <Text style={styles.label}>Seller receives</Text>
-            <Text style={[styles.value, { color: T.green }]}>{inr(bill.sellerReceives)}</Text>
           </View>
         </View>
 
-        {/* Timeline */}
-        <View style={styles.box}>
-          <Text style={styles.boxTitle}>Timeline</Text>
-          {(order.statusHistory || []).map((h, i) => (
-            <View key={i} style={styles.timelineRow}>
-              <View style={styles.timelineDot} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.timelineStatus}>{h.status.toUpperCase()}</Text>
-                {!!h.note && <Text style={styles.timelineNote}>{h.note}</Text>}
-                <Text style={styles.timelineTime}>
-                  {fmtDate(h.at || h.createdAt)}
-                  {h.by?.name ? ` • by ${h.by.name}${h.by?.role ? ` (${h.by.role})` : ""}` : ""}
-                </Text>
-              </View>
-            </View>
-          ))}
-          <Text style={styles.timelineTime}>Ordered {fmtDate(order.createdAt)}</Text>
+        {/* Delivery Address */}
+        <View style={styles.card}>
+          <Text style={styles.cardHeading}>Shipping Destination</Text>
+          <Text style={styles.addrText}>{order.deliveryAddress || "Standard Hub Delivery"}</Text>
+          <Text style={styles.addrSub}>Dispatched with tamper-proof security seals</Text>
         </View>
 
-        {/* Actions */}
+        {/* Financial Breakdown */}
+        <View style={styles.card}>
+          <Text style={styles.cardHeading}>Tax Invoice Summary</Text>
+          <View style={styles.row}>
+            <Text style={styles.rowLabel}>Listing Amount</Text>
+            <Text style={styles.rowVal}>{inr(bill.listingPrice || order.amount)}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.rowLabel}>Insured Shipping</Text>
+            <Text style={[styles.rowVal, { color: tokens.colors.success }]}>FREE</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.rowLabel}>Escrow Protection</Text>
+            <Text style={[styles.rowVal, { color: tokens.colors.success }]}>FREE</Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.row}>
+            <Text style={styles.totalLabel}>Total Escrow Amount</Text>
+            <Text style={styles.totalVal}>{inr(order.amount)}</Text>
+          </View>
+        </View>
+
+        {/* Contextual Action Buttons */}
         {nextActions.length > 0 && (
-          <View style={{ gap: 10, marginTop: 6 }}>
-            {nextActions.map((a) => (
-              <TouchableOpacity
-                key={a}
-                style={[
-                  styles.actionBtn,
-                  { backgroundColor: a === "cancelled" || a === "disputed" ? "#FFFFFF" : T.primary,
-                    borderWidth: a === "cancelled" || a === "disputed" ? 1.5 : 0,
-                    borderColor: T.red },
-                ]}
-                onPress={() => runAction(a)}
-                disabled={!!busy}
-                activeOpacity={0.85}
-              >
-                {busy === a ? (
-                  <ActivityIndicator color={a === "cancelled" || a === "disputed" ? T.red : "#FFFFFF"} size="small" />
-                ) : (
-                  <Text style={{
-                    fontSize: 14, fontWeight: "700",
-                    color: a === "cancelled" || a === "disputed" ? T.red : "#FFFFFF",
-                  }}>
-                    {ACTION_LABEL[a] || a}
-                  </Text>
-                )}
-              </TouchableOpacity>
+          <View style={styles.actionsBox}>
+            {nextActions.map((act) => (
+              <Btn
+                key={act}
+                title={busy === act ? "Updating..." : ACTION_LABEL[act] || act}
+                onPress={() => runAction(act)}
+                loading={busy === act}
+                variant={act === "cancelled" ? "danger" : act === "disputed" ? "outline" : "primary"}
+                style={{ marginBottom: 10 }}
+              />
             ))}
           </View>
         )}
@@ -298,59 +240,122 @@ export default function OrderDetailScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#FFFFFF" },
+  root: { flex: 1, backgroundColor: tokens.colors.canvas },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
+
   header: {
-    flexDirection: "row", alignItems: "center", gap: 12,
-    paddingHorizontal: 20, paddingTop: 54, paddingBottom: 14,
-    borderBottomWidth: 1, borderBottomColor: T.border.color,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 18,
+    paddingTop: 52,
+    paddingBottom: 14,
+    backgroundColor: tokens.colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: tokens.colors.borderLight,
   },
   backBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: T.bg.secondary, alignItems: "center", justifyContent: "center",
-    borderWidth: 1, borderColor: T.border.color,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: tokens.colors.surfaceAlt,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: tokens.colors.border,
+    marginRight: 12,
   },
-  title: { fontSize: 24, fontWeight: "900", color: T.text.primary, letterSpacing: -0.5 },
-  sub: { fontSize: 12, color: T.text.secondary, marginTop: 2 },
-  deviceCard: {
-    flexDirection: "row", alignItems: "center", gap: 12,
-    backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1,
-    borderColor: T.border.color, padding: 14, marginBottom: 14, ...T.shadow.card,
+  title: { fontSize: 18, fontWeight: "900", color: tokens.colors.ink },
+  sub: { fontSize: 11, color: tokens.colors.textSecondary },
+  statusPill: {
+    backgroundColor: tokens.colors.ink,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
   },
-  thumbWrap: {
-    width: 58, height: 58, borderRadius: 12, backgroundColor: T.bg.secondary,
-    alignItems: "center", justifyContent: "center", padding: 4,
+  statusPillText: { fontSize: 10, fontWeight: "800", color: "#FFFFFF", letterSpacing: 0.6 },
+
+  scroll: { padding: 18, paddingBottom: 60 },
+
+  escrowBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: tokens.colors.accentSoft,
+    padding: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: tokens.colors.accent + "40",
+    marginBottom: 14,
   },
-  thumb: { width: "100%", height: "100%" },
-  deviceName: { fontSize: 15, fontWeight: "800", color: T.text.primary },
-  deviceSpec: { fontSize: 11, color: T.text.secondary, marginTop: 2 },
-  priceText: { fontSize: 15, fontWeight: "900", color: T.text.primary, marginTop: 4 },
-  stepperWrap: {
-    flexDirection: "row", justifyContent: "space-between",
-    backgroundColor: T.bg.secondary, paddingHorizontal: 12, paddingVertical: 12,
-    borderRadius: 12, marginBottom: 14,
+  escrowTitle: { fontSize: 13, fontWeight: "800", color: tokens.colors.accentStrong },
+  escrowText: { fontSize: 11, color: tokens.colors.textSecondary, marginTop: 2 },
+
+  trackingCardCTA: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: tokens.colors.surface,
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: tokens.colors.border,
+    marginBottom: 14,
+    ...tokens.shadow.card,
   },
-  stepItem: { alignItems: "center", flex: 1 },
-  stepDot: {
-    width: 18, height: 18, borderRadius: 9, borderWidth: 1.5,
-    borderColor: T.border.color, backgroundColor: "#FFFFFF",
-    alignItems: "center", justifyContent: "center", marginBottom: 4,
+  radarIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: tokens.colors.ink,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  stepLabel: { fontSize: 10, color: T.text.secondary },
-  box: {
-    backgroundColor: T.bg.secondary, borderRadius: 14, padding: 14,
-    marginBottom: 14, borderWidth: 1, borderColor: T.border.color,
+  radarTitle: { fontSize: 14, fontWeight: "800", color: tokens.colors.ink },
+  radarSub: { fontSize: 11, color: tokens.colors.textSecondary, marginTop: 1 },
+
+  card: {
+    backgroundColor: tokens.colors.surface,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: tokens.colors.border,
+    marginBottom: 14,
+    ...tokens.shadow.card,
   },
-  boxTitle: { fontSize: 13, fontWeight: "800", color: T.text.primary, marginBottom: 10 },
-  line: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 7, gap: 10 },
-  label: { fontSize: 12, color: T.text.secondary },
-  value: { fontSize: 12, fontWeight: "700", color: T.text.primary },
-  timelineRow: { flexDirection: "row", gap: 10, marginBottom: 10 },
-  timelineDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: T.primary, marginTop: 5 },
-  timelineStatus: { fontSize: 12, fontWeight: "800", color: T.text.primary },
-  timelineNote: { fontSize: 11, color: T.text.secondary, marginTop: 1 },
-  timelineTime: { fontSize: 10, color: T.text.muted, marginTop: 2 },
-  actionBtn: {
-    borderRadius: 14, paddingVertical: 14, alignItems: "center", justifyContent: "center",
+  cardHeading: {
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    color: tokens.colors.textSecondary,
+    marginBottom: 12,
   },
+  deviceRow: { flexDirection: "row", alignItems: "center" },
+  imgWrap: {
+    width: 68,
+    height: 68,
+    borderRadius: 12,
+    backgroundColor: tokens.colors.surfaceAlt,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  img: { width: 54, height: 54 },
+  deviceName: { fontSize: 14.5, fontWeight: "800", color: tokens.colors.ink },
+  deviceDetail: { fontSize: 11, color: tokens.colors.textSecondary, marginVertical: 3 },
+  devicePrice: { fontSize: 15, fontWeight: "900", color: tokens.colors.ink },
+
+  addrText: { fontSize: 13, fontWeight: "700", color: tokens.colors.ink, lineHeight: 18 },
+  addrSub: { fontSize: 11, color: tokens.colors.textSecondary, marginTop: 4 },
+
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 4,
+  },
+  rowLabel: { fontSize: 12.5, color: tokens.colors.textSecondary },
+  rowVal: { fontSize: 12.5, fontWeight: "700", color: tokens.colors.ink },
+  divider: { height: 1, backgroundColor: tokens.colors.borderLight, marginVertical: 10 },
+  totalLabel: { fontSize: 14, fontWeight: "800", color: tokens.colors.ink },
+  totalVal: { fontSize: 17, fontWeight: "900", color: tokens.colors.ink },
+
+  actionsBox: { marginTop: 6 },
 });

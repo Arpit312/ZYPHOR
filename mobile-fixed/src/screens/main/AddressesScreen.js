@@ -12,9 +12,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StatusBar,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import T from "../../styles/theme";
+import { tokens } from "../../theme/tokens";
 import { Empty, Btn, Input, Badge } from "../../components/UI";
 import { authAPI } from "../../api/api";
 
@@ -55,7 +56,7 @@ export default function AddressesScreen({ navigation }) {
 
   const onRefresh = () => { setRefreshing(true); load(); };
 
-  const openAdd = () => {
+  const openNew = () => {
     setEditingId(null);
     setForm({ ...EMPTY_FORM, isDefault: addresses.length === 0 });
     setError("");
@@ -79,26 +80,30 @@ export default function AddressesScreen({ navigation }) {
   };
 
   const save = async () => {
-    if (!form.name.trim() || !form.phone.trim() || !form.street.trim() || !form.pincode.trim()) {
-      setError("Name, phone, street and pincode are required.");
+    if (!form.name.trim() || !form.phone.trim() || !form.street.trim() || !form.city.trim() || !form.pincode.trim()) {
+      setError("Name, phone, street, city and pincode are required.");
       return;
     }
+    if (!/^\d{6}$/.test(form.pincode.trim())) {
+      setError("PIN code must be exactly 6 digits.");
+      return;
+    }
+    const cleanPhone = form.phone.replace(/\D/g, "").slice(-10);
+    if (!/^\d{10}$/.test(cleanPhone)) {
+      setError("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+
     setSaving(true);
     setError("");
     try {
-      const payload = {
-        label: form.label.trim() || "Home",
-        name: form.name.trim(),
-        phone: form.phone.trim(),
-        street: form.street.trim(),
-        city: form.city.trim(),
-        state: form.state.trim(),
-        pincode: form.pincode.trim(),
-        isDefault: form.isDefault,
-      };
-      const r = editingId
-        ? await authAPI.addresses.update(editingId, payload)
-        : await authAPI.addresses.add(payload);
+      const payload = { ...form, phone: cleanPhone, pincode: form.pincode.trim() };
+      let r;
+      if (editingId) {
+        r = await authAPI.addresses.update(editingId, payload);
+      } else {
+        r = await authAPI.addresses.add(payload);
+      }
       setAddresses(r.data.addresses || []);
       setModal(false);
     } catch (err) {
@@ -108,122 +113,158 @@ export default function AddressesScreen({ navigation }) {
     }
   };
 
-  const remove = (a) => {
-    Alert.alert("Delete address", `Remove '${a.label}' — ${a.street}, ${a.city}?`, [
+  const remove = (id) => {
+    Alert.alert("Delete Address", "Remove this delivery address from your profile?", [
       { text: "Cancel", style: "cancel" },
       {
         text: "Delete",
         style: "destructive",
         onPress: async () => {
           try {
-            const r = await authAPI.addresses.remove(a._id);
+            const r = await authAPI.addresses.remove(id);
             setAddresses(r.data.addresses || []);
           } catch (err) {
-            Alert.alert("Error", err.response?.data?.error || "Could not delete.");
+            Alert.alert("Error", err.response?.data?.error || "Could not delete address.");
           }
         },
       },
     ]);
   };
 
-  const set = (k) => (v) => setForm((f) => ({ ...f, [k]: v }));
+  const setDefault = async (a) => {
+    try {
+      const r = await authAPI.addresses.update(a._id, { isDefault: true });
+      setAddresses(r.data.addresses || []);
+    } catch (err) {
+      Alert.alert("Error", err.response?.data?.error || "Could not set default.");
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator color={tokens.colors.accentStrong} size="large" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.root}>
-      <View style={styles.subHeader}>
-        <Text style={styles.countText}>{addresses.length} saved {addresses.length === 1 ? "address" : "addresses"}</Text>
-        <TouchableOpacity onPress={openAdd} style={styles.addBtn} activeOpacity={0.75}>
-          <Ionicons name="add" size={16} color="#FFFFFF" />
-          <Text style={styles.addBtnText}>Add Address</Text>
+      <StatusBar barStyle="dark-content" backgroundColor={tokens.colors.surface} />
+
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} activeOpacity={0.7}>
+          <Ionicons name="arrow-back" size={20} color={tokens.colors.ink} />
+        </TouchableOpacity>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.title}>Delivery Addresses</Text>
+          <Text style={styles.sub}>{addresses.length} saved destinations</Text>
+        </View>
+        <TouchableOpacity onPress={openNew} style={styles.addBtn} activeOpacity={0.7}>
+          <Ionicons name="add" size={20} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
 
-      {loading ? (
-        <View style={styles.center}><ActivityIndicator color={T.primary} size="large" /></View>
+      {addresses.length === 0 ? (
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <Empty
+            icon="location-outline"
+            title="No addresses saved"
+            sub="Add your delivery address for fast 1-click escrow checkout."
+            action={openNew}
+            actionLabel="+ Add New Address"
+          />
+        </View>
       ) : (
         <FlatList
           data={addresses}
-          keyExtractor={(a) => a._id}
-          contentContainerStyle={{ padding: 20, paddingBottom: 60, flexGrow: 1 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={T.primary} />}
-          ListEmptyComponent={
-            <View style={{ flex: 1, justifyContent: "center" }}>
-              <Empty
-                icon="location-outline"
-                title="No addresses saved"
-                sub="Add a delivery address so checkout is one tap."
-                action={openAdd}
-                actionLabel="Add Address"
-              />
-            </View>
-          }
+          keyExtractor={(i) => i._id}
+          contentContainerStyle={{ padding: 18, paddingBottom: 60 }}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={tokens.colors.accentStrong} />}
           renderItem={({ item }) => (
-            <View style={styles.card}>
-              <View style={styles.cardTop}>
+            <View style={styles.addrCard}>
+              <View style={styles.cardTopRow}>
                 <View style={styles.labelRow}>
-                  <Ionicons name="location" size={15} color={T.primary} />
-                  <Text style={styles.labelText}>{item.label || "Address"}</Text>
-                  {item.isDefault && <Badge label="DEFAULT" color={T.green} />}
+                  <Text style={styles.label}>{item.label || "Home"}</Text>
+                  {item.isDefault && (
+                    <View style={styles.defaultPill}>
+                      <Text style={styles.defaultPillText}>DEFAULT</Text>
+                    </View>
+                  )}
                 </View>
-                <View style={{ flexDirection: "row", gap: 6 }}>
-                  <TouchableOpacity onPress={() => openEdit(item)} style={styles.iconBtn} activeOpacity={0.7}>
-                    <Ionicons name="pencil-outline" size={16} color={T.primary} />
+                <View style={styles.iconActions}>
+                  <TouchableOpacity onPress={() => openEdit(item)} style={styles.iconBtn}>
+                    <Ionicons name="create-outline" size={17} color={tokens.colors.ink} />
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => remove(item)} style={styles.iconBtn} activeOpacity={0.7}>
-                    <Ionicons name="trash-outline" size={16} color={T.red} />
+                  <TouchableOpacity onPress={() => remove(item._id)} style={styles.iconBtn}>
+                    <Ionicons name="trash-outline" size={17} color={tokens.colors.error} />
                   </TouchableOpacity>
                 </View>
               </View>
-              <Text style={styles.nameText}>{item.name} • {item.phone}</Text>
-              <Text style={styles.addrText} numberOfLines={2}>
-                {item.street}{item.city ? `, ${item.city}` : ""}{item.state ? `, ${item.state}` : ""} — {item.pincode}
+
+              <Text style={styles.name}>{item.name}</Text>
+              <Text style={styles.street}>{item.street}</Text>
+              <Text style={styles.cityLine}>
+                {item.city}{item.state ? `, ${item.state}` : ""} - {item.pincode}
               </Text>
+              <Text style={styles.phone}>Phone: +91 {item.phone}</Text>
+
+              {!item.isDefault && (
+                <TouchableOpacity onPress={() => setDefault(item)} style={styles.makeDefaultBtn} activeOpacity={0.7}>
+                  <Text style={styles.makeDefaultText}>Set as default delivery address</Text>
+                </TouchableOpacity>
+              )}
             </View>
           )}
         />
       )}
 
-      {/* Add / Edit modal */}
-      <Modal visible={modal} animationType="slide" transparent onRequestClose={() => setModal(false)}>
-        <KeyboardAvoidingView
-          style={styles.modalWrap}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-        >
-          <View style={styles.modalCard}>
-            <View style={styles.modalHead}>
-              <Text style={styles.modalTitle}>{editingId ? "Edit Address" : "New Address"}</Text>
-              <TouchableOpacity onPress={() => setModal(false)} style={styles.iconBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                <Ionicons name="close" size={20} color={T.text.secondary} />
+      {/* Address Form Modal */}
+      <Modal visible={modal} animationType="slide" transparent>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalBackdrop}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{editingId ? "Edit Address" : "Add Address"}</Text>
+              <TouchableOpacity onPress={() => setModal(false)}>
+                <Ionicons name="close" size={22} color={tokens.colors.ink} />
               </TouchableOpacity>
             </View>
-            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-              <Input label="Label (Home / Work / Other)" icon="pricetag-outline" value={form.label} onChangeText={set("label")} placeholder="Home" />
-              <Input label="Full name" icon="person-outline" value={form.name} onChangeText={set("name")} placeholder="Recipient name" autoCapitalize="words" />
-              <Input label="Phone" icon="call-outline" value={form.phone} onChangeText={set("phone")} placeholder="10-digit mobile" keyboardType="phone-pad" maxLength={15} />
-              <Input label="Street / Area" icon="home-outline" value={form.street} onChangeText={set("street")} placeholder="House no, street, landmark" multiline />
+
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 10 }}>
+              {error ? (
+                <View style={styles.errorBox}>
+                  <Ionicons name="alert-circle-outline" size={16} color={tokens.colors.error} />
+                  <Text style={styles.errorText}>{error}</Text>
+                </View>
+              ) : null}
+
+              {/* Label Pills */}
+              <View style={styles.labelPills}>
+                {["Home", "Work", "Warehouse", "Other"].map((lbl) => (
+                  <TouchableOpacity
+                    key={lbl}
+                    onPress={() => setForm((p) => ({ ...p, label: lbl }))}
+                    style={[styles.pill, form.label === lbl && styles.pillActive]}
+                  >
+                    <Text style={[styles.pillText, form.label === lbl && styles.pillTextActive]}>{lbl}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Input label="Recipient Full Name" placeholder="Rahul Sharma" value={form.name} onChangeText={(v) => setForm((p) => ({ ...p, name: v }))} />
+              <Input label="10-Digit Mobile Phone" placeholder="9876543210" keyboardType="phone-pad" maxLength={10} value={form.phone} onChangeText={(v) => setForm((p) => ({ ...p, phone: v }))} />
+              <Input label="House / Flat / Street Address" placeholder="Flat 402, Royal Palms, MG Road" value={form.street} onChangeText={(v) => setForm((p) => ({ ...p, street: v }))} />
+
               <View style={{ flexDirection: "row", gap: 10 }}>
                 <View style={{ flex: 1 }}>
-                  <Input label="City" icon="business-outline" value={form.city} onChangeText={set("city")} placeholder="City" autoCapitalize="words" />
+                  <Input label="City" placeholder="Mumbai" value={form.city} onChangeText={(v) => setForm((p) => ({ ...p, city: v }))} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Input label="State" value={form.state} onChangeText={set("state")} placeholder="State" autoCapitalize="words" />
+                  <Input label="PIN Code" placeholder="400001" keyboardType="number-pad" maxLength={6} value={form.pincode} onChangeText={(v) => setForm((p) => ({ ...p, pincode: v }))} />
                 </View>
               </View>
-              <Input label="Pincode" icon="navigate-outline" value={form.pincode} onChangeText={set("pincode")} placeholder="6-digit pincode" keyboardType="number-pad" maxLength={6} />
-              <TouchableOpacity
-                style={styles.defaultRow}
-                onPress={() => setForm((f) => ({ ...f, isDefault: !f.isDefault }))}
-                activeOpacity={0.7}
-              >
-                <Ionicons
-                  name={form.isDefault ? "checkbox" : "square-outline"}
-                  size={20}
-                  color={form.isDefault ? T.primary : T.text.muted}
-                />
-                <Text style={styles.defaultText}>Set as default delivery address</Text>
-              </TouchableOpacity>
-              {!!error && <Text style={styles.errorText}>{error}</Text>}
-              <Btn title={editingId ? "Save Changes" : "Save Address"} onPress={save} loading={saving} icon="checkmark" style={{ marginTop: 6 }} />
+
+              <Btn title={saving ? "Saving..." : "Save Address"} onPress={save} loading={saving} variant="primary" style={{ marginTop: 14 }} />
             </ScrollView>
           </View>
         </KeyboardAvoidingView>
@@ -233,43 +274,116 @@ export default function AddressesScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#FFFFFF" },
+  root: { flex: 1, backgroundColor: tokens.colors.canvas },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  subHeader: {
-    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    paddingHorizontal: 20, paddingVertical: 12,
-    borderBottomWidth: 1, borderBottomColor: T.border.color,
+
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 18,
+    paddingTop: 52,
+    paddingBottom: 14,
+    backgroundColor: tokens.colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: tokens.colors.borderLight,
   },
-  countText: { fontSize: 13, color: T.text.secondary, fontWeight: "600" },
+  backBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: tokens.colors.surfaceAlt,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: tokens.colors.border,
+    marginRight: 12,
+  },
+  title: { fontSize: 18, fontWeight: "900", color: tokens.colors.ink },
+  sub: { fontSize: 11, color: tokens.colors.textSecondary },
   addBtn: {
-    flexDirection: "row", alignItems: "center", gap: 5,
-    backgroundColor: T.primary, borderRadius: 999, paddingHorizontal: 14, height: 34,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: tokens.colors.ink,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  addBtnText: { color: "#FFFFFF", fontSize: 12, fontWeight: "700" },
-  card: {
-    backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1,
-    borderColor: T.border.color, padding: 16, marginBottom: 12, ...T.shadow.card,
+
+  addrCard: {
+    backgroundColor: tokens.colors.surface,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: tokens.colors.border,
+    marginBottom: 12,
+    ...tokens.shadow.card,
   },
-  cardTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },
-  labelRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-  labelText: { fontSize: 14, fontWeight: "800", color: T.text.primary },
-  iconBtn: {
-    width: 32, height: 32, borderRadius: 16, backgroundColor: T.bg.secondary,
-    alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: T.border.color,
+  cardTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
   },
-  nameText: { fontSize: 13, fontWeight: "700", color: T.text.primary, marginBottom: 3 },
-  addrText: { fontSize: 12, color: T.text.secondary, lineHeight: 17 },
-  modalWrap: {
-    flex: 1, backgroundColor: "rgba(24,24,24,0.45)",
-    justifyContent: "flex-end",
+  labelRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  label: { fontSize: 13, fontWeight: "800", color: tokens.colors.ink },
+  defaultPill: {
+    backgroundColor: tokens.colors.accentSoft,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
   },
-  modalCard: {
-    backgroundColor: "#FFFFFF", borderTopLeftRadius: 24, borderTopRightRadius: 24,
-    padding: 20, maxHeight: "88%",
+  defaultPillText: { fontSize: 9.5, fontWeight: "800", color: tokens.colors.accentStrong },
+  iconActions: { flexDirection: "row", gap: 10 },
+  iconBtn: { padding: 4 },
+
+  name: { fontSize: 14, fontWeight: "800", color: tokens.colors.ink, marginBottom: 2 },
+  street: { fontSize: 12.5, color: tokens.colors.textSecondary, lineHeight: 18 },
+  cityLine: { fontSize: 12.5, color: tokens.colors.textSecondary, marginBottom: 4 },
+  phone: { fontSize: 12, fontWeight: "600", color: tokens.colors.ink },
+
+  makeDefaultBtn: {
+    marginTop: 10,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: tokens.colors.borderLight,
   },
-  modalHead: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
-  modalTitle: { fontSize: 19, fontWeight: "900", color: T.text.primary, letterSpacing: -0.3 },
-  defaultRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 2, marginBottom: 4 },
-  defaultText: { fontSize: 13, color: T.text.primary, fontWeight: "600" },
-  errorText: { fontSize: 12, color: T.red, marginTop: 6 },
+  makeDefaultText: { fontSize: 11.5, fontWeight: "700", color: tokens.colors.accentStrong },
+
+  modalBackdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" },
+  modalContent: {
+    backgroundColor: tokens.colors.surface,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 20,
+    maxHeight: "85%",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 14,
+  },
+  modalTitle: { fontSize: 18, fontWeight: "900", color: tokens.colors.ink },
+  errorBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: tokens.colors.errorBg,
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  errorText: { fontSize: 12, color: tokens.colors.error, fontWeight: "600" },
+  labelPills: { flexDirection: "row", gap: 8, marginBottom: 12 },
+  pill: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: tokens.colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: tokens.colors.border,
+  },
+  pillActive: { backgroundColor: tokens.colors.ink, borderColor: tokens.colors.ink },
+  pillText: { fontSize: 12, fontWeight: "600", color: tokens.colors.textSecondary },
+  pillTextActive: { color: "#FFFFFF" },
 });
