@@ -244,7 +244,7 @@ export default function HomeScreen({ navigation }) {
                 key={b.name}
                 style={styles.brandPillCard}
                 activeOpacity={0.75}
-                onPress={() => navigation.navigate("SearchFilter", { initialQuery: b.name })}
+                onPress={() => navigation.navigate("CategoryBrand", { brand: b.name })}
               >
                 <View style={styles.brandIconWrap}>
                   <Ionicons name={b.icon} size={20} color={tokens.colors.ink} />

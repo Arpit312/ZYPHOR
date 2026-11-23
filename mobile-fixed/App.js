@@ -59,6 +59,11 @@ import SupportScreen from "./src/screens/main/SupportScreen";
 import CompareScreen from "./src/screens/main/CompareScreen";
 import SellerScreen from "./src/screens/main/SellerScreen";
 import RepairTicketsScreen from "./src/screens/main/RepairTicketsScreen";
+import CategoryBrandScreen from "./src/screens/main/CategoryBrandScreen";
+import OffersScreen from "./src/screens/main/OffersScreen";
+import SellerDashboardScreen from "./src/screens/main/SellerDashboardScreen";
+import MerchantKYCScreen from "./src/screens/main/MerchantKYCScreen";
+import ReferralRewardsScreen from "./src/screens/main/ReferralRewardsScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -86,6 +91,11 @@ function HomeStack() {
       <Stack.Screen name="OrderSuccess" component={OrderSuccessScreen} options={{ headerShown: false }} />
       <Stack.Screen name="PaymentMethods" component={PaymentMethodsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="DevicePassport" component={DevicePassportScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="CategoryBrand" component={CategoryBrandScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Offers" component={OffersScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="SellerDashboard" component={SellerDashboardScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="MerchantKYC" component={MerchantKYCScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="ReferralRewards" component={ReferralRewardsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="IMEICheck" component={IMEICheckScreen} options={{ title: "IMEI Verification" }} />
       <Stack.Screen name="Advisor" component={AIAdvisorScreen} options={{ headerShown: false }} />
       <Stack.Screen name="PricingAgent" component={PricingAgentScreen} options={{ title: "AI Price Check" }} />
@@ -140,6 +150,11 @@ function AccountStack() {
       <Stack.Screen name="OrderSuccess" component={OrderSuccessScreen} options={{ headerShown: false }} />
       <Stack.Screen name="PaymentMethods" component={PaymentMethodsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="DevicePassport" component={DevicePassportScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="CategoryBrand" component={CategoryBrandScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Offers" component={OffersScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="SellerDashboard" component={SellerDashboardScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="MerchantKYC" component={MerchantKYCScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="ReferralRewards" component={ReferralRewardsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="MyListings" component={MyListingsScreen} options={{ title: "My Listings" }} />
       <Stack.Screen name="MyOrders" component={MyOrdersScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Subscription" component={SubscriptionScreen} options={{ title: "Subscription Plans" }} />

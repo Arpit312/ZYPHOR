@@ -139,6 +139,30 @@ export default function DashboardScreen({ navigation }) {
             </TouchableOpacity>
           )}
 
+          <TouchableOpacity onPress={() => navigation.navigate("Offers")} style={[styles.menuItem, styles.menuItemBorder]}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="pricetag-outline" size={18} color={T.primary} />
+            </View>
+            <Text style={styles.menuLabel}>Coupons, Offers & No-Cost EMI</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate("ReferralRewards")} style={[styles.menuItem, styles.menuItemBorder]}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="gift-outline" size={18} color={T.primary} />
+            </View>
+            <Text style={styles.menuLabel}>Referral & Escrow Credits</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate("SellerDashboard")} style={[styles.menuItem, styles.menuItemBorder]}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="stats-chart-outline" size={18} color={T.primary} />
+            </View>
+            <Text style={styles.menuLabel}>Seller Command Centre & Analytics</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
+          </TouchableOpacity>
+
           <TouchableOpacity onPress={() => navigation.navigate("PaymentMethods")} style={[styles.menuItem, styles.menuItemBorder]}>
             <View style={styles.menuIcon}>
               <Ionicons name="card-outline" size={18} color={T.primary} />

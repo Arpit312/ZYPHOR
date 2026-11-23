@@ -558,6 +558,31 @@ export const StatCard = ({ icon, value, label, color = tokens.colors.ink }) => (
   </View>
 );
 
+export const OfflineBanner = ({ onRetry }) => (
+  <View style={styles.offlineBanner}>
+    <Ionicons name="cloud-offline-outline" size={16} color="#FFFFFF" />
+    <Text style={styles.offlineText}>Offline • Reconnecting to ZYPHOR servers...</Text>
+    {onRetry && (
+      <TouchableOpacity onPress={onRetry} style={styles.offlineRetryBtn} activeOpacity={0.7}>
+        <Text style={styles.offlineRetryText}>Retry</Text>
+      </TouchableOpacity>
+    )}
+  </View>
+);
+
+export const ErrorCard = ({ message, onRetry }) => (
+  <View style={styles.errorCardWrap}>
+    <Ionicons name="alert-circle-outline" size={32} color={tokens.colors.error} />
+    <Text style={styles.errorCardTitle}>Network Connection Interrupted</Text>
+    <Text style={styles.errorCardMsg}>{message || "Unable to reach ZYPHOR servers. Please check your data or Wi-Fi connection."}</Text>
+    {onRetry && (
+      <TouchableOpacity onPress={onRetry} style={styles.errorCardBtn} activeOpacity={0.75}>
+        <Text style={styles.errorCardBtnText}>Retry Connection</Text>
+      </TouchableOpacity>
+    )}
+  </View>
+);
+
 const styles = StyleSheet.create({
   headerBar: {
     flexDirection: "row",
@@ -968,4 +993,66 @@ const styles = StyleSheet.create({
   },
   statVal: { fontSize: 18, fontWeight: "900" },
   statLabel: { fontSize: 10, color: tokens.colors.textSecondary, textAlign: "center", fontWeight: "600" },
+
+  offlineBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: tokens.colors.ink,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 8,
+  },
+  offlineText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#FFFFFF",
+    flex: 1,
+  },
+  offlineRetryBtn: {
+    backgroundColor: tokens.colors.accent,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  offlineRetryText: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: tokens.colors.ink,
+  },
+
+  errorCardWrap: {
+    backgroundColor: tokens.colors.surface,
+    borderRadius: 18,
+    padding: 24,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: tokens.colors.error + "40",
+    margin: 16,
+  },
+  errorCardTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: tokens.colors.ink,
+    marginTop: 10,
+    marginBottom: 4,
+  },
+  errorCardMsg: {
+    fontSize: 12,
+    color: tokens.colors.textSecondary,
+    textAlign: "center",
+    lineHeight: 18,
+    marginBottom: 16,
+  },
+  errorCardBtn: {
+    backgroundColor: tokens.colors.ink,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  errorCardBtnText: {
+    fontSize: 12,
+    fontWeight: "800",
+    color: "#FFFFFF",
+  },
 });
