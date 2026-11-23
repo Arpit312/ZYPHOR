@@ -63,6 +63,8 @@ const e = (err) => err.response?.data?.error || err.message || "Something went w
 
 export const authAPI = {
   login: (d) => api.post("/auth/login", d),
+  sendOTP: (d) => api.post("/auth/send-otp", d),
+  verifyOTP: (d) => api.post("/auth/verify-otp", d),
   signup: (d) => api.post("/auth/signup", d),
   me: () => api.get("/auth/me"),
   updateProfile: (d) => api.patch("/auth/profile", d),

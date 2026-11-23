@@ -139,14 +139,6 @@ export default function DashboardScreen({ navigation }) {
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity onPress={() => navigation.navigate("Offers")} style={[styles.menuItem, styles.menuItemBorder]}>
-            <View style={styles.menuIcon}>
-              <Ionicons name="pricetag-outline" size={18} color={T.primary} />
-            </View>
-            <Text style={styles.menuLabel}>Coupons, Offers & No-Cost EMI</Text>
-            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
-          </TouchableOpacity>
-
           <TouchableOpacity onPress={() => navigation.navigate("ReferralRewards")} style={[styles.menuItem, styles.menuItemBorder]}>
             <View style={styles.menuIcon}>
               <Ionicons name="gift-outline" size={18} color={T.primary} />
@@ -171,11 +163,11 @@ export default function DashboardScreen({ navigation }) {
             <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => navigation.navigate("DevicePassport")} style={[styles.menuItem, styles.menuItemBorder]}>
+          <TouchableOpacity onPress={() => navigation.navigate("DeviceDiagnostic")} style={[styles.menuItem, styles.menuItemBorder]}>
             <View style={styles.menuIcon}>
-              <Ionicons name="shield-checkmark-outline" size={18} color={T.primary} />
+              <Ionicons name="hardware-chip-outline" size={18} color={T.primary} />
             </View>
-            <Text style={styles.menuLabel}>Digital Device Passport (45-Pt Sample)</Text>
+            <Text style={styles.menuLabel}>Device Hardware Diagnostics (Real-time)</Text>
             <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
           </TouchableOpacity>
 

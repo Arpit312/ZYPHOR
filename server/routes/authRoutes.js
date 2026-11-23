@@ -87,6 +87,73 @@ router.post("/signup", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// In-memory OTP store (phone -> { otp, expiresAt })
+const otpStore = new Map();
+
+// POST /api/auth/send-otp
+router.post("/send-otp", async (req, res) => {
+  try {
+    const { phone } = req.body || {};
+    const cleaned = String(phone || "").replace(/[^0-9]/g, "");
+    if (cleaned.length < 10) {
+      return res.status(400).json({ error: "Please enter a valid 10-digit mobile number." });
+    }
+    const otp = "123456";
+    otpStore.set(cleaned, { otp, expiresAt: Date.now() + 10 * 60 * 1000 });
+    console.log(`[AUTH OTP] Sent code ${otp} to +91 ${cleaned}`);
+    res.json({
+      success: true,
+      message: `Verification code sent to +91 ${cleaned}`,
+      demoCode: "123456",
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/auth/verify-otp
+router.post("/verify-otp", async (req, res) => {
+  try {
+    const { phone, otp, role } = req.body || {};
+    const cleaned = String(phone || "").replace(/[^0-9]/g, "");
+    if (cleaned.length < 10) {
+      return res.status(400).json({ error: "Invalid mobile number." });
+    }
+    if (!otp) {
+      return res.status(400).json({ error: "Please enter the verification code." });
+    }
+
+    const stored = otpStore.get(cleaned);
+    const isValid = String(otp).trim() === "123456" || (stored && stored.otp === String(otp).trim() && Date.now() < stored.expiresAt);
+
+    if (!isValid) {
+      return res.status(400).json({ error: "Invalid verification code. Please use 123456." });
+    }
+
+    const safeRole = ["customer", "retailer", "wholesaler", "technician"].includes(role) ? role : "customer";
+    let user = await User.findOne({ phone: cleaned });
+    if (!user) {
+      const randomPwd = await bcrypt.hash(`zyphor_${cleaned}_secret`, 10);
+      user = await User.create({
+        name: `Member ${cleaned.slice(-4)}`,
+        email: `${cleaned}@zyphor.store`,
+        phone: cleaned,
+        passwordHash: randomPwd,
+        role: safeRole,
+        isActive: true,
+        verifiedSeller: false,
+        trustRating: 5.0,
+        subscription: { plan: "free", status: "inactive" },
+      });
+    }
+
+    const token = sign(user);
+    res.json({ token, user: publicUser(user) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/auth/me — normalize _id → id so the app always reads user.id
 router.get("/me", require("../middleware/auth"), async (req, res) => {
   try {

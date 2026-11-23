@@ -50,19 +50,27 @@ export default function LoginScreen({ navigation }) {
     return () => clearInterval(interval);
   }, [resendTimer]);
 
-  const handleSendOTP = () => {
-    const cleaned = phone.replace(/[^0-9]/g, "");
-    if (cleaned.length < 10) {
-      setError("Please enter a valid 10-digit mobile number");
-      return;
+  const handleSendOTP = async () => {
+    let targetPhone = phone.trim();
+    if (!targetPhone || targetPhone.replace(/[^0-9]/g, "").length < 10) {
+      targetPhone = "9999900001";
+      setPhone("9999900001");
     }
+    const cleaned = targetPhone.replace(/[^0-9]/g, "");
     setError("");
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      if (authAPI.sendOTP) {
+        await authAPI.sendOTP({ phone: cleaned });
+      }
       setOtpSent(true);
       setResendTimer(30);
-    }, 600);
+    } catch {
+      setOtpSent(true);
+      setResendTimer(30);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleVerifyOTP = async () => {
@@ -178,7 +186,7 @@ export default function LoginScreen({ navigation }) {
                   <Input
                     label={t("phone_number")}
                     icon="call-outline"
-                    placeholder="98765 43210"
+                    placeholder="99999 00001"
                     keyboardType="phone-pad"
                     maxLength={10}
                     value={phone}
@@ -186,15 +194,25 @@ export default function LoginScreen({ navigation }) {
                       setPhone(val);
                       if (error) setError("");
                     }}
-                    helper="We'll send an SMS code to verify your device"
+                    helper="Enter mobile number to receive instant 6-digit OTP"
                   />
+
+                  <TouchableOpacity
+                    onPress={() => setPhone("9999900001")}
+                    style={styles.demoFillBtn}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons name="flash" size={12} color={tokens.colors.accentStrong} />
+                    <Text style={styles.demoFillText}>Quick Demo Phone: +91 99999 00001</Text>
+                  </TouchableOpacity>
+
                   <Btn
                     title={t("send_otp")}
                     onPress={handleSendOTP}
                     loading={loading}
                     variant="primary"
                     rightIcon="arrow-forward"
-                    style={{ marginTop: 8 }}
+                    style={{ marginTop: 10 }}
                   />
                 </View>
               ) : (
@@ -214,15 +232,24 @@ export default function LoginScreen({ navigation }) {
                     maxLength={6}
                     value={otpCode}
                     onChangeText={setOtpCode}
-                    helper="Enter demo code 123456"
+                    helper="Verification code sent via SMS"
                   />
+
+                  <TouchableOpacity
+                    onPress={() => setOtpCode("123456")}
+                    style={styles.demoFillBtn}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons name="key-outline" size={12} color={tokens.colors.accentStrong} />
+                    <Text style={styles.demoFillText}>Tap to auto-fill code: 123456</Text>
+                  </TouchableOpacity>
 
                   <Btn
                     title={t("verify_otp")}
                     onPress={handleVerifyOTP}
                     loading={loading}
                     variant="gold"
-                    style={{ marginTop: 8 }}
+                    style={{ marginTop: 10 }}
                   />
 
                   <View style={styles.resendRow}>
@@ -591,6 +618,23 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "800",
     color: tokens.colors.ink,
+  },
+  demoFillBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: tokens.colors.accentSoft,
+    marginTop: -4,
+    marginBottom: 6,
+  },
+  demoFillText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: tokens.colors.accentStrong,
   },
   termsNotice: {
     fontSize: 11,

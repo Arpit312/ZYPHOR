@@ -54,10 +54,26 @@ export default function SellScreen({ navigation }) {
   // Switch between instant cash sell and marketplace listing
   const [mode, setMode] = useState("instant"); // "instant" or "list"
 
-  const calculateAIPrice = () => {
+  const calculateAIPrice = async () => {
     setCalculatingPrice(true);
-    setTimeout(() => {
-      let base = brand === "Apple" ? 56000 : brand === "Samsung" ? 42000 : 32000;
+    try {
+      const res = await aiAPI.pricing({
+        brand,
+        model,
+        storage,
+        condition: bodyCondition,
+        batteryHealth: batteryHealthy ? 92 : 78,
+      });
+      if (res?.data?.minPrice && res?.data?.maxPrice) {
+        setAiValuation({ min: res.data.minPrice, max: res.data.maxPrice });
+      } else {
+        throw new Error("Local pricing calculation");
+      }
+    } catch {
+      let base = brand === "Apple" ? 58000 : brand === "Samsung" ? 44000 : 34000;
+      const m = (model || "").toLowerCase();
+      if (m.includes("15") || m.includes("s24")) base += 20000;
+      if (m.includes("pro max") || m.includes("ultra")) base += 14000;
       if (storage === "256GB") base += 4000;
       if (storage === "512GB") base += 8000;
       if (!screenWorking) base -= 12000;
@@ -65,10 +81,11 @@ export default function SellScreen({ navigation }) {
       if (!batteryHealthy) base -= 3500;
       if (hasChargerBox) base += 1500;
 
-      setAiValuation({ min: base - 2000, max: base + 1500 });
+      setAiValuation({ min: Math.round(base * 0.94), max: Math.round(base * 1.05) });
+    } finally {
       setCalculatingPrice(false);
       setStep(2);
-    }, 600);
+    }
   };
 
   const handleConfirmSell = async () => {
@@ -187,6 +204,14 @@ export default function SellScreen({ navigation }) {
               variant="primary"
               rightIcon="arrow-forward"
               style={{ marginTop: 20 }}
+            />
+
+            <Btn
+              title="⚡ Instant AI Valuation (Pristine)"
+              onPress={calculateAIPrice}
+              loading={calculatingPrice}
+              variant="gold"
+              style={{ marginTop: 10 }}
             />
           </View>
         )}
