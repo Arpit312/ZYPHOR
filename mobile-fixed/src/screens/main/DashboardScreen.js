@@ -139,6 +139,30 @@ export default function DashboardScreen({ navigation }) {
             </TouchableOpacity>
           )}
 
+          <TouchableOpacity onPress={() => navigation.navigate("OrderTracking")} style={[styles.menuItem, styles.menuItemBorder]}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="time-outline" size={18} color={T.primary} />
+            </View>
+            <Text style={styles.menuLabel}>Active Orders & 48h Escrow Window</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate("Settings")} style={[styles.menuItem, styles.menuItemBorder]}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="settings-outline" size={18} color={T.primary} />
+            </View>
+            <Text style={styles.menuLabel}>Settings (Language & Preferences)</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate("HelpLegal")} style={[styles.menuItem, styles.menuItemBorder]}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="shield-checkmark-outline" size={18} color={T.primary} />
+            </View>
+            <Text style={styles.menuLabel}>Help Centre, Warranties & Grievance</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.text.secondary} />
+          </TouchableOpacity>
+
           <TouchableOpacity onPress={() => navigation.navigate("MyOrders")} style={[styles.menuItem, styles.menuItemBorder]}>
             <View style={styles.menuIcon}>
               <Ionicons name="bag-check-outline" size={18} color={T.primary} />

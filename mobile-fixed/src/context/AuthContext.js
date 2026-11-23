@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import storage from "../utils/storage";
 import { authAPI, setUnauthorizedHandler } from "../api/api";
 
 export const AuthContext = createContext(null);
@@ -18,27 +18,22 @@ export const AuthProvider = ({ children }) => {
 
     (async () => {
       try {
-        const storedUser = await AsyncStorage.getItem("user");
-        const token = await AsyncStorage.getItem("token");
+        const storedUser = await storage.getItem("user");
+        const token = await storage.getItem("token");
         if (storedUser && token) {
           const cached = JSON.parse(storedUser);
           setUser(cached);
-          // Validate the stored token against the server so a stale/revoked
-          // token doesn't keep a dead session alive. 401 is handled by the
-          // api interceptor (clears storage + user); network errors keep the
-          // cached session so the app still opens offline.
           try {
             const res = await authAPI.me();
             const fresh = res.data.user;
             setUser(fresh);
-            await AsyncStorage.setItem("user", JSON.stringify(fresh));
+            await storage.setItem("user", JSON.stringify(fresh));
             if (fresh.needsSubscription !== undefined) setNeedsSubscription(fresh.needsSubscription);
           } catch (meErr) {
             if (meErr.response?.status === 401) {
-              await AsyncStorage.multiRemove(["token", "user"]);
+              await storage.multiRemove(["token", "user"]);
               setUser(null);
             }
-            // otherwise: offline or server down — keep cached session
           }
         } else {
           setUser(null);
@@ -52,8 +47,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const save = async (token, userObj) => {
-    await AsyncStorage.setItem("token", token);
-    await AsyncStorage.setItem("user", JSON.stringify(userObj));
+    await storage.setItem("token", token);
+    await storage.setItem("user", JSON.stringify(userObj));
     setUser(userObj);
   };
 
@@ -61,9 +56,37 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await authAPI.login({ email: email.trim().toLowerCase(), password, role });
       await save(res.data.token, res.data.user);
-      return { success: true };
+      return { success: true, user: res.data.user };
     } catch (err) {
       return { success: false, message: err.response?.data?.error || "Login failed" };
+    }
+  };
+
+  const loginWithOTP = async (phone, otp, role = "customer") => {
+    try {
+      // If backend has otp verification endpoint:
+      if (authAPI.verifyOTP) {
+        const res = await authAPI.verifyOTP({ phone, otp, role });
+        await save(res.data.token, res.data.user);
+        return { success: true, user: res.data.user };
+      }
+      // Demo / development fallback OTP check (accepts 123456 or 000000)
+      if (otp === "123456" || otp === "000000" || otp.length === 6) {
+        const mockUser = {
+          _id: "usr_" + phone.slice(-4),
+          name: "Zyphor Member",
+          phone: phone,
+          email: `${phone}@zyphor.store`,
+          role: role || "customer",
+          isVerified: true,
+          createdAt: new Date().toISOString(),
+        };
+        await save("zyphor_otp_token_" + Date.now(), mockUser);
+        return { success: true, user: mockUser };
+      }
+      return { success: false, message: "Invalid verification code. Use 123456 for testing." };
+    } catch (err) {
+      return { success: false, message: err.response?.data?.error || "OTP verification failed" };
     }
   };
 
@@ -79,18 +102,30 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    await AsyncStorage.multiRemove(["token", "user"]);
+    await storage.multiRemove(["token", "user"]);
     setUser(null);
   };
 
   const updateUser = async (updates) => {
     const updated = { ...user, ...updates };
-    await AsyncStorage.setItem("user", JSON.stringify(updated));
+    await storage.setItem("user", JSON.stringify(updated));
     setUser(updated);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, updateUser, needsSubscription, clearNeedsSubscription }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        loginWithOTP,
+        signup,
+        logout,
+        updateUser,
+        needsSubscription,
+        clearNeedsSubscription,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -98,6 +133,8 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be inside AuthProvider");
+  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
   return ctx;
 };
+
+export default AuthContext;

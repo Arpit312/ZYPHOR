@@ -4,10 +4,18 @@ import { NavigationContainer, createNavigationContainerRef } from "@react-naviga
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
+import { useFonts, Sora_600SemiBold, Sora_700Bold } from "@expo-google-fonts/sora";
+import {
+  Manrope_400Regular,
+  Manrope_500Medium,
+  Manrope_600SemiBold,
+  Manrope_700Bold,
+} from "@expo-google-fonts/manrope";
 import { AuthProvider, AuthContext } from "./src/context/AuthContext";
 import { CartProvider } from "./src/context/CartContext";
 import { WishlistProvider } from "./src/context/WishlistContext";
 import { CompareProvider } from "./src/context/CompareContext";
+import { I18nProvider } from "./src/i18n/I18nContext";
 import T from "./src/styles/theme";
 import AppSplashScreen from "./src/components/AppSplashScreen";
 
@@ -15,14 +23,20 @@ import AppSplashScreen from "./src/components/AppSplashScreen";
 import LoginScreen from "./src/screens/auth/LoginScreen";
 import SignupScreen from "./src/screens/auth/SignupScreen";
 import ForgotPasswordScreen from "./src/screens/auth/ForgotPasswordScreen";
+import OnboardingScreen from "./src/screens/auth/OnboardingScreen";
 
 // Main Screens
 import HomeScreen from "./src/screens/main/HomeScreen";
 import MarketplaceScreen from "./src/screens/main/MarketplaceScreen";
+import SearchFilterScreen from "./src/screens/main/SearchFilterScreen";
 import PartsScreen from "./src/screens/main/PartsScreen";
 import ListingDetailScreen from "./src/screens/main/ListingDetailScreen";
 import CartScreen from "./src/screens/main/CartScreen";
 import CheckoutScreen from "./src/screens/main/CheckoutScreen";
+import OrderTrackingScreen from "./src/screens/main/OrderTrackingScreen";
+import ReturnDisputeScreen from "./src/screens/main/ReturnDisputeScreen";
+import SettingsScreen from "./src/screens/main/SettingsScreen";
+import HelpLegalScreen from "./src/screens/main/HelpLegalScreen";
 import RepairScreen from "./src/screens/main/RepairScreen";
 import AIAdvisorScreen from "./src/screens/main/AIAdvisorScreen";
 import PricingAgentScreen from "./src/screens/main/PricingAgentScreen";
@@ -60,9 +74,12 @@ function HomeStack() {
   return (
     <Stack.Navigator screenOptions={SCREEN_OPT}>
       <Stack.Screen name="HomeMain" component={HomeScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="SearchFilter" component={SearchFilterScreen} options={{ headerShown: false }} />
       <Stack.Screen name="ListingDetail" component={ListingDetailScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="OrderTracking" component={OrderTrackingScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="ReturnDispute" component={ReturnDisputeScreen} options={{ headerShown: false }} />
       <Stack.Screen name="IMEICheck" component={IMEICheckScreen} options={{ title: "IMEI Verification" }} />
       <Stack.Screen name="Advisor" component={AIAdvisorScreen} options={{ headerShown: false }} />
       <Stack.Screen name="PricingAgent" component={PricingAgentScreen} options={{ title: "AI Price Check" }} />
@@ -74,6 +91,7 @@ function MarketStack() {
   return (
     <Stack.Navigator screenOptions={SCREEN_OPT}>
       <Stack.Screen name="Marketplace" component={MarketplaceScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="SearchFilter" component={SearchFilterScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Parts" component={PartsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="ListingDetail" component={ListingDetailScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
@@ -109,6 +127,10 @@ function AccountStack() {
     <Stack.Navigator screenOptions={SCREEN_OPT}>
       <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: "Edit Profile" }} />
+      <Stack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="HelpLegal" component={HelpLegalScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="OrderTracking" component={OrderTrackingScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="ReturnDispute" component={ReturnDisputeScreen} options={{ headerShown: false }} />
       <Stack.Screen name="MyListings" component={MyListingsScreen} options={{ title: "My Listings" }} />
       <Stack.Screen name="MyOrders" component={MyOrdersScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Subscription" component={SubscriptionScreen} options={{ title: "Subscription Plans" }} />
@@ -173,6 +195,7 @@ function TabNavigator() {
 function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Signup" component={SignupScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
@@ -199,9 +222,18 @@ function RootNavigator() {
     return () => { cancelled = true; };
   }, [user, needsSubscription]);
 
+  const [fontsLoaded] = useFonts({
+    Sora_600SemiBold,
+    Sora_700Bold,
+    Manrope_400Regular,
+    Manrope_500Medium,
+    Manrope_600SemiBold,
+    Manrope_700Bold,
+  });
+
   const [showSplash, setShowSplash] = useState(true);
 
-  if (loading || showSplash) {
+  if (loading || !fontsLoaded || showSplash) {
     return <AppSplashScreen onFinish={() => setShowSplash(false)} />;
   }
   return (
@@ -214,14 +246,16 @@ function RootNavigator() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <WishlistProvider>
-        <CartProvider>
-          <CompareProvider>
-            <RootNavigator />
-          </CompareProvider>
-        </CartProvider>
-      </WishlistProvider>
-    </AuthProvider>
+    <I18nProvider>
+      <AuthProvider>
+        <WishlistProvider>
+          <CartProvider>
+            <CompareProvider>
+              <RootNavigator />
+            </CompareProvider>
+          </CartProvider>
+        </WishlistProvider>
+      </AuthProvider>
+    </I18nProvider>
   );
 }

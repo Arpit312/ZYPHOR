@@ -7,27 +7,39 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  StatusBar,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import T from "../../styles/theme";
+import { tokens } from "../../theme/tokens";
 import { Btn, Input } from "../../components/UI";
 import { useAuth } from "../../context/AuthContext";
+import { useTranslation } from "../../i18n/I18nContext";
 
 const ROLES = [
-  { value: "customer", label: "Customer", icon: "person-outline", desc: "Buy & sell certified phones", free: true },
-  { value: "retailer", label: "Retailer", icon: "storefront-outline", desc: "Sell & manage storefront", free: false },
-  { value: "wholesaler", label: "Wholesaler", icon: "cube-outline", desc: "Bulk device lots", free: false },
-  { value: "technician", label: "Technician", icon: "construct-outline", desc: "Parts & repair network", free: false },
+  { value: "customer", label: "Customer", icon: "person-outline", desc: "Buy certified phones with 48h escrow", free: true },
+  { value: "retailer", label: "Retailer", icon: "storefront-outline", desc: "Sell & manage certified stock", free: false },
+  { value: "wholesaler", label: "Wholesaler", icon: "cube-outline", desc: "Bulk device lots & lots", free: false },
+  { value: "technician", label: "Technician", icon: "construct-outline", desc: "OEM parts & repair lab", free: false },
 ];
 
 export default function SignupScreen({ navigation }) {
   const [step, setStep] = useState(0);
   const [role, setRole] = useState("customer");
-  const [form, setForm] = useState({ name: "", email: "", password: "", city: "", businessName: "", gstNumber: "" });
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    password: "",
+    city: "",
+    businessName: "",
+    gstNumber: "",
+  });
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { signup } = useAuth();
+  const { t, locale } = useTranslation();
+
   const set = (k) => (v) => setForm((f) => ({ ...f, [k]: v }));
 
   const handleSignup = async () => {
@@ -49,230 +61,368 @@ export default function SignupScreen({ navigation }) {
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.root}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.root}
+    >
+      <StatusBar barStyle="dark-content" backgroundColor={tokens.colors.canvas} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        {/* Top Header */}
+        {/* Header Bar */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} activeOpacity={0.7}>
-            <Ionicons name="arrow-back" size={20} color={T.primary} />
+            <Ionicons name="arrow-back" size={20} color={tokens.colors.ink} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Create Account</Text>
           <Text style={styles.headerSubtitle}>
-            Join ZYPHOR — The standard in certified refurbished tech
+            Join ZYPHOR — The benchmark in certified refurbished tech
           </Text>
 
           {/* Stepper */}
           <View style={styles.stepsRow}>
             <View style={[styles.stepItem, step === 0 && styles.stepItemActive]}>
-              <Text style={[styles.stepItemText, step === 0 && styles.stepItemTextActive]}>1. Account Role</Text>
+              <Text style={[styles.stepItemText, step === 0 && styles.stepItemTextActive]}>
+                1. Account Role
+              </Text>
             </View>
             <View style={[styles.stepItem, step === 1 && styles.stepItemActive]}>
-              <Text style={[styles.stepItemText, step === 1 && styles.stepItemTextActive]}>2. Personal Details</Text>
+              <Text style={[styles.stepItemText, step === 1 && styles.stepItemTextActive]}>
+                2. Details
+              </Text>
             </View>
           </View>
         </View>
 
-        {/* Content */}
+        {error ? (
+          <View style={styles.errorBox}>
+            <Ionicons name="alert-circle-outline" size={16} color={tokens.colors.error} />
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        ) : null}
+
         {step === 0 ? (
           <View style={styles.stepContent}>
             <Text style={styles.stepHeading}>Select your account role</Text>
             <Text style={styles.stepSub}>Individual buyers join free. Merchants access trade tools.</Text>
 
-            <View style={styles.roleGrid}>
+            <View style={{ gap: 12, marginTop: 16 }}>
               {ROLES.map((r) => {
                 const active = role === r.value;
                 return (
                   <TouchableOpacity
                     key={r.value}
-                    style={[styles.roleCard, active && styles.roleCardActive]}
                     onPress={() => setRole(r.value)}
+                    style={[styles.roleCard, active && styles.roleCardActive]}
                     activeOpacity={0.8}
                   >
                     <View style={[styles.roleIconWrap, active && styles.roleIconWrapActive]}>
-                      <Ionicons name={r.icon} size={22} color={active ? "#FFFFFF" : T.primary} />
+                      <Ionicons
+                        name={r.icon}
+                        size={22}
+                        color={active ? "#FFFFFF" : tokens.colors.ink}
+                      />
                     </View>
-                    <Text style={styles.roleLabel}>{r.label}</Text>
-                    <Text style={styles.roleDesc}>{r.desc}</Text>
-                    <View style={[styles.freeTag, { backgroundColor: r.free ? "#E8F5E9" : T.bg.secondary }]}>
-                      <Text style={[styles.freeTagText, { color: r.free ? T.green : T.text.secondary }]}>
-                        {r.free ? "FREE ACCESS" : "TRADE PLAN"}
-                      </Text>
+                    <View style={{ flex: 1 }}>
+                      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                        <Text style={[styles.roleCardTitle, active && styles.roleCardTitleActive]}>
+                          {r.label}
+                        </Text>
+                        {r.free && (
+                          <View style={styles.freeBadge}>
+                            <Text style={styles.freeBadgeText}>FREE</Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text style={styles.roleCardDesc}>{r.desc}</Text>
                     </View>
+                    <Ionicons
+                      name={active ? "radio-button-on" : "radio-button-off"}
+                      size={20}
+                      color={active ? tokens.colors.accent : tokens.colors.border}
+                    />
                   </TouchableOpacity>
                 );
               })}
             </View>
 
-            <Btn title="Continue to Details →" onPress={() => setStep(1)} style={{ marginTop: 12 }} />
+            <Btn
+              title="Continue to Details"
+              onPress={() => setStep(1)}
+              variant="primary"
+              rightIcon="arrow-forward"
+              style={{ marginTop: 24 }}
+            />
           </View>
         ) : (
           <View style={styles.stepContent}>
             <Text style={styles.stepHeading}>Complete your profile</Text>
-            <Text style={styles.stepSub}>Your credentials work across website and mobile app.</Text>
+            <Text style={styles.stepSub}>Signing up as {role.toUpperCase()}</Text>
 
-            {error ? (
-              <View style={styles.errorBox}>
-                <Ionicons name="alert-circle-outline" size={16} color={T.red} />
-                <Text style={styles.errorText}>{error}</Text>
+            <View style={{ marginTop: 16 }}>
+              <Input
+                label="Full Name"
+                icon="person-outline"
+                placeholder="e.g. Arpit Pathak"
+                value={form.name}
+                onChangeText={set("name")}
+              />
+
+              <Input
+                label="Mobile Phone"
+                icon="call-outline"
+                placeholder="10-digit mobile number"
+                keyboardType="phone-pad"
+                value={form.phone}
+                onChangeText={set("phone")}
+              />
+
+              <Input
+                label="Email Address"
+                icon="mail-outline"
+                placeholder="e.g. arpit@zyphor.store"
+                autoCapitalize="none"
+                keyboardType="email-address"
+                value={form.email}
+                onChangeText={set("email")}
+              />
+
+              <Input
+                label="Password"
+                icon="lock-closed-outline"
+                placeholder="At least 8 characters"
+                secureTextEntry={!showPwd}
+                value={form.password}
+                onChangeText={set("password")}
+                right={
+                  <TouchableOpacity onPress={() => setShowPwd(!showPwd)} style={{ padding: 6 }}>
+                    <Ionicons
+                      name={showPwd ? "eye-off-outline" : "eye-outline"}
+                      size={18}
+                      color={tokens.colors.textSecondary}
+                    />
+                  </TouchableOpacity>
+                }
+              />
+
+              <Input
+                label="City / Pincode"
+                icon="location-outline"
+                placeholder="e.g. Mumbai, 400001"
+                value={form.city}
+                onChangeText={set("city")}
+              />
+
+              {role !== "customer" && (
+                <View>
+                  <Input
+                    label="Business Name"
+                    icon="business-outline"
+                    placeholder="e.g. Arpit Tech Hub"
+                    value={form.businessName}
+                    onChangeText={set("businessName")}
+                  />
+                  <Input
+                    label="GSTIN / Trade License (Optional)"
+                    icon="document-text-outline"
+                    placeholder="e.g. 27AAAAA0000A1Z5"
+                    autoCapitalize="characters"
+                    value={form.gstNumber}
+                    onChangeText={set("gstNumber")}
+                  />
+                </View>
+              )}
+
+              <View style={{ flexDirection: "row", gap: 10, marginTop: 14 }}>
+                <Btn
+                  title="Back"
+                  onPress={() => setStep(0)}
+                  variant="secondary"
+                  style={{ flex: 1 }}
+                />
+                <Btn
+                  title="Complete Signup"
+                  onPress={handleSignup}
+                  loading={loading}
+                  variant="gold"
+                  style={{ flex: 2 }}
+                />
               </View>
-            ) : null}
-
-            <Input
-              label="Full Name *"
-              placeholder="Rahul Sharma"
-              value={form.name}
-              onChangeText={set("name")}
-              icon="person-outline"
-            />
-            <Input
-              label="Email Address *"
-              placeholder="name@example.com"
-              value={form.email}
-              onChangeText={set("email")}
-              icon="mail-outline"
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-            <Input
-              label="Password (8+ chars) *"
-              placeholder="Create password"
-              value={form.password}
-              onChangeText={set("password")}
-              icon="lock-closed-outline"
-              secureTextEntry={!showPwd}
-              right={
-                <TouchableOpacity onPress={() => setShowPwd((v) => !v)}>
-                  <Ionicons name={showPwd ? "eye-off-outline" : "eye-outline"} size={18} color={T.text.secondary} />
-                </TouchableOpacity>
-              }
-            />
-            <Input
-              label="City"
-              placeholder="Mumbai"
-              value={form.city}
-              onChangeText={set("city")}
-              icon="location-outline"
-            />
-            {role !== "customer" && (
-              <Input
-                label="Business / Store Name"
-                placeholder="TechHub Enterprises"
-                value={form.businessName}
-                onChangeText={set("businessName")}
-                icon="storefront-outline"
-              />
-            )}
-            {(role === "retailer" || role === "wholesaler") && (
-              <Input
-                label="GST Number (optional)"
-                placeholder="22AAAAA0000A1Z5"
-                value={form.gstNumber}
-                onChangeText={set("gstNumber")}
-                icon="document-text-outline"
-              />
-            )}
-
-            <Btn title="Create Account →" onPress={handleSignup} loading={loading} style={{ marginTop: 8 }} />
-            <TouchableOpacity style={{ alignItems: "center", marginTop: 14 }} onPress={() => setStep(0)}>
-              <Text style={{ fontSize: 13, color: T.text.secondary, fontWeight: "500" }}>← Change role</Text>
-            </TouchableOpacity>
+            </View>
           </View>
         )}
 
-        {/* Footer sign in link */}
-        <TouchableOpacity style={styles.loginFooter} onPress={() => navigation.navigate("Login")}>
-          <Text style={styles.loginFooterText}>
-            Already have an account? <Text style={styles.loginLink}>Sign in</Text>
-          </Text>
-        </TouchableOpacity>
+        {/* Footer */}
+        <View style={styles.footerRow}>
+          <Text style={styles.footerPrompt}>{t("have_account")} </Text>
+          <TouchableOpacity onPress={() => navigation.navigate("Login")} activeOpacity={0.7}>
+            <Text style={styles.footerLink}>{t("sign_in")}</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#FFFFFF" },
-  scroll: { paddingHorizontal: 24, paddingTop: 54, paddingBottom: 40 },
-
-  header: { marginBottom: 24 },
+  root: {
+    flex: 1,
+    backgroundColor: tokens.colors.canvas,
+  },
+  scroll: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingTop: 48,
+    paddingBottom: 36,
+  },
+  header: {
+    marginBottom: 20,
+  },
   backBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: T.bg.secondary,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: tokens.colors.surface,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 14,
     borderWidth: 1,
-    borderColor: T.border.color
+    borderColor: tokens.colors.border,
+    marginBottom: 14,
   },
-  headerTitle: { fontSize: 28, fontWeight: "900", color: T.text.primary, letterSpacing: -0.5 },
-  headerSubtitle: { fontSize: 13, color: T.text.secondary, marginTop: 4, lineHeight: 18 },
-
-  stepsRow: { flexDirection: "row", gap: 10, marginTop: 18 },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "900",
+    color: tokens.colors.ink,
+    letterSpacing: -0.5,
+  },
+  headerSubtitle: {
+    fontSize: 13,
+    color: tokens.colors.textSecondary,
+    marginTop: 3,
+  },
+  stepsRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 18,
+  },
   stepItem: {
     flex: 1,
     paddingVertical: 8,
     alignItems: "center",
-    borderRadius: 8,
-    backgroundColor: T.bg.secondary,
-    borderWidth: 1,
-    borderColor: T.border.color
+    borderBottomWidth: 2,
+    borderBottomColor: tokens.colors.borderLight,
   },
-  stepItemActive: { backgroundColor: T.primary, borderColor: T.primary },
-  stepItemText: { fontSize: 12, fontWeight: "600", color: T.text.secondary },
-  stepItemTextActive: { color: "#FFFFFF" },
-
-  stepContent: { marginTop: 4 },
-  stepHeading: { fontSize: 18, fontWeight: "700", color: T.text.primary },
-  stepSub: { fontSize: 13, color: T.text.secondary, marginTop: 4, marginBottom: 18 },
-
-  roleGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", gap: 12, marginBottom: 12 },
-  roleCard: {
-    width: "48%",
-    backgroundColor: T.bg.secondary,
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1.5,
-    borderColor: T.border.color,
+  stepItemActive: {
+    borderBottomColor: tokens.colors.accent,
   },
-  roleCardActive: {
-    borderColor: T.primary,
-    backgroundColor: "#FFFFFF",
-    ...T.shadow.card
+  stepItemText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: tokens.colors.textMuted,
   },
-  roleIconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: T.border.color
+  stepItemTextActive: {
+    color: tokens.colors.ink,
+    fontWeight: "700",
   },
-  roleIconWrapActive: {
-    backgroundColor: T.primary,
-    borderColor: T.primary
-  },
-  roleLabel: { fontSize: 14, fontWeight: "700", color: T.text.primary, marginBottom: 2 },
-  roleDesc: { fontSize: 11, color: T.text.secondary, marginBottom: 8, lineHeight: 15 },
-  freeTag: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6, alignSelf: "flex-start" },
-  freeTagText: { fontSize: 9, fontWeight: "800", letterSpacing: 0.5 },
-
   errorBox: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "#FEE2E2",
-    borderRadius: 10,
+    backgroundColor: tokens.colors.errorBg,
     padding: 12,
-    marginBottom: 14
+    borderRadius: 10,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: tokens.colors.error + "30",
   },
-  errorText: { fontSize: 13, color: T.red, flex: 1, fontWeight: "500" },
-
-  loginFooter: { alignItems: "center", marginTop: 24 },
-  loginFooterText: { fontSize: 13, color: T.text.secondary },
-  loginLink: { color: T.text.primary, fontWeight: "700" }
+  errorText: {
+    fontSize: 12,
+    color: tokens.colors.error,
+    fontWeight: "600",
+    flex: 1,
+  },
+  stepContent: {
+    backgroundColor: tokens.colors.surface,
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: tokens.colors.border,
+    ...tokens.shadow.card,
+  },
+  stepHeading: {
+    fontSize: 17,
+    fontWeight: "800",
+    color: tokens.colors.ink,
+  },
+  stepSub: {
+    fontSize: 12,
+    color: tokens.colors.textSecondary,
+    marginTop: 2,
+  },
+  roleCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    padding: 14,
+    borderRadius: 14,
+    backgroundColor: tokens.colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: tokens.colors.border,
+  },
+  roleCardActive: {
+    borderColor: tokens.colors.ink,
+    backgroundColor: "#FFFFFF",
+    ...tokens.shadow.subtle,
+  },
+  roleIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: tokens.colors.surface,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: tokens.colors.border,
+  },
+  roleIconWrapActive: {
+    backgroundColor: tokens.colors.ink,
+    borderColor: tokens.colors.ink,
+  },
+  roleCardTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: tokens.colors.ink,
+  },
+  roleCardTitleActive: {
+    color: tokens.colors.ink,
+  },
+  roleCardDesc: {
+    fontSize: 11,
+    color: tokens.colors.textSecondary,
+    marginTop: 2,
+  },
+  freeBadge: {
+    backgroundColor: tokens.colors.successBg,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  freeBadgeText: {
+    fontSize: 9,
+    fontWeight: "800",
+    color: tokens.colors.success,
+  },
+  footerRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 24,
+  },
+  footerPrompt: {
+    fontSize: 13,
+    color: tokens.colors.textSecondary,
+  },
+  footerLink: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: tokens.colors.ink,
+  },
 });

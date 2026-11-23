@@ -1,5 +1,5 @@
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import storage from "../utils/storage";
 import { Platform } from "react-native";
 import Constants from "expo-constants";
 
@@ -41,19 +41,19 @@ if (!process.env.EXPO_PUBLIC_API_URL && !__DEV__) {
 const api = axios.create({ baseURL: BASE, timeout: 20000 });
 
 api.interceptors.request.use(async (config) => {
-  const token = await AsyncStorage.getItem("token");
+  const token = await storage.getItem("token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
 // Lets AuthContext know when a request fails auth, so it can clear the
-// in-memory session too (not just AsyncStorage) and bounce back to Login.
+// in-memory session too (not just storage) and bounce back to Login.
 let onUnauthorized = null;
 export const setUnauthorizedHandler = (fn) => { onUnauthorized = fn; };
 
 api.interceptors.response.use(r => r, async (err) => {
   if (err.response?.status === 401) {
-    await AsyncStorage.multiRemove(["token","user"]);
+    await storage.multiRemove(["token","user"]);
     if (onUnauthorized) onUnauthorized();
   }
   return Promise.reject(err);
