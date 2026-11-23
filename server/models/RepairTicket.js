@@ -1,5 +1,4 @@
-import mongoose from "mongoose";
-import "./User.js";
+const mongoose = require("mongoose");
 
 const RepairTicketSchema = new mongoose.Schema({
   user:            { type: mongoose.Schema.Types.ObjectId, ref: "User" },
@@ -24,4 +23,4 @@ RepairTicketSchema.pre("save", function(next) {
   next();
 });
 
-export default mongoose.models.RepairTicket || mongoose.model("RepairTicket", RepairTicketSchema);
+module.exports = mongoose.models.RepairTicket || mongoose.model("RepairTicket", RepairTicketSchema);

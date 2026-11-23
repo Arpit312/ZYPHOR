@@ -14,7 +14,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "http://10.53.207.120:5000/api"
+        "EXPO_PUBLIC_API_URL": "https://zyphor-1.onrender.com/api"
       }
     },
     "apk": {
@@ -23,7 +23,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "http://10.53.207.120:5000/api"
+        "EXPO_PUBLIC_API_URL": "https://zyphor-1.onrender.com/api"
       }
     },
     "production": {

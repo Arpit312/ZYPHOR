@@ -65,13 +65,19 @@ app.use(morgan("dev"));
 app.use("/uploads", express.static(path.join(__dirname, "public", "uploads")));
 
 // ─── Database (SAME as website) ─────────────────────────────────────────────
-if (!process.env.MONGODB_URI) {
-  console.error("❌ MONGODB_URI is not set in backend/.env — all DB routes will fail. See .env.example");
-} else {
-  mongoose.connect(process.env.MONGODB_URI, { bufferCommands: false })
-    .then(() => console.log("✅ MongoDB connected (shared DB with website)"))
-    .catch(err => console.error("❌ MongoDB:", err.message));
-}
+const DB_URI = process.env.MONGODB_URI ||
+  "mongodb://zyphorapp_db_user:Arpit%40123@ac-3grfudt-shard-00-00.oqakvy3.mongodb.net:27017,ac-3grfudt-shard-00-01.oqakvy3.mongodb.net:27017,ac-3grfudt-shard-00-02.oqakvy3.mongodb.net:27017/zyphor?ssl=true&replicaSet=atlas-xczv29-shard-0&authSource=admin&retryWrites=true&w=majority&appName=Cluster0";
+
+mongoose.connect(DB_URI, { bufferCommands: false })
+  .then(() => console.log("✅ MongoDB connected (shared DB with website)"))
+  .catch(err => console.error("❌ MongoDB:", err.message));
+
+// ─── Root & Health ──────────────────────────────────────────────────────────
+app.get("/", (req, res) => res.json({
+  message: "ZYPHOR Live API is 100% operational!",
+  timestamp: new Date().toISOString(),
+  db: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+}));
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
 app.use("/api/auth",         require("./routes/authRoutes"));

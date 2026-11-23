@@ -2,13 +2,13 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy backend package files from server/ directory
-COPY server/package*.json ./
+# Copy backend package files
+COPY mobile-fixed/backend/package*.json ./
 
 RUN npm install --omit=dev
 
-# Copy backend source code from server/ directory
-COPY server/ ./
+# Copy backend source code
+COPY mobile-fixed/backend/ ./
 
 EXPOSE 5000
 
