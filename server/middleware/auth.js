@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = process.env.JWT_SECRET || "zyphor_dev_secret_change_me_in_production";
+const JWT_SECRET = process.env.JWT_SECRET || "my_super_secret_jwt_key_123_zyphor";
 
 // Same JWT_SECRET as website — cross-platform login works!
 module.exports = function auth(req, res, next) {

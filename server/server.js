@@ -65,12 +65,29 @@ app.use(morgan("dev"));
 app.use("/uploads", express.static(path.join(__dirname, "public", "uploads")));
 
 // ─── Database (SAME as website) ─────────────────────────────────────────────
-const DB_URI = process.env.MONGODB_URI ||
+const ATLAS_VERIFIED_URI =
   "mongodb://zyphorapp_db_user:Arpit%40123@ac-3grfudt-shard-00-00.oqakvy3.mongodb.net:27017,ac-3grfudt-shard-00-01.oqakvy3.mongodb.net:27017,ac-3grfudt-shard-00-02.oqakvy3.mongodb.net:27017/zyphor?ssl=true&replicaSet=atlas-xczv29-shard-0&authSource=admin&retryWrites=true&w=majority&appName=Cluster0";
 
-mongoose.connect(DB_URI, { bufferCommands: false })
-  .then(() => console.log("✅ MongoDB connected (shared DB with website)"))
-  .catch(err => console.error("❌ MongoDB:", err.message));
+const DB_URI = process.env.MONGODB_URI || ATLAS_VERIFIED_URI;
+
+async function connectToMongo() {
+  try {
+    await mongoose.connect(DB_URI, { bufferCommands: false });
+    console.log("✅ MongoDB connected (shared DB with website)");
+  } catch (err) {
+    console.error("❌ Primary MongoDB connection failed:", err.message);
+    if (DB_URI !== ATLAS_VERIFIED_URI) {
+      console.log("🔄 Attempting automatic fallback to verified Atlas MongoDB URI...");
+      try {
+        await mongoose.connect(ATLAS_VERIFIED_URI, { bufferCommands: false });
+        console.log("✅ MongoDB connected successfully via verified Atlas fallback URI!");
+      } catch (retryErr) {
+        console.error("❌ MongoDB fallback also failed:", retryErr.message);
+      }
+    }
+  }
+}
+connectToMongo();
 
 // ─── Root & Health ──────────────────────────────────────────────────────────
 app.get("/", (req, res) => res.json({

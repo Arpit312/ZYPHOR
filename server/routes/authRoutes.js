@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const LoginSession = require("../models/LoginSession");
-const JWT_SECRET = process.env.JWT_SECRET || "zyphor_dev_secret_change_me_in_production";
+const JWT_SECRET = process.env.JWT_SECRET || "my_super_secret_jwt_key_123_zyphor";
 
 const ROLES = ["customer", "retailer", "wholesaler", "technician", "admin"];
 const ROLES_NEEDING_SUB = ["retailer", "wholesaler", "technician"];
